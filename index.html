@@ -146,6 +146,18 @@
     .shake-active {
       animation: screenShake 0.48s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
     }
+    @keyframes nodeShake {
+      0%, 100% { transform: translate(-50%, -50%) rotate(0deg); }
+      20% { transform: translate(calc(-50% - 6px), -50%) rotate(-3deg); }
+      40% { transform: translate(calc(-50% + 6px), -50%) rotate(3deg); }
+      60% { transform: translate(calc(-50% - 4px), -50%) rotate(-2deg); }
+      80% { transform: translate(calc(-50% + 4px), -50%) rotate(2deg); }
+    }
+    .shake-anim {
+      animation: nodeShake 0.48s cubic-bezier(0.36, 0.07, 0.19, 0.97) both !important;
+      border-color: #ef4444 !important;
+      box-shadow: 0 0 22px rgba(239, 68, 68, 0.75) !important;
+    }
     .alarm-flash {
       animation: redAlarmFlash 0.5s ease-in-out 3;
     }
@@ -226,6 +238,54 @@
     .draggable-item.is-dragging {
       opacity: 0.35;
       transform: scale(0.96);
+    }
+
+    /* 📱 MOBILE VIEW OPTIMIZATIONS (Smartphones & Touch Devices) 📱 */
+    button, .cursor-pointer, [onclick] {
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    @media (max-width: 640px) {
+      /* Make top logo banner slim and compact on phone screens */
+      #header-logo-card {
+        flex-direction: row !important;
+        width: 100% !important;
+        padding: 0.6rem 0.85rem !important;
+        gap: 0.85rem !important;
+        border-radius: 1.25rem !important;
+      }
+      #header-logo-img {
+        width: 3.5rem !important;
+        height: 3.5rem !important;
+      }
+      #main-header {
+        padding: 0.85rem 1rem !important;
+        border-radius: 1.25rem !important;
+      }
+      .main-title-svg {
+        width: 2rem !important;
+        height: 2rem !important;
+      }
+      .main-title-text {
+        font-size: 1.25rem !important;
+      }
+      
+      /* Make circle slots on phone boards compact and avoid text overlap */
+      .circle-slot {
+        border-radius: 0.85rem !important;
+      }
+      #node-0 { top: 22% !important; min-height: 16% !important; }
+      #node-1 { top: 36% !important; min-height: 16% !important; }
+      #node-2 { top: 70% !important; min-height: 16% !important; }
+      #node-3 { top: 84% !important; min-height: 16% !important; }
+      #node-4 { top: 70% !important; min-height: 16% !important; }
+      #node-5 { top: 36% !important; min-height: 16% !important; }
+      
+      /* Smooth touch scrolling */
+      html, body {
+        -webkit-overflow-scrolling: touch;
+      }
     }
 
     /* Printable certificate rules */
@@ -410,37 +470,53 @@
       
       // ⛓️ METAL CHAIN BREAK SOUND (Web Audio API Synthesizer - 100% Offline)
       // Produces a sharp metallic snap followed by a rapid iron chain rattle (~0.7s)
+      // 💥 ACTION BREAKING SOUND EFFECT (LOUD CHAIN BREAK, GLASS CRACK & BASS PUNCH) 💥
       playMetalChainBreak() {
         if (!this.enabled) return;
         this.init();
         const now = this.ctx.currentTime;
 
-        // 1. Sharp high-tension metal snap & clang (0 to 0.12s)
+        // 1. Heavy bass impact thud (65Hz -> 28Hz) for visceral physical punch
+        try {
+          const bassOsc = this.ctx.createOscillator();
+          const bassGain = this.ctx.createGain();
+          bassOsc.type = 'sine';
+          bassOsc.frequency.setValueAtTime(65, now);
+          bassOsc.frequency.exponentialRampToValueAtTime(28, now + 0.16);
+          bassGain.gain.setValueAtTime(1.0 * this.volume, now);
+          bassGain.gain.exponentialRampToValueAtTime(0.001, now + 0.20);
+          bassOsc.connect(bassGain);
+          bassGain.connect(this.ctx.destination);
+          bassOsc.start(now);
+          bassOsc.stop(now + 0.21);
+        } catch (e) {}
+
+        // 2. Sharp high-tension metal snap & clang (0 to 0.14s)
         try {
           const snapOsc = this.ctx.createOscillator();
           const snapGain = this.ctx.createGain();
           snapOsc.type = 'sawtooth';
-          snapOsc.frequency.setValueAtTime(2400, now);
-          snapOsc.frequency.exponentialRampToValueAtTime(320, now + 0.08);
+          snapOsc.frequency.setValueAtTime(3200, now);
+          snapOsc.frequency.exponentialRampToValueAtTime(240, now + 0.10);
 
           const snapFilter = this.ctx.createBiquadFilter();
           snapFilter.type = 'bandpass';
-          snapFilter.frequency.setValueAtTime(2600, now);
-          snapFilter.Q.setValueAtTime(4.5, now);
+          snapFilter.frequency.setValueAtTime(2800, now);
+          snapFilter.Q.setValueAtTime(4.0, now);
 
-          snapGain.gain.setValueAtTime(0.95 * this.volume, now);
-          snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
+          snapGain.gain.setValueAtTime(1.0 * this.volume, now);
+          snapGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
 
           snapOsc.connect(snapFilter);
           snapFilter.connect(snapGain);
           snapGain.connect(this.ctx.destination);
           snapOsc.start(now);
-          snapOsc.stop(now + 0.12);
+          snapOsc.stop(now + 0.15);
         } catch (e) {}
 
-        // High metallic crack noise burst
+        // 3. High shattering noise burst (snapping chain & shattered glass shards)
         try {
-          const bufferSize = Math.floor(this.ctx.sampleRate * 0.08);
+          const bufferSize = Math.floor(this.ctx.sampleRate * 0.14);
           const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
           const data = noiseBuffer.getChannelData(0);
           for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
@@ -448,40 +524,159 @@
           noise.buffer = noiseBuffer;
           const nFilter = this.ctx.createBiquadFilter();
           nFilter.type = 'highpass';
-          nFilter.frequency.setValueAtTime(3400, now);
+          nFilter.frequency.setValueAtTime(2800, now);
           const nGain = this.ctx.createGain();
-          nGain.gain.setValueAtTime(0.85 * this.volume, now);
-          nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+          nGain.gain.setValueAtTime(0.95 * this.volume, now);
+          nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
           noise.connect(nFilter);
           nFilter.connect(nGain);
           nGain.connect(this.ctx.destination);
           noise.start(now);
         } catch (e) {}
 
-        // 2. Iron chain links rattle / clink (staggered metal pings from 0.07s to 0.70s)
-        const clinkFreqs = [1920, 2750, 1620, 3200, 2100, 2580];
+        // 4. Staggered resonant iron chain clinks (from 0.05s to 0.75s)
+        const clinkFreqs = [2100, 2850, 1680, 3300, 2300, 2900, 1950, 1420];
         clinkFreqs.forEach((freq, idx) => {
           try {
-            const delay = now + 0.07 + idx * 0.095;
+            const delay = now + 0.04 + idx * 0.075;
             const clinkOsc = this.ctx.createOscillator();
             const clinkGain = this.ctx.createGain();
             clinkOsc.type = 'sine';
             clinkOsc.frequency.setValueAtTime(freq, delay);
-            clinkOsc.frequency.exponentialRampToValueAtTime(freq * 0.94, delay + 0.13);
+            clinkOsc.frequency.exponentialRampToValueAtTime(freq * 0.92, delay + 0.18);
 
-            clinkGain.gain.setValueAtTime((0.40 - idx * 0.04) * this.volume, delay);
-            clinkGain.gain.exponentialRampToValueAtTime(0.0001, delay + 0.15);
+            clinkGain.gain.setValueAtTime((0.55 - idx * 0.05) * this.volume, delay);
+            clinkGain.gain.exponentialRampToValueAtTime(0.0001, delay + 0.20);
 
             clinkOsc.connect(clinkGain);
             clinkGain.connect(this.ctx.destination);
             clinkOsc.start(delay);
-            clinkOsc.stop(delay + 0.16);
+            clinkOsc.stop(delay + 0.21);
           } catch (e) {}
         });
+
+        // 5. Electric arc / spark shimmer (high-voltage link shatter zap)
+        try {
+          const sparkOsc = this.ctx.createOscillator();
+          const sparkGain = this.ctx.createGain();
+          sparkOsc.type = 'triangle';
+          sparkOsc.frequency.setValueAtTime(1400, now + 0.08);
+          sparkOsc.frequency.exponentialRampToValueAtTime(4400, now + 0.24);
+          sparkGain.gain.setValueAtTime(0.35 * this.volume, now + 0.08);
+          sparkGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.28);
+          sparkOsc.connect(sparkGain);
+          sparkGain.connect(this.ctx.destination);
+          sparkOsc.start(now + 0.08);
+          sparkOsc.stop(now + 0.29);
+        } catch (e) {}
       }
 
       playSuccess() {
         this.playEyeEnforcement();
+      }
+
+      // 👏 REALISTIC AUDIENCE APPLAUSE / HAND CLAPPING (تصفيق - Web Audio API Synthesizer)
+      playApplause(durationSeconds = 2.4) {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const totalClaps = Math.floor(durationSeconds * 16);
+        for (let c = 0; c < totalClaps; c++) {
+          const clapTime = now + (c / 16) + (Math.random() * 0.04 - 0.02);
+          for (let b = 0; b < 3; b++) {
+            try {
+              const burstTime = clapTime + b * 0.009;
+              const bufLen = Math.floor(this.ctx.sampleRate * 0.025);
+              const buffer = this.ctx.createBuffer(1, bufLen, this.ctx.sampleRate);
+              const data = buffer.getChannelData(0);
+              for (let i = 0; i < bufLen; i++) data[i] = (Math.random() * 2 - 1);
+              const noise = this.ctx.createBufferSource();
+              noise.buffer = buffer;
+              const filter = this.ctx.createBiquadFilter();
+              filter.type = 'bandpass';
+              filter.frequency.setValueAtTime(1000 + Math.random() * 600, burstTime);
+              filter.Q.setValueAtTime(2.0, burstTime);
+              const gain = this.ctx.createGain();
+              const baseGain = (0.35 + Math.random() * 0.35) * this.volume;
+              gain.gain.setValueAtTime(baseGain, burstTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, burstTime + 0.035);
+              noise.connect(filter);
+              filter.connect(gain);
+              gain.connect(this.ctx.destination);
+              noise.start(burstTime);
+            } catch (e) {}
+          }
+        }
+      }
+
+      // 🚨 TIME'S UP EMERGENCY KLAXON SIREN ALARM (Loud 2.5s Hospital Code Alarm)
+      playTimeUpEmergencyAlarm() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        // 6 alternating high-low oscillating siren sweeps
+        const tones = [880, 660, 920, 680, 960, 720];
+        tones.forEach((freq, idx) => {
+          const t = now + idx * 0.38;
+          try {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sawtooth';
+            osc.frequency.setValueAtTime(freq, t);
+            osc.frequency.exponentialRampToValueAtTime(freq * 0.8, t + 0.35);
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(freq, t);
+            filter.Q.setValueAtTime(2.5, t);
+
+            gain.gain.setValueAtTime(1.0 * this.volume, t);
+            gain.gain.exponentialRampToValueAtTime(0.001, t + 0.37);
+
+            osc.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.38);
+          } catch (e) {}
+        });
+
+        // Deep resonant emergency bass horn
+        try {
+          const horn = this.ctx.createOscillator();
+          const hornGain = this.ctx.createGain();
+          horn.type = 'triangle';
+          horn.frequency.setValueAtTime(115, now);
+          horn.frequency.linearRampToValueAtTime(80, now + 2.2);
+          hornGain.gain.setValueAtTime(0.7 * this.volume, now);
+          hornGain.gain.exponentialRampToValueAtTime(0.001, now + 2.3);
+          horn.connect(hornGain);
+          hornGain.connect(this.ctx.destination);
+          horn.start(now);
+          horn.stop(now + 2.35);
+        } catch (e) {}
+      }
+
+      // 💡 PLEASANT HINT CHIME (Two-tone crystal chime)
+      playHintChime() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          [784, 1046.5].forEach((freq, idx) => {
+            const t = now + idx * 0.12;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(freq, t);
+            gain.gain.setValueAtTime(0.4 * this.volume, t);
+            gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(t);
+            osc.stop(t + 0.36);
+          });
+        } catch (e) {}
       }
 
       // Glass Shatter & Metal Snap
@@ -598,6 +793,102 @@
             osc.stop(now + c.d + 0.05);
           });
         });
+      }
+
+      // 🚀 ACTION STAGE TRANSITION (WHOOSH & LEVEL-UP FANFARE)
+      playActionTransition() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          
+          // Action pitch sweep whoosh (220Hz to 1400Hz)
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(1400, now + 0.35);
+          gain.gain.setValueAtTime(0.38 * this.volume, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.4);
+
+          // Level-up bright arpeggio fanfare: E5, G#5, B5, E6
+          [659.25, 830.61, 987.77, 1318.51].forEach((freq, i) => {
+            const fOsc = this.ctx.createOscillator();
+            const fGain = this.ctx.createGain();
+            fOsc.type = 'triangle';
+            const t = now + 0.16 + i * 0.08;
+            fOsc.frequency.setValueAtTime(freq, t);
+            fGain.gain.setValueAtTime(0.35 * this.volume, t);
+            fGain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+            fOsc.connect(fGain);
+            fGain.connect(this.ctx.destination);
+            fOsc.start(t);
+            fOsc.stop(t + 0.5);
+          });
+        } catch(e) {
+          console.warn("playActionTransition error:", e);
+        }
+      }
+
+      // 👏 REALISTIC HAND CLAPPING & APPLAUSE SOUND (تصفيق حار)
+      playApplause() {
+        if (!this.enabled) return;
+        this.init();
+        try {
+          const now = this.ctx.currentTime;
+          const duration = 3.2;
+
+          // 1. Generate 55 rapid, randomized flesh hand-clap bursts
+          for (let i = 0; i < 55; i++) {
+            const clapTime = now + Math.random() * (duration - 0.2);
+            const clapLength = 0.035 + Math.random() * 0.025;
+
+            const bufferSize = Math.floor(this.ctx.sampleRate * clapLength);
+            const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let j = 0; j < bufferSize; j++) {
+              data[j] = (Math.random() * 2 - 1) * Math.exp(-j / (bufferSize * 0.25));
+            }
+
+            const noise = this.ctx.createBufferSource();
+            noise.buffer = buffer;
+
+            const filter = this.ctx.createBiquadFilter();
+            filter.type = 'bandpass';
+            filter.frequency.setValueAtTime(950 + Math.random() * 600, clapTime);
+            filter.Q.setValueAtTime(2.2, clapTime);
+
+            const gain = this.ctx.createGain();
+            gain.gain.setValueAtTime((0.3 + Math.random() * 0.35) * this.volume, clapTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, clapTime + clapLength);
+
+            noise.connect(filter);
+            filter.connect(gain);
+            gain.connect(this.ctx.destination);
+
+            noise.start(clapTime);
+          }
+
+          // 2. Celebratory victory brass chords: C5, E5, G5, C6 crescendo
+          [523.25, 659.25, 783.99, 1046.50].forEach((freq, idx) => {
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now + 0.15);
+            gain.gain.setValueAtTime(0.24 * this.volume, now + 0.15);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 2.2);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now + 0.15);
+            osc.stop(now + 2.3);
+          });
+        } catch(e) {
+          console.warn("playApplause error:", e);
+        }
       }
     }
 
@@ -732,7 +1023,7 @@
     </div>
 
     <!-- 🧭 TOP MOBILE TAB NAVIGATION (VISIBLE ON SMALL/MEDIUM SCREENS) 🧭 -->
-    <div class="flex lg:hidden items-center gap-2 p-1.5 rounded-2xl bg-white border border-slate-300 w-full shadow-sm">
+    <div class="flex lg:hidden items-center gap-2 p-1.5 rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-300 w-full shadow-md sticky top-2 z-40">
       <button onclick="switchMainView('portal')" id="mobile-tab-portal" 
               class="flex-1 py-2 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-cyan-700 text-white shadow">
         <span>🏠</span> <span>Main Portal</span>
@@ -750,8 +1041,8 @@
     <!-- 🧭 MAIN TWO-COLUMN WORKSPACE: LEFT MENU (SIDEBAR) + ACTIVE MODULE VIEW 🧭 -->
     <div class="flex flex-col lg:flex-row gap-5 items-start w-full">
       
-      <!-- 📌 LEFT NAVIGATION MENU 📌 -->
-      <aside id="left-nav-menu" class="w-full lg:w-64 xl:w-72 flex-shrink-0 flex flex-col gap-4 select-none">
+      <!-- 📌 LEFT NAVIGATION MENU (SIDEBAR ON DESKTOP, COMPACT TOP TABS ON MOBILE) 📌 -->
+      <aside id="left-nav-menu" class="hidden lg:flex w-full lg:w-64 xl:w-72 flex-shrink-0 flex-col gap-4 select-none">
         
         <!-- Module Navigation Box -->
         <div class="bg-[#021329] border-2 border-cyan-500/60 rounded-3xl p-4 sm:p-5 text-white shadow-xl">
@@ -827,20 +1118,34 @@
 
           </div>
 
-          <!-- Trainer Quick Tools Section in Menu -->
+          <!-- Trainer Quick Tools Section in Menu (Collapsible / Collapsed by Default) -->
           <div id="trainer-shortcuts-menu" class="trainer-only mt-2 pt-2 border-t border-cyan-500/30 flex flex-col gap-1.5">
-            <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 mb-1">
-              Trainer Short-Cuts
-            </span>
-            <button onclick="openModal('pm-modal')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition">
-              <span>⚙️</span> <span>Project Management</span>
+            <button onclick="toggleTrainerShortcuts()" 
+                    id="btn-trainer-shortcuts-toggle" 
+                    title="Click to expand/collapse Trainer Tools"
+                    class="w-full flex items-center justify-between p-2.5 rounded-2xl bg-[#03203f] hover:bg-[#042d59] text-cyan-200 border border-cyan-500/50 text-xs font-black transition cursor-pointer group shadow-sm active:scale-98">
+              <div class="flex items-center gap-2">
+                <span class="text-sm">🛠️</span>
+                <span>Trainer Tools & Short-Cuts</span>
+              </div>
+              <span id="trainer-shortcuts-arrow" class="text-xs transition-transform duration-200 text-cyan-400 group-hover:scale-110">▼</span>
             </button>
-            <button onclick="openModal('debrief-modal')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition">
-              <span>📋</span> <span>Trainer Key & Debrief</span>
-            </button>
-            <button onclick="openModal('archive-modal')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition">
-              <span>📁</span> <span>Session Archive</span>
-            </button>
+
+            <!-- Collapsible Items Container (Collapsed by Default) -->
+            <div id="trainer-shortcuts-collapse" class="hidden flex flex-col gap-1.5 pt-1 transition-all">
+              <button onclick="openShareModal('puzzle')" class="w-full text-left px-3 py-2.5 rounded-xl bg-gradient-to-r from-emerald-950 via-[#03332a] to-teal-900 hover:from-emerald-900 hover:to-teal-800 text-emerald-300 hover:text-white text-xs font-black flex items-center gap-2 border border-emerald-500/50 transition shadow-sm cursor-pointer">
+                <span class="text-base">📲</span> <span>Share Barcode & Link (مشاركة)</span>
+              </button>
+              <button onclick="openModal('pm-modal')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition cursor-pointer">
+                <span>⚙️</span> <span>Project Management</span>
+              </button>
+              <button onclick="openModal('debrief-modal')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition cursor-pointer">
+                <span>📋</span> <span>Trainer Key & Debrief</span>
+              </button>
+              <button onclick="openModal('archive-modal')" class="w-full text-left px-3 py-2 rounded-xl bg-slate-900/70 hover:bg-slate-800 text-slate-300 hover:text-white text-xs font-bold flex items-center gap-2 border border-slate-700/60 transition cursor-pointer">
+                <span>📁</span> <span>Session Archive</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -885,15 +1190,74 @@
         <div id="view-portal" class="flex flex-col items-center justify-center w-full py-1">
           
           <!-- 🌟 HERO PORTAL BANNER (EXACT USER GRAPHIC) 🌟 -->
-          <div class="w-full max-w-[1024px] rounded-3xl overflow-hidden bg-[#021329] border-2 border-cyan-500/60 shadow-2xl transition-all cursor-pointer" onclick="switchMainView('puzzle')" title="Click to Start Puzzle">
+          <div class="w-full max-w-[1024px] rounded-3xl overflow-hidden bg-[#021329] border-2 border-cyan-500/60 shadow-2xl transition-all cursor-pointer hover:border-cyan-400" onclick="switchMainView('puzzle')" title="Click to Start Puzzle 1">
             <img src="main-portal-banner.jpg" 
                  alt="IPC Training Puzzles — Developed by Hammam Jubran Rjoup / MSN, CPIC" 
                  class="w-full h-auto object-contain block select-none"
                  onerror="this.src='header-banner.jpg'" />
           </div>
+
+          <!-- 🚀 INTERACTIVE DIRECT LAUNCH CARDS ON MAIN PORTAL (WIDE SCREEN LAUNCH) 🚀 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[1024px] mt-5">
+            
+            <!-- PUZZLE 1 LAUNCH CARD -->
+            <div onclick="switchMainView('puzzle')" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#021b35] via-[#03284d] to-[#011425] border-2 border-cyan-400/80 hover:border-cyan-300 shadow-xl hover:shadow-[0_0_25px_rgba(6,182,212,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[11px] font-black uppercase tracking-wider">
+                    MODULE 1 • CORE SIMULATION
+                  </span>
+                  <span class="text-2xl group-hover:scale-125 transition-transform">🧩</span>
+                </div>
+                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-cyan-300 transition-colors">
+                  Chain of Infection & Break Chain
+                </h3>
+                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
+                  Stage 1: Assemble the 6 clockwise chain links • Stage 2: Break links using 11 CDC Standard Precautions.
+                </p>
+                <div class="text-[11px] text-cyan-300 font-bold mt-1" dir="rtl">
+                  المرحلة 1: تجميع السلسلة • المرحلة 2: كسر السلسلة بالاحتياطات القياسية
+                </div>
+              </div>
+              <div class="mt-5 pt-3.5 border-t border-cyan-500/30 flex items-center justify-between">
+                <span class="text-xs font-bold text-cyan-200">⛶ Full Wide Screen View</span>
+                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 group-hover:from-cyan-500 group-hover:to-teal-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
+                  <span>Start Puzzle 1</span> <span>➡️</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- PUZZLE 2 LAUNCH CARD -->
+            <div onclick="switchMainView('icebreaker')" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#02202b] via-[#02384a] to-[#01171f] border-2 border-teal-400/80 hover:border-teal-300 shadow-xl hover:shadow-[0_0_25px_rgba(20,184,166,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40 text-[11px] font-black uppercase tracking-wider">
+                    MODULE 2 • TEAM WARM-UP
+                  </span>
+                  <span class="text-2xl group-hover:scale-125 transition-transform">🧊</span>
+                </div>
+                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-teal-300 transition-colors">
+                  Ice Breaker: Match the Definitions
+                </h3>
+                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
+                  Interactive matching challenge: Connect 14 core IPC clinical terms to their authoritative definitions.
+                </p>
+                <div class="text-[11px] text-teal-300 font-bold mt-1" dir="rtl">
+                  تحدي مطابقة 14 مصطلحاً سريرياً مع تعريفاتها المعتمدة لمكافحة العدوى
+                </div>
+              </div>
+              <div class="mt-5 pt-3.5 border-t border-teal-500/30 flex items-center justify-between">
+                <span class="text-xs font-bold text-teal-200">⛶ Full Wide Screen View</span>
+                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 group-hover:from-teal-500 group-hover:to-emerald-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
+                  <span>Start Puzzle 2</span> <span>➡️</span>
+                </span>
+              </div>
+            </div>
+
+          </div>
         </div>
 
-<div id="view-puzzle" class="hidden flex flex-col gap-5 items-center w-full">
+        <div id="view-puzzle" class="hidden flex flex-col gap-5 items-center w-full">
           
           <!-- 🧭 STAGE NAVIGATION & FACILITATOR CONTROLS BAR 🧭 -->
           <div id="stage-nav-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-2.5 sm:p-3 shadow-sm flex items-center justify-between gap-2.5 flex-wrap">
@@ -916,195 +1280,76 @@
               </button>
             </div>
 
-            <!-- Right: Stage Info Badge & 📲 Share Button -->
+            <!-- Right: Stage Info Badge, Fullscreen & 📲 Share Button -->
             <div class="flex items-center gap-2 flex-wrap">
-              
-              
-              <div class="hidden 2xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#021329] border border-cyan-500/50 shadow-inner text-xs font-bold text-cyan-200">
-                <span class="text-sm">⏱️</span>
-                <span>7-Minute Challenge Below</span>
-              </div>
+              <button onclick="toggleFullScreen()" title="Toggle Full Screen (ملء الشاشة)" 
+                      class="px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-cyan-500/50 shadow active:scale-95 cursor-pointer">
+                <span>⛶</span>
+                <span class="hidden sm:inline">Full Screen</span>
+              </button>
+              <button id="btn-toggle-menu" onclick="toggleMenuSidebar()" title="Toggle Left Menu Sidebar (إظهار/إخفاء القائمة)" 
+                      class="px-3 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 active:scale-95 cursor-pointer">
+                <span>🧭</span>
+                <span class="hidden sm:inline">Menu</span>
+              </button>
+              <button onclick="openShareModal('puzzle')" title="Share Puzzle 1 Barcode & Link with Students" 
+                      class="px-3.5 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white shadow-md active:scale-95 cursor-pointer">
+                <span>📲</span>
+                <span>Share Puzzle 1 (Barcode & Link)</span>
+              </button>
             </div>
           </div>
 
-          <!-- 🧭 MAIN TWO-COLUMN GAMEPLAY ROW: DRAWING ON LEFT + CHOICES BESIDE IT ON RIGHT 🧭 -->
-        <div class="flex flex-col xl:flex-row gap-5 items-start w-full">
-          
-          <!-- 🎨 LEFT COLUMN: THE DRAWING ("THE DROW") 🎨 -->
-          <div id="board-card" class="w-full xl:w-[48%] 2xl:w-[47%] bg-white border border-slate-300 rounded-3xl p-3 sm:p-5 shadow-md flex flex-col items-center relative overflow-hidden transition-all duration-300">
-            
-            <!-- Stage Status Header -->
-            <div id="board-card-header" class="w-full flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200 flex-wrap gap-2">
-              <div class="flex items-center gap-2">
-                <span id="stage-badge" class="px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-cyan-100 text-cyan-800 border border-cyan-300 shadow-sm">
-                  STAGE 1: ASSEMBLE CHAIN
-                </span>
-                <span id="stage-desc" class="text-xs text-slate-600 font-semibold">
-                  Drag or tap labels from below into the 6 empty circular positions in clockwise order.
-                </span>
-              </div>
+          <!-- ⏱️ 7-MINUTE SIMULATION CONTROL & START BAR (MOVED ABOVE CHALLENGE) ⏱️ -->
+          <div id="bottom-timer-bar" class="w-full p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-slate-950 via-[#031527] to-slate-950 border-2 border-cyan-500/70 shadow-2xl flex items-center justify-between flex-wrap gap-3">
+            <!-- Left: Start Simulation Button with 1-2-3 Countdown Trigger -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button id="btn-start-simulation" onclick="triggerCountdownAndStart(600)" class="group relative px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:shadow-[0_0_28px_rgba(6,182,212,0.75)] flex items-center gap-2.5 transition-all duration-200 active:scale-95 cursor-pointer border border-emerald-300/40">
+                <span id="start-btn-icon" class="text-base sm:text-lg animate-bounce">🚀</span>
+                <div class="text-left leading-tight">
+                  <div id="start-btn-title" class="font-black tracking-wide text-xs sm:text-sm text-white drop-shadow-sm">START 10-MIN CHALLENGE</div>
+                  <div class="text-[9.5px] sm:text-[10px] text-emerald-100 font-bold opacity-90" dir="rtl">ابدأ التحدي (10 دقائق)</div>
+                </div>
+              </button>
             </div>
 
-            <!-- 16:9 BOARD CANVAS (Matches Slide Vector Infographic 1024x576) -->
-            <div id="board-aspect-box" class="w-full aspect-[1024/576] relative rounded-2xl overflow-hidden border-2 border-slate-300 shadow-sm bg-gradient-to-br from-slate-50 via-white to-sky-50 flex items-center justify-center select-none">
-              
-              <!-- Top Left Header -->
-              <div class="absolute top-2.5 left-3 sm:top-3.5 sm:left-4 select-none pointer-events-none z-10 text-left">
-                <h3 class="text-sm sm:text-xl md:text-2xl font-black text-[#0f2942] tracking-tight leading-tight">
-                  Chain of Infection
-                </h3>
-                <p class="text-[9px] sm:text-xs md:text-sm font-black text-teal-700 tracking-tight">
-                  Break one link — stop transmission.
-                </p>
-              </div>
+            <!-- Right: 7-Minute Timer Readout, Status Dot & Controls -->
+            <div id="simulation-timer-widget" class="flex items-center gap-2.5 bg-[#021124] text-white border-2 border-cyan-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(6,182,212,0.35)] transition-all">
+              <!-- Animated Pulsing Beacon -->
+              <span class="relative flex h-3 w-3">
+                <span id="timer-ping-glow" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span id="timer-dot-core" class="relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]"></span>
+              </span>
 
-              <!-- Top Right Badge -->
-              <div class="absolute top-2.5 right-3 sm:top-3.5 sm:right-4 select-none pointer-events-none z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-300 text-[8px] sm:text-[10px] md:text-xs font-black text-sky-900 shadow-xs backdrop-blur-sm">
-                <span>PRIMARY HEALTH CARE • NURSING</span>
-                <span class="text-xs sm:text-sm">👥🏥</span>
-              </div>
-
-              <!-- Vector Canvas with Clockwise Curved Arrows & Radiating Center Burst -->
-              <svg id="svg-board-canvas" class="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-300" viewBox="0 0 1024 576">
-                <defs>
-                  <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                    <stop offset="0%" stop-color="#f8fafc" />
-                    <stop offset="50%" stop-color="#ffffff" />
-                    <stop offset="100%" stop-color="#f0fdfa" />
-                  </linearGradient>
-                  <marker id="arrowTealHead" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
-                    <path d="M 0 1 L 11 6 L 0 11 L 3 6 z" fill="#0d9488" />
-                  </marker>
-                </defs>
-                
-                <rect width="1024" height="576" fill="url(#bgGrad)" />
-                
-                <!-- Circular Orbit & Center Burst -->
-                <ellipse cx="512" cy="305" rx="310" ry="200" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="8 8" opacity="0.4" />
-                <circle cx="512" cy="305" r="114" fill="none" stroke="#99f6e4" stroke-width="2" stroke-dasharray="6 6" opacity="0.7" />
-
-                <!-- Radiating Sunburst Ticks Around Center Shield -->
-                <g stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" opacity="0.65">
-                  <line x1="630" y1="305" x2="646" y2="305" />
-                  <line x1="614" y1="364" x2="628" y2="372" />
-                  <line x1="571" y1="407" x2="579" y2="420" />
-                  <line x1="512" y1="423" x2="512" y2="439" />
-                  <line x1="453" y1="407" x2="445" y2="420" />
-                  <line x1="410" y1="364" x2="396" y2="372" />
-                  <line x1="394" y1="305" x2="378" y2="305" />
-                  <line x1="410" y1="246" x2="396" y2="238" />
-                  <line x1="453" y1="203" x2="445" y2="190" />
-                  <line x1="512" y1="187" x2="512" y2="171" />
-                  <line x1="571" y1="203" x2="579" y2="190" />
-                  <line x1="614" y1="246" x2="628" y2="238" />
-                </g>
-
-                <!-- Clockwise Connecting Arrows Between the 6 Nodes -->
-                <!-- 1 -> 2 (Top to Top-Right) -->
-                <path d="M 645 130 C 690 140, 725 155, 745 175" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" />
-                <!-- 2 -> 3 (Top-Right to Bottom-Right) -->
-                <path d="M 800 265 C 825 295, 825 315, 800 345" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" />
-                <!-- 3 -> 4 (Bottom-Right to Bottom) -->
-                <path d="M 745 435 C 725 455, 690 470, 645 480" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" />
-                <!-- 4 -> 5 (Bottom to Bottom-Left) -->
-                <path d="M 379 480 C 334 470, 299 455, 279 435" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" />
-                <!-- 5 -> 6 (Bottom-Left to Top-Left) -->
-                <path d="M 224 345 C 199 315, 199 295, 224 265" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" />
-                <!-- 6 -> 1 (Top-Left to Top) -->
-                <path d="M 279 175 C 299 155, 334 140, 379 130" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" />
-              </svg>
-
-              <!-- CENTER SHIELD & TARGET HUB (Exact center at 50%, 53%) -->
-              <div id="center-shield" 
-                   class="circle-slot !w-[21%] !aspect-square !top-[53%] !left-[50%] bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 border-3 border-teal-400 shadow-xl backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-2 transition-all duration-300 pointer-events-none rounded-full">
-                <div id="center-icon" class="text-xl sm:text-2xl mb-1 flex items-center justify-center gap-1">
-                  <span class="text-teal-700">⛓️</span>
-                  <span class="text-amber-500 animate-pulse text-sm">💥</span>
-                  <span class="text-teal-700">🔗</span>
-                </div>
-                <h4 class="text-[9px] sm:text-[11px] md:text-[12px] font-black tracking-wider text-teal-950 uppercase leading-none">
-                  BREAK ONE LINK
-                </h4>
-                <span class="text-[7.5px] sm:text-[9.5px] md:text-[10px] font-black text-teal-700 uppercase tracking-widest leading-none mt-1">
-                  STOP TRANSMISSION
-                </span>
-                <div id="chain-status-text" class="mt-1.5 text-[7px] sm:text-[8px] md:text-[9px] text-teal-950 font-black px-2.5 py-0.5 rounded-full bg-teal-200/90 border border-teal-300 shadow-xs leading-tight">
-                  0 of 6 Links Placed
+              <!-- Label & Stopwatch Icon -->
+              <div class="flex items-center gap-1.5">
+                <span class="text-base">⏱️</span>
+                <div class="flex flex-col leading-none">
+                  <span class="text-[9.5px] font-black uppercase tracking-wider text-cyan-300 hidden sm:inline">Timer</span>
+                  <span class="text-[8px] text-cyan-400 font-bold hidden sm:inline" dir="rtl">المؤقت</span>
                 </div>
               </div>
 
-              <!-- THE 6 CIRCULAR DROP/CLICK SLOTS ON BOARD CANVAS -->
-              <div id="node-0" data-slot="0" onclick="handleSlotClick(0)" class="circle-slot"></div>
-              <div id="node-1" data-slot="1" onclick="handleSlotClick(1)" class="circle-slot"></div>
-              <div id="node-2" data-slot="2" onclick="handleSlotClick(2)" class="circle-slot"></div>
-              <div id="node-3" data-slot="3" onclick="handleSlotClick(3)" class="circle-slot"></div>
-              <div id="node-4" data-slot="4" onclick="handleSlotClick(4)" class="circle-slot"></div>
-              <div id="node-5" data-slot="5" onclick="handleSlotClick(5)" class="circle-slot"></div>
+              <!-- Digital Clock Readout -->
+              <span id="timer-display" class="font-mono text-lg sm:text-xl font-black tracking-widest text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.85)] tabular-nums">10:00</span>
 
-            </div>
-
-            <!-- ⏱️ BOTTOM 7-MINUTE SIMULATION CONTROL & START BAR ⏱️ -->
-            <div id="bottom-timer-bar" class="w-full mt-3 p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-slate-950 via-[#031527] to-slate-950 border-2 border-cyan-500/70 shadow-2xl flex items-center justify-between flex-wrap gap-3">
-              <!-- Left: Start Simulation Button with 1-2-3 Countdown Trigger -->
-              <div class="flex items-center gap-2.5 flex-wrap">
-                <button id="btn-start-simulation" onclick="triggerCountdownAndStart()" class="group relative px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(16,185,129,0.5)] hover:shadow-[0_0_28px_rgba(6,182,212,0.75)] flex items-center gap-2.5 transition-all duration-200 active:scale-95 cursor-pointer border border-emerald-300/40">
-                  <span id="start-btn-icon" class="text-base sm:text-lg animate-bounce">🚀</span>
-                  <div class="text-left leading-tight">
-                    <div id="start-btn-title" class="font-black tracking-wide text-xs sm:text-sm text-white drop-shadow-sm">START 7-MIN CHALLENGE</div>
-                    <div class="text-[9.5px] sm:text-[10px] text-emerald-100 font-bold opacity-90" dir="rtl">ابدأ التحدي (7 دقائق)</div>
-                  </div>
+              <!-- Controls: Pause/Resume + Reset -->
+              <div class="flex items-center gap-1.5 border-l border-cyan-500/40 pl-2">
+                <button id="btn-timer-toggle" onclick="toggleTimer()" title="Pause / Resume Timer" class="px-2.5 py-1 text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition active:scale-95 shadow flex items-center gap-1">
+                  <span id="timer-btn-icon">▶</span> <span id="timer-btn-text">Start</span>
+                </button>
+                <button onclick="resetTimer()" title="Reset Timer to 07:00" class="px-2 py-1 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700">
+                  ↺
                 </button>
               </div>
-
-              <!-- Right: 7-Minute Timer Readout, Status Dot & Controls -->
-              <div id="simulation-timer-widget" class="flex items-center gap-2.5 bg-[#021124] text-white border-2 border-cyan-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(6,182,212,0.35)] transition-all">
-                <!-- Animated Pulsing Beacon -->
-                <span class="relative flex h-3 w-3">
-                  <span id="timer-ping-glow" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span id="timer-dot-core" class="relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]"></span>
-                </span>
-
-                <!-- Label & Stopwatch Icon -->
-                <div class="flex items-center gap-1.5">
-                  <span class="text-base">⏱️</span>
-                  <div class="flex flex-col leading-none">
-                    <span class="text-[9.5px] font-black uppercase tracking-wider text-cyan-300 hidden sm:inline">Timer</span>
-                    <span class="text-[8px] text-cyan-400 font-bold hidden sm:inline" dir="rtl">المؤقت</span>
-                  </div>
-                </div>
-
-                <!-- Digital Clock Readout -->
-                <span id="timer-display" class="font-mono text-lg sm:text-xl font-black tracking-widest text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.85)] tabular-nums">07:00</span>
-
-                <!-- Controls: Pause/Resume + Reset -->
-                <div class="flex items-center gap-1.5 border-l border-cyan-500/40 pl-2">
-                  <button id="btn-timer-toggle" onclick="toggleTimer()" title="Pause / Resume Timer" class="px-2.5 py-1 text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition active:scale-95 shadow flex items-center gap-1">
-                    <span id="timer-btn-icon">▶</span> <span id="timer-btn-text">Start</span>
-                  </button>
-                  <button onclick="resetTimer()" title="Reset Timer to 07:00" class="px-2 py-1 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700">
-                    ↺
-                  </button>
-                </div>
-              </div>
             </div>
-
-            <!-- Toast / Feedback Indicator -->
-            <div id="shatter-toast" class="w-full max-w-[900px] mt-3 p-3 rounded-2xl bg-slate-900 text-white text-center transition-all opacity-0 pointer-events-none transform translate-y-2 shadow-xl">
-              <div class="flex items-center justify-center gap-2">
-                <span id="toast-eye-icon" class="text-xl">👁️</span>
-                <span id="toast-title" class="font-black text-xs sm:text-sm text-emerald-400 uppercase tracking-wide"></span>
-              </div>
-              <p id="toast-desc" class="text-xs text-slate-200 mt-0.5 leading-snug"></p>
-            </div>
-
           </div>
 
-          <!-- ⬇️ CHOICES CONTAINER: STAGE 1 LABELS / STAGE 2 BREAK CONTROLS ⬇️ -->
-          <!-- 📋 RIGHT COLUMN: THE CHOICES (BESIDE THE DRAWING) 📋 -->
-          <div id="puzzle-choices-container" class="w-full xl:w-[52%] 2xl:w-[53%] flex flex-col gap-4 flex-shrink-0">
+                  <!-- 🧭 PUZZLE GAMEPLAY ARENA: EXPANDED WIDE FORMAT (ELEMENTS ABOVE CIRCLE) 🧭 -->
+        <div id="puzzle-gameplay-arena" class="flex flex-col gap-6 items-center w-full max-w-[1240px] mx-auto">
 
-            <!-- 🎉 STAGE 1 COMPLETE BANNER (SHOWN WHEN ALL 6 LINKS ARE ASSEMBLED) 🎉 -->
-            <div id="stage1-complete-box" class="hidden w-full p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-center shadow-xl border-2 border-white">
+          <!-- 🎉 STAGE 1 COMPLETE CONGRATS BANNER 🎉 -->
+          <div id="stage1-complete-box" class="hidden w-full p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-center shadow-xl border-2 border-white">
               <div class="flex items-center justify-center gap-2 text-xl sm:text-2xl font-black mb-1">
                 <span>🎉</span>
                 <span>STAGE 1 COMPLETE: CHAIN OF INFECTION ASSEMBLED!</span>
@@ -1123,34 +1368,8 @@
               </button>
             </div>
 
-            <!-- 🧩 STAGE 1 PANEL: 6 CHAIN OF INFECTION LABELS (BELOW BOARD) 🧩 -->
-            <div id="stage1-panel" class="bg-white border border-slate-300 rounded-3xl p-4 sm:p-5 shadow-md flex flex-col gap-3">
-              <div class="flex items-center justify-between flex-wrap gap-2">
-                <h2 class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
-                  <span>🧩</span> Chain of Infection Labels (Drag Up to Target Circles or Tap to Place)
-                </h2>
-                <div class="flex items-center gap-2 flex-wrap">
-                  <button type="button" onclick="resetStage1Slots()" title="Clear all placed positions and start empty" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow-sm">
-                    <span>🔄</span> <span>Empty Slots (تفريغ)</span>
-                  </button>
-                  <button type="button" onclick="shuffleAndRenderStage1(true)" title="Shuffle order of choices" class="px-2.5 py-1 rounded-lg bg-cyan-100 hover:bg-cyan-200 text-cyan-900 border border-cyan-300 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow-sm">
-                    <span>🔀</span> <span>Shuffle Choices</span>
-                  </button>
-                  <span class="text-[11px] font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-lg border border-cyan-200">
-                    Magnetic Drag & Drop
-                  </span>
-                </div>
-              </div>
-              <p class="text-xs text-slate-500 font-medium">
-                Drag each label directly onto its matching circle above, or tap a label then tap a circle:
-              </p>
-              <div id="chain-pieces-bank" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <!-- Dynamically populated 6 labels -->
-              </div>
-            </div>
-
-            <!-- 💥 STAGE 2 PANEL: BREAK THE CHAIN CHALLENGE (DEPLOY PRECAUTIONS) 💥 -->
-            <div id="stage2-panel" class="hidden bg-white border border-slate-300 rounded-3xl p-4 sm:p-5 shadow-md flex-col gap-4">
+          <!-- 💥 STAGE 2 PANEL: 11 CDC STANDARD PRECAUTIONS (PLACED WIDE ABOVE THE CIRCLE) 💥 -->
+          <div id="stage2-panel" class="hidden w-full max-w-[1240px] bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-6 shadow-xl flex-col gap-4 transition-all duration-300">
               
               <!-- Stage 2 Header & Counter -->
               <div class="flex items-center justify-between pb-3 border-b border-slate-200 flex-wrap gap-2">
@@ -1170,6 +1389,33 @@
                 </div>
               </div>
 
+              
+              <!-- 💡 REAL-TIME INTERACTIVE FEEDBACK & HINT BANNER (GOOD, WRONG, HINT) 💡 -->
+              <div id="stage2-realtime-hint-banner" class="w-full p-4 rounded-2xl border-2 border-cyan-300 bg-gradient-to-r from-sky-50 via-cyan-50 to-teal-50 text-slate-800 shadow-sm transition-all duration-300 flex items-start gap-3.5">
+                <div id="hint-banner-icon" class="text-2xl sm:text-3xl flex-shrink-0 animate-pulse">🛡️</div>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center justify-between gap-2 flex-wrap mb-1">
+                    <h4 id="hint-banner-title" class="text-xs sm:text-sm font-black text-cyan-900 uppercase tracking-wide">
+                      STEP 1: SELECT A STANDARD PRECAUTION CARD
+                    </h4>
+                    <div class="flex items-center gap-1.5">
+                      <button type="button" onclick="showPrecautionHint()" class="px-2.5 py-0.5 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-[11px] font-black flex items-center gap-1 transition active:scale-95 shadow-2xs cursor-pointer">
+                        <span>💡</span> <span>Get Hint (تلميح)</span>
+                      </button>
+                      <span id="hint-banner-tag" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-200 text-cyan-900 border border-cyan-300">
+                        CDC Guided
+                      </span>
+                    </div>
+                  </div>
+                  <p id="hint-banner-desc" class="text-xs sm:text-sm font-medium text-slate-700 leading-snug">
+                    Tap any of the 11 Standard Precaution cards below, then tap a link on the wide circle below to test if it breaks transmission!
+                  </p>
+                  <p id="hint-banner-desc-ar" class="text-xs sm:text-sm font-bold text-teal-900 mt-1 leading-snug" dir="rtl">
+                    اختر بطاقة احتياط قياسي أدناه، ثم انقر على حلقة في الدائرة بالأسفل لمعرفة ما إذا كانت تكسر السلسلة!
+                  </p>
+                </div>
+              </div>
+
               <!-- 2-STEP BREAK-THE-CHAIN SUBMISSION DECK -->
               <div class="flex flex-col gap-4">
                 
@@ -1183,7 +1429,7 @@
                       Tap a Card Below
                     </span>
                   </div>
-                  <div id="precautions-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-2.5 max-h-[520px] overflow-y-auto overflow-x-hidden pr-1.5 p-1">
+                  <div id="precautions-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-2.5 sm:gap-3 p-1">
                     <!-- Populated dynamically with 11 CDC cards -->
                   </div>
                 </div>
@@ -1279,9 +1525,216 @@
 
             </div>
 
+          <!-- 🎨 CIRCLE OF INFECTION BOARD ("THE DROW") - EXPANDED WIDTH 🎨 -->
+          <div id="board-card" class="w-full max-w-[1100px] mx-auto bg-white border-2 border-slate-300 rounded-3xl p-3 sm:p-6 shadow-xl flex flex-col items-center relative overflow-hidden transition-all duration-300">
+            
+            <!-- Stage Status Header -->
+            <div id="board-card-header" class="w-full flex items-center justify-between mb-3 pb-2.5 border-b border-slate-200 flex-wrap gap-2">
+              <div class="flex items-center gap-2">
+                <span id="stage-badge" class="px-3 py-1 rounded-lg text-xs font-black uppercase tracking-wider bg-cyan-100 text-cyan-800 border border-cyan-300 shadow-sm">
+                  STAGE 1: ASSEMBLE CHAIN
+                </span>
+                <span id="stage-desc" class="text-xs text-slate-600 font-semibold">
+                  Drag or tap labels from below into the 6 empty circular positions in clockwise order.
+                </span>
+              </div>
+            </div>
+
+            <!-- 16:9 BOARD CANVAS (Matches Slide Vector Infographic 1024x576) -->
+            <div id="board-aspect-box" class="w-full aspect-[1024/576] relative rounded-2xl overflow-hidden border-2 border-slate-300 shadow-sm bg-gradient-to-br from-slate-50 via-white to-sky-50 flex items-center justify-center select-none">
+              
+              <!-- Top Left Header -->
+              <div class="absolute top-2.5 left-3 sm:top-3.5 sm:left-4 select-none pointer-events-none z-10 text-left">
+                <h3 class="text-sm sm:text-xl md:text-2xl font-black text-[#0f2942] tracking-tight leading-tight">
+                  Chain of Infection
+                </h3>
+                <p class="text-[9px] sm:text-xs md:text-sm font-black text-teal-700 tracking-tight">
+                  Break one link — stop transmission.
+                </p>
+              </div>
+
+              <!-- Top Right Badge -->
+              <div class="absolute top-2.5 right-3 sm:top-3.5 sm:right-4 select-none pointer-events-none z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-300 text-[8px] sm:text-[10px] md:text-xs font-black text-sky-900 shadow-xs backdrop-blur-sm">
+                <span>PRIMARY HEALTH CARE • NURSING</span>
+                <span class="text-xs sm:text-sm">👥🏥</span>
+              </div>
+
+              <!-- Vector Canvas with Clockwise Curved Arrows & Radiating Center Burst -->
+              <svg id="svg-board-canvas" class="absolute inset-0 w-full h-full pointer-events-none transition-opacity duration-300" viewBox="0 0 1024 576">
+                <defs>
+                  <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#f8fafc" />
+                    <stop offset="50%" stop-color="#ffffff" />
+                    <stop offset="100%" stop-color="#f0fdfa" />
+                  </linearGradient>
+                  <marker id="arrowTealHead" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M 0 1 L 11 6 L 0 11 L 3 6 z" fill="#0d9488" />
+                  </marker>
+                  <marker id="arrowBrokenHead" viewBox="0 0 12 12" refX="9" refY="6" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+                    <path d="M 0 1 L 11 6 L 0 11 L 3 6 z" fill="#ef4444" />
+                  </marker>
+                </defs>
+                
+                <rect width="1024" height="576" fill="url(#bgGrad)" />
+                
+                <!-- Circular Orbit & Center Burst -->
+                <ellipse cx="512" cy="305" rx="310" ry="200" fill="none" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="8 8" opacity="0.4" />
+                <circle cx="512" cy="305" r="114" fill="none" stroke="#99f6e4" stroke-width="2" stroke-dasharray="6 6" opacity="0.7" />
+
+                <!-- Radiating Sunburst Ticks Around Center Shield -->
+                <g stroke="#0d9488" stroke-width="3.5" stroke-linecap="round" opacity="0.65">
+                  <line x1="630" y1="305" x2="646" y2="305" />
+                  <line x1="614" y1="364" x2="628" y2="372" />
+                  <line x1="571" y1="407" x2="579" y2="420" />
+                  <line x1="512" y1="423" x2="512" y2="439" />
+                  <line x1="453" y1="407" x2="445" y2="420" />
+                  <line x1="410" y1="364" x2="396" y2="372" />
+                  <line x1="394" y1="305" x2="378" y2="305" />
+                  <line x1="410" y1="246" x2="396" y2="238" />
+                  <line x1="453" y1="203" x2="445" y2="190" />
+                  <line x1="512" y1="187" x2="512" y2="171" />
+                  <line x1="571" y1="203" x2="579" y2="190" />
+                  <line x1="614" y1="246" x2="628" y2="238" />
+                </g>
+
+                <!-- Clockwise Connecting Arrows Between the 6 Nodes (With Broken State Visuals) -->
+                <!-- 0: 1 -> 2 (Top to Top-Right) -->
+                <path id="arrow-path-0" d="M 645 130 C 690 140, 725 155, 745 175" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" class="transition-all duration-300" />
+                <g id="arrow-broken-0" class="hidden">
+                  <circle cx="700" cy="148" r="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" />
+                  <text x="700" y="153" font-size="13" text-anchor="middle" font-weight="900" fill="#dc2626">⚡</text>
+                </g>
+
+                <!-- 1: 2 -> 3 (Top-Right to Bottom-Right) -->
+                <path id="arrow-path-1" d="M 800 265 C 825 295, 825 315, 800 345" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" class="transition-all duration-300" />
+                <g id="arrow-broken-1" class="hidden">
+                  <circle cx="818" cy="305" r="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" />
+                  <text x="818" y="310" font-size="13" text-anchor="middle" font-weight="900" fill="#dc2626">⚡</text>
+                </g>
+
+                <!-- 2: 3 -> 4 (Bottom-Right to Bottom) -->
+                <path id="arrow-path-2" d="M 745 435 C 725 455, 690 470, 645 480" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" class="transition-all duration-300" />
+                <g id="arrow-broken-2" class="hidden">
+                  <circle cx="700" cy="462" r="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" />
+                  <text x="700" y="467" font-size="13" text-anchor="middle" font-weight="900" fill="#dc2626">⚡</text>
+                </g>
+
+                <!-- 3: 4 -> 5 (Bottom to Bottom-Left) -->
+                <path id="arrow-path-3" d="M 379 480 C 334 470, 299 455, 279 435" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" class="transition-all duration-300" />
+                <g id="arrow-broken-3" class="hidden">
+                  <circle cx="324" cy="462" r="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" />
+                  <text x="324" y="467" font-size="13" text-anchor="middle" font-weight="900" fill="#dc2626">⚡</text>
+                </g>
+
+                <!-- 4: 5 -> 6 (Bottom-Left to Top-Left) -->
+                <path id="arrow-path-4" d="M 224 345 C 199 315, 199 295, 224 265" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" class="transition-all duration-300" />
+                <g id="arrow-broken-4" class="hidden">
+                  <circle cx="206" cy="305" r="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" />
+                  <text x="206" y="310" font-size="13" text-anchor="middle" font-weight="900" fill="#dc2626">⚡</text>
+                </g>
+
+                <!-- 5: 6 -> 1 (Top-Left to Top) -->
+                <path id="arrow-path-5" d="M 279 175 C 299 155, 334 140, 379 130" fill="none" stroke="#0d9488" stroke-width="4.5" stroke-linecap="round" marker-end="url(#arrowTealHead)" class="transition-all duration-300" />
+                <g id="arrow-broken-5" class="hidden">
+                  <circle cx="324" cy="148" r="14" fill="#fef2f2" stroke="#ef4444" stroke-width="2.5" />
+                  <text x="324" y="153" font-size="13" text-anchor="middle" font-weight="900" fill="#dc2626">⚡</text>
+                </g>
+              </svg>
+
+              <!-- CENTER SHIELD & TARGET HUB (Exact center at 50%, 53%) -->
+              <div id="center-shield" 
+                   class="circle-slot !w-[21%] !aspect-square !top-[53%] !left-[50%] bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 border-3 border-teal-400 shadow-xl backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-2 transition-all duration-300 pointer-events-none rounded-full">
+                <div id="center-icon" class="text-xl sm:text-2xl mb-1 flex items-center justify-center gap-1">
+                  <span class="text-teal-700">⛓️</span>
+                  <span class="text-amber-500 animate-pulse text-sm">💥</span>
+                  <span class="text-teal-700">🔗</span>
+                </div>
+                <h4 class="text-[9px] sm:text-[11px] md:text-[12px] font-black tracking-wider text-teal-950 uppercase leading-none">
+                  BREAK ONE LINK
+                </h4>
+                <span class="text-[7.5px] sm:text-[9.5px] md:text-[10px] font-black text-teal-700 uppercase tracking-widest leading-none mt-1">
+                  STOP TRANSMISSION
+                </span>
+                <div id="chain-status-text" class="mt-1.5 text-[7px] sm:text-[8px] md:text-[9px] text-teal-950 font-black px-2.5 py-0.5 rounded-full bg-teal-200/90 border border-teal-300 shadow-xs leading-tight">
+                  0 of 6 Links Placed
+                </div>
+              </div>
+
+              <!-- THE 6 CIRCULAR DROP/CLICK SLOTS ON BOARD CANVAS -->
+              <div id="node-0" data-slot="0" onclick="handleSlotClick(0)" class="circle-slot"></div>
+              <div id="node-1" data-slot="1" onclick="handleSlotClick(1)" class="circle-slot"></div>
+              <div id="node-2" data-slot="2" onclick="handleSlotClick(2)" class="circle-slot"></div>
+              <div id="node-3" data-slot="3" onclick="handleSlotClick(3)" class="circle-slot"></div>
+              <div id="node-4" data-slot="4" onclick="handleSlotClick(4)" class="circle-slot"></div>
+              <div id="node-5" data-slot="5" onclick="handleSlotClick(5)" class="circle-slot"></div>
+
+            </div>
+
+            <!-- Toast / Feedback Indicator -->
+            <div id="shatter-toast" class="w-full max-w-[900px] mt-3 p-3 rounded-2xl bg-slate-900 text-white text-center transition-all opacity-0 pointer-events-none transform translate-y-2 shadow-xl">
+              <div class="flex items-center justify-center gap-2">
+                <span id="toast-eye-icon" class="text-xl">👁️</span>
+                <span id="toast-title" class="font-black text-xs sm:text-sm text-emerald-400 uppercase tracking-wide"></span>
+              </div>
+              <p id="toast-desc" class="text-xs text-slate-200 mt-0.5 leading-snug"></p>
+            </div>
+
           </div>
 
-        </div> <!-- END TWO-COLUMN ROW -->
+          <!-- 🧩 STAGE 1 PANEL: 6 CHAIN OF INFECTION LABELS (BELOW BOARD IN STAGE 1) 🧩 -->
+          <div id="stage1-panel" class="w-full max-w-[1100px] mx-auto bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-5 shadow-xl flex flex-col gap-3">
+              <div class="flex items-center justify-between flex-wrap gap-2">
+                <h2 class="text-sm sm:text-base font-black text-slate-900 flex items-center gap-2">
+                  <span>🧩</span> Chain of Infection Labels (Drag Up to Target Circles or Tap to Place)
+                </h2>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <button type="button" onclick="resetStage1Slots()" title="Clear all placed positions and start empty" class="px-2.5 py-1 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-900 border border-amber-300 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow-sm">
+                    <span>🔄</span> <span>Empty Slots (تفريغ)</span>
+                  </button>
+                  <button type="button" onclick="shuffleAndRenderStage1(true)" title="Shuffle order of choices" class="px-2.5 py-1 rounded-lg bg-cyan-100 hover:bg-cyan-200 text-cyan-900 border border-cyan-300 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow-sm">
+                    <span>🔀</span> <span>Shuffle Choices</span>
+                  </button>
+                  <span class="text-[11px] font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-lg border border-cyan-200">
+                    Magnetic Drag & Drop
+                  </span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-500 font-medium">
+                Drag each label directly onto its matching circle above, or tap a label then tap a circle:
+              </p>
+              <div id="chain-pieces-bank" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <!-- Dynamically populated 6 labels -->
+              </div>
+            </div>
+
+        </div> <!-- END PUZZLE GAMEPLAY ARENA -->
+
+          <!-- 🏠 BOTTOM NAVIGATION: GO BACK TO MAIN PORTAL (FOR ALL PUZZLES) 🏠 -->
+          <div class="w-full max-w-[1240px] mx-auto mt-6 mb-4 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-950 via-[#031b33] to-slate-950 border-2 border-cyan-500/70 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl sm:text-4xl">🏛️</span>
+              <div class="text-left">
+                <h4 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                  <span>IPC Training Puzzles Portal</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40">Hub</span>
+                </h4>
+                <p class="text-xs text-cyan-200/90 font-medium">بوابة الألغاز التفاعلية لمكافحة وضبط العدوى • العودة للصفحة الرئيسية</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button onclick="switchMainView('portal')" title="Return to Main Training Portal Hub" 
+                      class="px-5 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-emerald-600 hover:from-cyan-500 hover:to-emerald-500 text-white font-black text-xs sm:text-sm shadow-xl flex items-center gap-2 transition active:scale-95 cursor-pointer border border-cyan-300/40">
+                <span>🏠</span>
+                <span>Go Back to Main Portal (العودة للبوابة الرئيسية)</span>
+              </button>
+              <button onclick="switchMainView('icebreaker')" title="Switch to Puzzle 2: Match Definitions" 
+                      class="px-4 py-3 rounded-2xl bg-[#03203f] hover:bg-[#053262] text-teal-300 border border-teal-400/60 font-black text-xs transition active:scale-95 shadow flex items-center gap-2 cursor-pointer">
+                <span>🧊</span>
+                <span>Go to Puzzle 2 (الانتقال للغز 2)</span>
+                <span>➡️</span>
+              </button>
+            </div>
+          </div>
         </div>
 
         <div id="view-icebreaker" class="hidden flex flex-col gap-5 w-full">
@@ -1315,7 +1768,29 @@
                   </div>
                 </div>
 
-                
+                <button onclick="switchMainView('portal')" title="Return to Main Training Portal Hub" 
+                        class="px-3.5 py-2 rounded-2xl bg-[#03203f] hover:bg-[#053262] text-cyan-300 border border-cyan-400/70 text-xs font-black transition active:scale-95 shadow flex items-center gap-1.5 cursor-pointer">
+                  <span>🏠</span>
+                  <span>Main Portal (البوابة)</span>
+                </button>
+
+                <button onclick="toggleFullScreen()" title="Toggle Full Screen (ملء الشاشة)" 
+                        class="px-3 py-2 rounded-2xl bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/50 text-xs font-black transition active:scale-95 shadow flex items-center gap-1.5 cursor-pointer">
+                  <span>⛶</span>
+                  <span class="hidden sm:inline">Full Screen</span>
+                </button>
+
+                <button id="btn-toggle-menu-2" onclick="toggleMenuSidebar()" title="Toggle Left Menu Sidebar" 
+                        class="px-3 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 text-xs font-black transition active:scale-95 shadow flex items-center gap-1.5 cursor-pointer">
+                  <span>🧭</span>
+                  <span class="hidden sm:inline">Menu</span>
+                </button>
+
+                <button onclick="openShareModal('icebreaker')" title="Share Puzzle 2 Barcode & Link with Students" 
+                        class="px-3.5 py-2 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black transition active:scale-95 shadow flex items-center gap-1.5 cursor-pointer">
+                  <span>📲</span>
+                  <span>Share Puzzle 2 (Barcode & Link)</span>
+                </button>
 
                 <button onclick="shuffleAndResetMatchGame()" title="Shuffle both terms and definitions" 
                         class="px-3.5 py-2 rounded-2xl bg-slate-800 hover:bg-slate-700 text-teal-200 border border-teal-500/50 text-xs font-black transition active:scale-95 shadow flex items-center gap-1.5">
@@ -1343,23 +1818,156 @@
             </div>
           </div>
 
-          <!-- SUCCESS BANNER (SHOWN WHEN ALL 14 MATCHED) -->
-          <div id="match-all-complete-banner" class="hidden p-5 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border-2 border-emerald-300">
-            <div class="flex items-center gap-3">
-              <span class="text-4xl">🎉</span>
-              <div>
-                <h3 class="text-lg sm:text-xl font-black">ALL 14 IPC DEFINITIONS MATCHED!</h3>
-                <p class="text-xs sm:text-sm text-emerald-100 font-medium">Excellent work! Your team has mastered the foundational infection prevention concepts.</p>
+          <!-- ⏱️ 10-MINUTE SIMULATION CONTROL & START BAR FOR PUZZLE 2 ⏱️ -->
+          <div id="icebreaker-timer-bar" class="w-full p-3 sm:p-3.5 rounded-2xl bg-gradient-to-r from-slate-950 via-[#021c2c] to-slate-950 border-2 border-teal-500/70 shadow-2xl flex items-center justify-between flex-wrap gap-3">
+            <!-- Left: Start Simulation Button with 1-2-3 Countdown Trigger -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button id="btn-start-icebreaker-simulation" onclick="triggerCountdownAndStart(600)" class="group relative px-4 sm:px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-500 via-emerald-600 to-cyan-600 hover:from-teal-400 hover:to-cyan-500 text-white font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(20,184,166,0.5)] hover:shadow-[0_0_28px_rgba(6,182,212,0.75)] flex items-center gap-2.5 transition-all duration-200 active:scale-95 cursor-pointer border border-teal-300/40">
+                <span id="start-btn-icon-p2" class="text-base sm:text-lg animate-bounce">🚀</span>
+                <div class="text-left leading-tight">
+                  <div id="start-btn-title-p2" class="font-black tracking-wide text-xs sm:text-sm text-white drop-shadow-sm">START 10-MIN CHALLENGE</div>
+                  <div class="text-[9.5px] sm:text-[10px] text-teal-100 font-bold opacity-90" dir="rtl">ابدأ تحدي الـ 10 دقائق</div>
+                </div>
+              </button>
+            </div>
+
+            <!-- Right: 10-Minute Timer Readout, Status Dot & Controls -->
+            <div id="icebreaker-timer-widget" class="flex items-center gap-2.5 bg-[#011422] text-white border-2 border-teal-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(20,184,166,0.35)] transition-all">
+              <!-- Animated Pulsing Beacon -->
+              <span class="relative flex h-3 w-3">
+                <span id="timer-ping-glow-p2" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75"></span>
+                <span id="timer-dot-core-p2" class="relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]"></span>
+              </span>
+
+              <!-- Label & Stopwatch Icon -->
+              <div class="flex items-center gap-1.5">
+                <span class="text-base">⏱️</span>
+                <div class="flex flex-col leading-none">
+                  <span class="text-[9.5px] font-black uppercase tracking-wider text-teal-300 hidden sm:inline">Timer</span>
+                  <span class="text-[8px] text-teal-400 font-bold hidden sm:inline" dir="rtl">المؤقت</span>
+                </div>
+              </div>
+
+              <!-- Digital Clock Readout -->
+              <div id="icebreaker-timer-display" class="font-mono text-lg sm:text-xl font-black tracking-widest text-teal-300 drop-shadow-[0_0_8px_rgba(20,184,166,0.85)] tabular-nums">
+                10:00
+              </div>
+
+              <!-- Controls: Pause/Resume + Reset -->
+              <div class="flex items-center gap-1.5 border-l border-teal-500/40 pl-2">
+                <button id="btn-timer-toggle-p2" onclick="toggleTimer()" title="Pause / Resume Timer" class="px-2.5 py-1 text-xs font-black rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white transition active:scale-95 shadow flex items-center gap-1 cursor-pointer">
+                  <span id="timer-btn-icon-p2">▶</span> <span id="timer-btn-text-p2">Start</span>
+                </button>
+                <button onclick="resetTimer(600)" title="Reset Timer to 10:00" class="px-2 py-1 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700 cursor-pointer">
+                  ↺
+                </button>
               </div>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="shuffleAndResetMatchGame()" class="px-4 py-2 rounded-xl bg-white/20 hover:bg-white/30 text-white font-black text-xs transition">
-                ↺ Play Again
+          </div>
+
+                    <!-- 🧭 MATCH GAME STAGE NAVIGATION TABS (STAGE 1 vs STAGE 2) 🧭 -->
+          <div id="match-stages-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-2.5 sm:p-3 shadow-sm flex items-center justify-between gap-2.5 flex-wrap">
+            <div class="flex items-center gap-2 flex-wrap">
+              <button id="tab-match-stage-1" onclick="setMatchStage(1)" 
+                      class="px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-teal-700 text-white shadow ring-2 ring-teal-400/40 cursor-pointer">
+                <span>1️⃣</span> <span>Stage 1: Core IPC & Reprocessing</span>
+                <span id="match-stage1-pill" class="ml-1 px-2 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">0/7 Matched</span>
               </button>
-              <button onclick="switchMainView('puzzle')" class="px-5 py-2.5 rounded-xl bg-white text-emerald-950 font-black text-xs sm:text-sm hover:bg-emerald-50 transition shadow">
-                Launch Puzzle 1: Break the Chain 🚀
+              <button id="tab-match-stage-2" onclick="setMatchStage(2)" 
+                      class="px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                <span>2️⃣</span> <span>Stage 2: HAIs & Precautions</span>
+                <span id="match-stage2-pill" class="ml-1 px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-mono">0/7 Matched</span>
               </button>
             </div>
+            <div class="flex items-center gap-2">
+              <span id="match-stage-desc" class="text-xs font-bold text-slate-600 hidden sm:inline">
+                Match all 7 definitions in Stage 1 to unlock Stage 2!
+              </span>
+            </div>
+          </div>
+
+          <!-- 🎉 STAGE 1 COMPLETE INTERSTITIAL CELEBRATION BANNER 🎉 -->
+          <div id="match-stage1-complete-banner" class="hidden w-full p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white shadow-xl border-2 border-emerald-300 text-center flex flex-col items-center gap-3">
+            <div class="flex items-center justify-center gap-2 text-xl sm:text-2xl font-black">
+              <span class="text-3xl animate-bounce">🎉</span>
+              <span>STAGE 1 COMPLETE: 7/7 DEFINITIONS MATCHED!</span>
+              <span class="text-3xl animate-bounce">🎉</span>
+            </div>
+            <p class="text-xs sm:text-sm text-emerald-100 font-medium max-w-xl mx-auto" dir="rtl">
+              أحسنت! أكملت المرحلة الأولى بنجاح (الميكروبات، التعقيم، التطهير، والكائنات المقاومة).
+              <br><span class="font-bold text-white">هل أنت مستعد للمرحلة الثانية: العدوى المرتبطة بالمستشفيات والاحتياطات؟</span>
+            </p>
+            <div class="flex items-center gap-2 flex-wrap justify-center my-1 text-2xl p-2 bg-black/20 rounded-2xl border border-white/20">
+              <span title="Microorganisms">🔬</span> 
+              <span title="Cleaning">🧼</span> 
+              <span title="Antiseptic">🧴</span> 
+              <span title="Disinfectant">🧪</span> 
+              <span title="Disinfection">🧽</span> 
+              <span title="Sterilization">♨️</span> 
+              <span title="MDRO">🦠</span>
+            </div>
+            <button onclick="advanceToMatchStage2()" class="px-6 py-3 rounded-2xl bg-white text-emerald-950 hover:bg-emerald-50 text-xs sm:text-sm font-black shadow-2xl transition active:scale-95 flex items-center gap-2 cursor-pointer border-2 border-emerald-400 group">
+              <span class="text-lg group-hover:translate-x-1 transition-transform">🚀</span>
+              <span>PROCEED TO STAGE 2: HAIs & PRECAUTIONS (الانتقال إلى المرحلة الثانية)</span>
+              <span class="text-lg">➡️</span>
+            </button>
+          </div>
+
+          <!-- 👏 STAGE 2 COMPLETE: GRAND CLAPPING & APPLAUSE CELEBRATION (تصفيق حار) 👏 -->
+          <div id="match-all-complete-banner" class="hidden w-full p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-[#021329] via-emerald-950 to-[#021329] text-white shadow-2xl border-4 border-emerald-400 text-center flex flex-col items-center gap-4 relative overflow-hidden">
+            
+            <!-- Animated Clapping Hands Display -->
+            <div class="flex items-center justify-center gap-4 text-4xl sm:text-6xl animate-bounce">
+              <span class="inline-block transform -rotate-12 animate-pulse">👏</span>
+              <span class="text-5xl sm:text-7xl">🏆</span>
+              <span class="inline-block transform rotate-12 animate-pulse">👏</span>
+            </div>
+
+            <div>
+              <div class="inline-flex items-center gap-2 px-4 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400 text-xs font-black uppercase tracking-wider mb-2">
+                <span>👏</span> <span>STANDING OVATION • تصفيق حار وتقدير</span> <span>👏</span>
+              </div>
+              <h3 class="text-xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                ALL 14 IPC DEFINITIONS MASTERED!
+              </h3>
+              <p class="text-sm sm:text-base font-bold text-emerald-300 mt-1" dir="rtl">
+                مبروك! تم إتقان جميع مفاهيم وتعريفات مكافحة العدوى والوقاية بنجاح باهر (تصفيق حار) 👏🎉
+              </p>
+              <p class="text-xs sm:text-sm text-slate-300 max-w-xl mx-auto mt-2 leading-relaxed">
+                Outstanding clinical mastery! You have successfully connected all 14 Infection Prevention & Control definitions across both Stage 1 and Stage 2.
+              </p>
+            </div>
+
+            <!-- Action Buttons: Clapping sound replay, Certificate, Next Puzzle, Play Again -->
+            <div class="flex items-center gap-3 flex-wrap justify-center mt-2">
+              <button onclick="sound.playApplause(); showToast('👏 Standing Ovation!', 'Crowd applause and clapping playing!', 'emerald');" class="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs transition active:scale-95 shadow flex items-center gap-1.5 cursor-pointer">
+                <span>👏</span> <span>Replay Applause (تصفيق)</span>
+              </button>
+
+              <button onclick="showCertificate()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-slate-950 font-black text-xs sm:text-sm shadow-lg transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+                <span>🎓</span> <span>Claim Certificate</span>
+              </button>
+
+              <button onclick="shuffleAndResetMatchGame()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs border border-slate-600 transition active:scale-95 cursor-pointer">
+                <span>↺</span> <span>Play Again</span>
+              </button>
+
+              <button onclick="switchMainView('puzzle')" class="px-5 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-black text-xs sm:text-sm transition active:scale-95 shadow-md flex items-center gap-1.5 cursor-pointer">
+                <span>🧩</span> <span>Launch Puzzle 1: Break Chain</span> <span>🚀</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- 📱 MOBILE STICKY SELECTION PILL (SHOWN ON PHONES WHEN A TERM/DEF IS ACTIVE) 📱 -->
+          <div id="mobile-match-sticky-pill" class="lg:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-40 max-w-[94%] w-auto bg-[#021329]/95 text-white border-2 border-teal-400 rounded-2xl px-3.5 py-2 shadow-2xl backdrop-blur-md flex items-center gap-2.5 hidden transition-all duration-300">
+            <span id="mobile-sticky-icon" class="text-xl">🏷️</span>
+            <div class="text-left leading-tight">
+              <div class="text-[9px] uppercase font-extrabold text-teal-300" id="mobile-sticky-label">Term Selected:</div>
+              <div class="text-xs font-black text-white line-clamp-1" id="mobile-sticky-title">Microorganisms</div>
+            </div>
+            <button id="mobile-sticky-action-btn" onclick="scrollToOppositeMatchDeck()" class="ml-1 px-3 py-1.5 rounded-xl bg-teal-600 hover:bg-teal-500 text-white text-[10px] font-black shadow transition active:scale-95 flex items-center gap-1 cursor-pointer">
+              <span id="mobile-sticky-btn-text">Defs 👇</span>
+            </button>
           </div>
 
           <!-- 🎮 TWO-COLUMN INTERACTIVE MATCHING ARENA 🎮 -->
@@ -1397,12 +2005,12 @@
 
           </div>
 
-          <!-- EXPANDABLE FULL REFERENCE TABLE (EXACT 14-ROW SYLLABUS TABLE) -->
-          <div class="bg-white border border-slate-300 rounded-3xl p-4 sm:p-5 shadow-sm">
-            <details class="group">
+          <!-- EXPANDABLE FULL REFERENCE TABLE (EXACT 14-ROW SYLLABUS TABLE) - STRICTLY TRAINER ONLY (HIDDEN FOR STUDENTS) -->
+          <div id="match-reference-table-container" class="trainer-only hidden bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-5 shadow-sm">
+            <details class="group" id="match-reference-table-details">
               <summary class="flex items-center justify-between cursor-pointer font-black text-xs sm:text-sm text-slate-800 select-none py-1">
                 <span class="flex items-center gap-2">
-                  <span>📋</span> View Official 14-Row IPC Definition Reference Table
+                  <span>📋</span> View Official 14-Row IPC Definition Reference Table (Facilitator Key Only)
                 </span>
                 <span class="text-xs text-teal-700 group-open:rotate-180 transition-transform">▼</span>
               </summary>
@@ -1420,6 +2028,33 @@
                 </table>
               </div>
             </details>
+          </div>
+
+          <!-- 🏠 BOTTOM NAVIGATION: GO BACK TO MAIN PORTAL (FOR ALL PUZZLES) 🏠 -->
+          <div class="w-full max-w-[1240px] mx-auto mt-6 mb-4 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-950 via-[#031b33] to-slate-950 border-2 border-teal-500/70 shadow-2xl flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <span class="text-3xl sm:text-4xl">🏛️</span>
+              <div class="text-left">
+                <h4 class="text-sm sm:text-base font-black text-white flex items-center gap-2">
+                  <span>IPC Training Puzzles Portal</span>
+                  <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40">Hub</span>
+                </h4>
+                <p class="text-xs text-teal-200/90 font-medium">بوابة الألغاز التفاعلية لمكافحة وضبط العدوى • العودة للصفحة الرئيسية</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button onclick="switchMainView('portal')" title="Return to Main Training Portal Hub" 
+                      class="px-5 py-3 rounded-2xl bg-gradient-to-r from-teal-600 via-cyan-600 to-emerald-600 hover:from-teal-500 hover:to-emerald-500 text-white font-black text-xs sm:text-sm shadow-xl flex items-center gap-2 transition active:scale-95 cursor-pointer border border-teal-300/40">
+                <span>🏠</span>
+                <span>Go Back to Main Portal (العودة للبوابة الرئيسية)</span>
+              </button>
+              <button onclick="switchMainView('puzzle')" title="Switch to Puzzle 1: Break the Chain" 
+                      class="px-4 py-3 rounded-2xl bg-[#03203f] hover:bg-[#053262] text-cyan-300 border border-cyan-400/60 font-black text-xs transition active:scale-95 shadow flex items-center gap-2 cursor-pointer">
+                <span>⬅️</span>
+                <span>Go to Puzzle 1 (الانتقال للغز 1)</span>
+                <span>🧩</span>
+              </button>
+            </div>
           </div>
 
         </div>
@@ -1606,6 +2241,58 @@
     </div>
   </div>
 
+  <!-- ⏰ TIME'S UP EMERGENCY MODAL (FOR ALL PUZZLES) ⏰ -->
+  <div id="timeup-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden transition-all duration-300">
+    <div class="bg-gradient-to-b from-[#180303] via-[#0f172a] to-[#020617] border-3 border-red-500 rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-[0_0_60px_rgba(239,68,68,0.6)] text-center relative text-white">
+      
+      <!-- Flashing Siren & Clock Icon -->
+      <div class="flex items-center justify-center gap-3 text-5xl sm:text-6xl mb-3 animate-pulse">
+        <span>🚨</span>
+        <span class="text-6xl sm:text-7xl">⏰</span>
+        <span>🚨</span>
+      </div>
+
+      <h3 class="text-2xl sm:text-3xl font-black text-red-400 tracking-tight leading-tight uppercase drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">
+        TIME'S UP!
+      </h3>
+      <div class="text-base sm:text-lg font-black text-white mt-1" dir="rtl">
+        انتهى وقت التحدي المخصص (10 دقائق)!
+      </div>
+
+      <p class="text-xs sm:text-sm text-slate-300 font-medium mt-3 leading-relaxed max-w-md mx-auto">
+        The 10-minute simulation timer has ended. Fantastic effort! Review your group's score and discussion points with the facilitator.
+      </p>
+
+      <div class="my-4 p-4 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-around">
+        <div>
+          <span class="text-[10px] uppercase font-bold text-slate-300 block">Current Score</span>
+          <span id="timeup-score-readout" class="text-xl sm:text-2xl font-black text-amber-300">0 pts</span>
+        </div>
+        <div class="h-8 w-px bg-white/20"></div>
+        <div>
+          <span class="text-[10px] uppercase font-bold text-slate-300 block">Progress</span>
+          <span id="timeup-progress-readout" class="text-xl sm:text-2xl font-black text-emerald-400">Completed</span>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-3 mt-5">
+        <button onclick="restartTimerAndDismiss(600)" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 hover:from-red-500 hover:to-amber-500 text-white font-black text-xs sm:text-sm shadow-xl transition active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-red-300/40">
+          <span>↺</span>
+          <span>Replay 10-Min Timer (إعادة المؤقت)</span>
+        </button>
+
+        <button onclick="closeModal('timeup-modal')" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 text-white font-bold text-xs sm:text-sm transition active:scale-95 cursor-pointer border border-slate-600">
+          <span>Continue Playing (متابعة)</span>
+        </button>
+
+        <button onclick="closeModal('timeup-modal'); switchMainView('portal');" class="w-full sm:w-auto px-5 py-3 rounded-2xl bg-cyan-800 hover:bg-cyan-700 text-cyan-200 font-bold text-xs sm:text-sm transition active:scale-95 cursor-pointer border border-cyan-500/50">
+          <span>🏠 Main Portal</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
   <!-- 📁 MODAL: HISTORICAL SESSION ARCHIVE 📁 -->
   <div id="archive-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden">
     <div class="bg-white border border-slate-300 rounded-3xl max-w-3xl w-full p-5 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
@@ -1696,10 +2383,10 @@
 
   <!-- MODAL: PRINTABLE OFFICIAL IPC CERTIFICATE WITH ATTACHED EMBLEM & CREDITS -->
   <div id="certificate-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden">
-    <div class="bg-white text-slate-900 border-8 border-cyan-800 rounded-3xl max-w-3xl w-full p-6 sm:p-10 shadow-2xl relative text-center">
+    <div class="bg-white text-slate-900 border-4 sm:border-8 border-cyan-800 rounded-3xl max-w-3xl w-full p-4 sm:p-10 shadow-2xl relative text-center max-h-[92vh] overflow-y-auto">
       
       <!-- Actions Bar (Hidden on print) -->
-      <div class="no-print absolute top-4 right-4 flex items-center gap-2">
+      <div class="no-print absolute top-3 right-3 sm:top-4 sm:right-4 flex items-center gap-2">
         <button onclick="window.print()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow hover:bg-emerald-500 transition">
           🖨️ Print Certificate
         </button>
@@ -1708,9 +2395,9 @@
         </button>
       </div>
 
-      <div class="border-4 border-dashed border-cyan-700/40 p-5 sm:p-8 rounded-2xl">
+      <div class="border-2 sm:border-4 border-dashed border-cyan-700/40 p-3 sm:p-8 rounded-2xl">
         <div class="flex justify-center items-center gap-3 mb-2">
-          <img src="ipc-logo.jpg" alt="IPC Emblem" class="w-20 h-20 object-contain" />
+          <img src="ipc-logo.jpg" alt="IPC Emblem" class="w-14 h-14 sm:w-20 sm:h-20 object-contain" />
         </div>
         <div class="text-[11px] tracking-widest font-black uppercase text-cyan-800">
           Infection Prevention and Control Training Center
@@ -1913,25 +2600,15 @@
         </div>
       </div>
 
-      <!-- ⚠️ FILE PROTOCOL ADVISORY BANNER (VISIBLE IF ACCESSED VIA FILE://) -->
-      <div id="file-proto-alert" class="p-3.5 rounded-2xl bg-amber-500/15 border-2 border-amber-400 text-amber-900 text-xs hidden">
-        <div class="flex items-center gap-2 font-black text-amber-800">
-          <span class="text-base">⚠️</span>
-          <span>ملاحظة هامة للمسح بالجوال (Important for Phone Scanning):</span>
+      <!-- 🌐 LIVE GITHUB PAGES STATUS BANNER -->
+      <div id="file-proto-alert" class="p-3 rounded-2xl bg-emerald-50 border-2 border-emerald-400 text-emerald-950 text-xs">
+        <div class="flex items-center gap-2 font-black text-emerald-800">
+          <span class="text-base">🌐</span>
+          <span>الموقع منشور ومباشر على الإنترنت (Live Cloud Hosted):</span>
         </div>
-        <p class="text-[11px] text-amber-950 mt-1 leading-relaxed">
-          الملف مفتوح حالياً كملف محلي على الكمبيوتر (<code class="bg-amber-100 px-1 py-0.5 rounded font-mono font-bold">file://</code>). لذلك عند مسح الباركود يظهر للجوال <code class="bg-amber-100 px-1 py-0.5 rounded font-mono">localhost</code> وتظهر رسالة (This site can't be reached) لأن الجوال يبحث داخل نفسه وليس داخل الكمبيوتر!
+        <p class="text-[11px] text-emerald-900 mt-1 leading-relaxed">
+          الرابط المعتمد للمشاركة: <code class="bg-emerald-100 px-1 py-0.5 rounded font-mono font-bold text-emerald-900">https://hammamrjoup.github.io/IPC-Puzzles-student-/</code> — يمكن لأي جوال أو جهاز لوحي مسح الباركود والدخول فوراً بدون أي برامج أو تسجيل.
         </p>
-        <div class="mt-2 text-[11px] bg-white/90 p-2.5 rounded-xl border border-amber-300 flex flex-col gap-1.5 text-slate-800 shadow-xs">
-          <div>
-            <strong class="text-emerald-800">1️⃣ الحل الأفضل (للطلاب في أي مكان على النت):</strong>
-            <br>ارفع ملف <code class="text-cyan-700 font-bold">index.html</code> مجاناً في دقيقة على <a href="https://tiiny.host" target="_blank" class="text-blue-600 underline font-bold">tiiny.host</a>، ثم الصق الرابط في خانة (Wi-Fi / Host Setting) بالأسفل واضغط Save.
-          </div>
-          <div>
-            <strong class="text-cyan-800">2️⃣ للتدريب في القاعة (نفس شبكة الواي فاي Wi-Fi):</strong>
-            <br>شغّل الملف <code class="bg-slate-100 px-1.5 py-0.5 rounded font-mono font-bold text-cyan-800">START_STUDENT_SERVER.bat</code> الموجود في مجلد اللعبة.
-          </div>
-        </div>
       </div>
 
       <!-- Barcode / QR Code Presentation Box -->
@@ -1997,7 +2674,7 @@
             If running from a laptop or desktop via Wi-Fi, enter your local IP (e.g. <code>http://192.168.1.50:8080</code>) or online hosted URL (e.g. GitHub Pages) so students' mobile phones can reach this machine:
           </p>
           <div class="flex items-center gap-2">
-            <input id="input-custom-host" type="text" placeholder="e.g. http://192.168.1.15:8080 or https://your-site.com" 
+            <input id="input-custom-host" type="text" placeholder="Default: https://hammamrjoup.github.io/IPC-Puzzles-student-/" 
                    class="flex-1 px-3 py-1.5 rounded-xl border border-cyan-300 bg-white text-xs font-mono text-slate-800" />
             <button onclick="saveCustomHostUrl()" class="px-3.5 py-1.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-bold text-xs shadow transition cursor-pointer">
               Save
@@ -2833,12 +3510,13 @@
     // Session history for Facilitator Debrief and Certificate
     let sessionHistory = [];
 
-    // Timer state (7-Minute Simulation)
-    let sessionSeconds = 420; // 7 minutes total
-    let challengeSeconds = 420; // 7 minutes challenge
+    // Timer state (10-Minute Simulation for all puzzles)
+    let sessionSeconds = 600; // 10 minutes total
+    let challengeSeconds = 600; // 10 minutes challenge
     let timerInterval = null;
     let isTimerRunning = false;
     let isCountingDown = false;
+    let lastWarningBeepSecond = -1;
 
     // Board graphic mode
     let boardViewMode = 'template';
@@ -2998,9 +3676,6 @@
           const placedCard = document.createElement('div');
           placedCard.className = "p-2.5 rounded-2xl border-2 border-emerald-300/60 bg-emerald-50/80 text-emerald-950 flex items-center justify-between opacity-50 select-none cursor-default transition-all relative";
           placedCard.innerHTML = `
-            <span class="absolute -top-2 -left-2 w-5 h-5 rounded-full ${link.theme.badgeBg} text-white font-black text-[10px] flex items-center justify-center shadow border border-white">
-              ${link.number}
-            </span>
             <div class="flex items-center gap-2 pl-1">
               <span class="text-xl">${link.icon}</span>
               <span class="font-bold text-xs sm:text-sm line-through text-slate-500">${link.name}</span>
@@ -3027,9 +3702,6 @@
         }`;
 
         card.innerHTML = `
-          <span class="absolute -top-2.5 -left-2.5 w-6 h-6 rounded-full ${link.theme.badgeBg} text-white font-black text-xs flex items-center justify-center shadow border-2 border-white">
-            ${link.number}
-          </span>
           <div class="flex items-center justify-between mb-1 pl-1">
             <div class="flex items-center gap-2">
               <span class="text-2xl">${link.icon}</span>
@@ -3072,6 +3744,13 @@
         selectedPieceId = linkId;
         const link = CHAIN_LINKS.find(l => l.id === linkId);
         showToast("Selected: " + (link ? link.name : "Label"), "👉 Tap the matching circle on the drawing to place it!", "cyan");
+        // On mobile screens, smoothly scroll to board so student can tap the circle!
+        if (window.innerWidth < 1024) {
+          const boardBox = document.getElementById('board-aspect-box');
+          if (boardBox) {
+            boardBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
       }
       renderChainPiecesBank();
       renderBoardSlots();
@@ -3111,14 +3790,14 @@
             ? `circle-slot border-3 border-solid border-amber-400 bg-amber-50 text-amber-950 shadow-2xl animate-pulse cursor-pointer group ring-4 ring-amber-400/60 z-30`
             : `circle-slot border-2 border-dashed border-slate-300 hover:border-cyan-500 bg-white/80 hover:bg-cyan-50/50 shadow-xs hover:scale-105 transition-all cursor-pointer group`;
           node.innerHTML = `
-            <span class="absolute -top-2.5 -left-2.5 w-6 h-6 sm:w-7 sm:h-7 rounded-full ${isTargeted ? 'bg-amber-500' : 'bg-slate-700'} text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md border-2 border-white z-30">
+            <span class="absolute -top-2 -left-2 sm:-top-2.5 sm:-left-2.5 w-5 h-5 sm:w-7 sm:h-7 rounded-full ${isTargeted ? 'bg-amber-500' : 'bg-slate-700'} text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-md border-2 border-white z-30">
               ${isTargeted ? '🎯' : link.number}
             </span>
-            <div class="flex flex-col items-center justify-center text-center p-1 w-full h-full select-none relative">
-              <span class="text-xl sm:text-2xl ${isTargeted ? 'text-amber-500 animate-bounce' : 'text-slate-300 group-hover:text-cyan-500'} transition-colors mb-0.5">
+            <div class="flex flex-col items-center justify-center text-center p-0.5 sm:p-1 w-full h-full select-none relative">
+              <span class="text-base sm:text-2xl ${isTargeted ? 'text-amber-500 animate-bounce' : 'text-slate-300 group-hover:text-cyan-500'} transition-colors mb-0.5">
                 ${isTargeted ? '🎯' : '❓'}
               </span>
-              <span class="text-[8px] sm:text-[9.5px] font-extrabold uppercase tracking-wider ${isTargeted ? 'text-amber-900 font-black' : 'text-slate-400 group-hover:text-cyan-700'} leading-tight">
+              <span class="text-[7px] sm:text-[9.5px] font-extrabold uppercase tracking-wider ${isTargeted ? 'text-amber-900 font-black' : 'text-slate-400 group-hover:text-cyan-700'} leading-tight">
                 ${isTargeted ? 'TAP LABEL BELOW' : 'DROP HERE'}
               </span>
             </div>
@@ -3165,6 +3844,13 @@
             selectedTargetSlot = slotIndex;
             if (sound.playCardSelect) sound.playCardSelect();
             showToast(`Position ${slotIndex + 1} Selected! 🎯`, "👉 Now click the matching label card beside the drawing to place it here!", "cyan");
+            // On mobile screens, smoothly scroll to choices bank so student can tap the card!
+            if (window.innerWidth < 1024) {
+              const bankEl = document.getElementById('chain-pieces-bank');
+              if (bankEl) {
+                bankEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+              }
+            }
           }
           renderBoardSlots();
           renderChainPiecesBank();
@@ -3228,6 +3914,7 @@
     function checkStage1Completion() {
       const allFilled = boardSlots.every((s, idx) => s === idx);
       if (allFilled) {
+        if (isTimerRunning) stopTimer();
         sound.playVictory();
         teams[currentTeamIndex].stage1Complete = true;
 
@@ -3332,6 +4019,8 @@
         p2.classList.add('flex');
       }
 
+      updateStage2Hint('ready');
+      updateSvgArrowVisuals();
       renderBoardSlots();
       loadActiveScenario();
       renderPrecautionsDeck();
@@ -3713,6 +4402,7 @@
       }
 
       sound.playLock();
+      updateStage2Hint('precaution_selected', { precObj: cardObj });
     }
 
     function selectChainLink(linkId) {
@@ -3729,6 +4419,14 @@
       }
 
       sound.playLock();
+
+      if (currentStage === 2) {
+        if (selectedPrecautionId) {
+          checkCurrentAnswer();
+        } else {
+          updateStage2Hint('link_selected', { linkObj: linkObj });
+        }
+      }
     }
 
     function resetRoundSelections() {
@@ -3761,29 +4459,34 @@
       if (!link) return '';
       if (isBroken) {
         return `
-          <span class="absolute -top-2.5 -left-2.5 w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-emerald-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md border-2 border-white z-30">⚡</span>
-          <div class="flex flex-col items-start justify-center p-1.5 sm:p-2 w-full h-full text-left select-none">
-            <div class="flex items-center gap-1 mb-0.5 w-full justify-between">
-              <span class="text-[9px] sm:text-[11px] font-black text-emerald-950 line-through decoration-emerald-600 leading-tight">${link.name}</span>
-              <span class="text-[7px] sm:text-[8px] font-black uppercase text-emerald-800 bg-emerald-100 px-1 rounded border border-emerald-300 leading-none">BROKEN</span>
+          <span class="absolute -top-2.5 -left-2.5 sm:-top-3 sm:-left-3 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-xl border-2 border-white z-30 animate-bounce">⚡</span>
+          <div class="flex flex-col items-center justify-center p-1 sm:p-2 w-full h-full text-center select-none bg-red-100/70 rounded-2xl relative overflow-hidden border border-red-300 shadow-inner">
+            <div class="flex items-center gap-1 mb-1 justify-center">
+              <span class="text-xs sm:text-sm">💥</span>
+              <span class="text-[8px] sm:text-[10px] font-black uppercase text-red-800 bg-red-200/90 px-2 py-0.5 rounded-full border border-red-300 leading-none">
+                BROKEN LINK (مكسور)
+              </span>
             </div>
-            <p class="text-[7px] sm:text-[8.5px] text-emerald-900 font-semibold leading-tight line-clamp-2 mt-0.5">
-              ${link.clinicAction}
-            </p>
+            <span class="text-[9px] sm:text-[12px] font-black text-slate-900 line-through decoration-red-600 decoration-3 leading-tight">
+              ${link.name}
+            </span>
+            <span class="text-[7.5px] sm:text-[9.5px] text-red-900 font-extrabold leading-tight mt-1 line-clamp-2">
+              ${link.clinicAction || 'Transmission Stopped!'}
+            </span>
           </div>
         `;
       }
       return `
-        <span class="absolute -top-2.5 -left-2.5 w-6 h-6 sm:w-7 sm:h-7 rounded-full ${link.theme.badgeBg} text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-md border-2 border-white z-30">${link.number}</span>
-        <div class="relative w-full h-full p-1.5 sm:p-2 rounded-2xl flex items-center gap-2 select-none overflow-hidden">
-          <div class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/85 shadow-xs flex items-center justify-center flex-shrink-0 text-base sm:text-xl border border-slate-200/60">
+        <span class="absolute -top-2 -left-2 sm:-top-2.5 sm:-left-2.5 w-5 h-5 sm:w-7 sm:h-7 rounded-full ${link.theme.badgeBg} text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-md border-2 border-white z-30">${link.number}</span>
+        <div class="relative w-full h-full p-1 sm:p-2 rounded-2xl flex items-center gap-1 sm:gap-2 select-none overflow-hidden">
+          <div class="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-xl bg-white/85 shadow-xs flex items-center justify-center flex-shrink-0 text-xs sm:text-base md:text-xl border border-slate-200/60">
             ${link.icon}
           </div>
           <div class="flex-1 min-w-0 text-left">
-            <h4 class="text-[10px] sm:text-[12px] font-black ${link.theme.text} leading-tight line-clamp-1">
+            <h4 class="text-[8px] sm:text-[10px] md:text-[12px] font-black ${link.theme.text} leading-tight line-clamp-1">
               ${link.name}
             </h4>
-            <p class="text-[7px] sm:text-[8.5px] ${link.theme.subtext} font-medium leading-tight line-clamp-2 mt-0.5">
+            <p class="hidden sm:block text-[7px] sm:text-[8.5px] ${link.theme.subtext} font-medium leading-tight line-clamp-2 mt-0.5">
               ${link.examples}
             </p>
           </div>
@@ -3791,7 +4494,184 @@
       `;
     }
 
+        // 💡 CLINICAL CDC HINTS FOR THE 11 STANDARD PRECAUTIONS
+    const PRECAUTION_HINTS = {
+      'hand_hygiene': {
+        name: 'Hand Hygiene',
+        nameAr: 'نظافة اليدين',
+        clue: 'Hand hygiene removes pathogens before they reach patients or mucous membranes. Targets: Mode of Transmission (contact) or Portal of Entry!',
+        clueAr: 'نظافة اليدين تزيل الميكروبات قبل انتقالها إلى المريض أو الأغشية المخاطية. تستهدف: وسيلة الانتقال (الملامسة) أو مدخل العدوى!'
+      },
+      'ppe': {
+        name: 'PPE',
+        nameAr: 'معدات الوقاية الشخصية',
+        clue: 'Gloves, gowns, and masks block body fluids. Targets: Portal of Exit (source control) or Portal of Entry (barrier for eyes/nose/mouth)!',
+        clueAr: 'القفازات والكمامات والواقيات تحجز السوائل البيولوجية. تستهدف: مخرج العدوى (حجز الرذاذ) أو مدخل العدوى (حماية الأغشية)!'
+      },
+      'respiratory_hygiene': {
+        name: 'Respiratory Hygiene / Cough Etiquette',
+        nameAr: 'نظافة الجهاز التنفسي وآداب السعال',
+        clue: 'Covering coughs and wearing masks traps droplets at the source. Targets: Portal of Exit!',
+        clueAr: 'تغطية الفم أثناء السعال وارتداء الكمامات يحجز قطيرات الرذاذ عند المصدر. تستهدف: مخرج العدوى!'
+      },
+      'patient_placement': {
+        name: 'Patient Placement',
+        nameAr: 'عزل وتوزيع المرضى',
+        clue: 'Single rooms and cohorting stop airborne and spatial spread across the ward. Targets: Mode of Transmission or Reservoir!',
+        clueAr: 'الغرف المنفردة وعزل المرضى يمنع انتشار الميكروبات في هواء وبيئة الجناح. تستهدف: وسيلة الانتقال أو المستودع!'
+      },
+      'safe_injections': {
+        name: 'Safe Injection Practices',
+        nameAr: 'ممارسات الحقن الآمن',
+        clue: 'One needle, one syringe, only one time! Prevents contaminated needles from entering tissue. Targets: Mode of Transmission or Portal of Entry!',
+        clueAr: 'إبرة واحدة وسرنجة واحدة لمرة واحدة فقط! تمنع اختراق العدوى لجلد وأنسجة المريض. تستهدف: وسيلة الانتقال أو مدخل العدوى!'
+      },
+      'environmental_cleaning': {
+        name: 'Environmental Cleaning',
+        nameAr: 'تنظيف وتطهير البيئة',
+        clue: 'Disinfecting bed rails, monitors, and commodes destroys the microbial breeding ground. Targets: Reservoir or Mode of Transmission!',
+        clueAr: 'تطهير أسرّة المرضى والأسطح يقضي على المستودع البيئي الذي تتكاثر فيه الجراثيم. تستهدف: المستودع أو وسيلة الانتقال!'
+      },
+      'linen': {
+        name: 'Linen Management',
+        nameAr: 'إدارة المفارش والكتان',
+        clue: 'Safe containment of soiled bed sheets prevents dispersing germs onto clothing or into the air. Targets: Mode of Transmission or Reservoir!',
+        clueAr: 'وضع الشراشف المتسخة في أكياس مغلقة يمنع تناثر الميكروبات في الهواء أو على الكوادر. تستهدف: وسيلة الانتقال أو المستودع!'
+      },
+      'waste_management': {
+        name: 'Waste Management',
+        nameAr: 'إدارة النفايات الطبية',
+        clue: 'Yellow biohazard bags safely seal contaminated medical waste. Targets: Reservoir or Mode of Transmission!',
+        clueAr: 'أكياس وصناديق النفايات الطبية الخطرة تغلق مستودع العدوى بأمان. تستهدف: المستودع أو وسيلة الانتقال!'
+      },
+      'sharps_safety': {
+        name: 'Sharps Safety',
+        nameAr: 'سلامة الأدوات الحادة',
+        clue: 'Rigid sharps boxes and safety needles prevent accidental punctures into skin and bloodstream. Targets: Portal of Entry!',
+        clueAr: 'صناديق الأدوات الحادة والإبر الآمنة تمنع وخز الجلد واختراق الدورة الدموية. تستهدف: مدخل العدوى!'
+      },
+      'reprocessing_equipment': {
+        name: 'Reprocessing Equipment',
+        nameAr: 'إعادة معالجة وتعقيم المعدات',
+        clue: 'Autoclaving and high-level disinfection eradicate pathogens from reusable tools. Targets: Reservoir or Mode of Transmission!',
+        clueAr: 'التعقيم بالأوتوكلاف والتطهير عالي المستوى يقضي على مستودع الجراثيم في الأدوات. تستهدف: المستودع أو وسيلة الانتقال!'
+      },
+      'occupational_health': {
+        name: 'Occupational Health',
+        nameAr: 'صحة الكوادر المهنية والتطعيمات',
+        clue: 'Vaccinations (Hepatitis B, Influenza, MMR) protect vulnerable hosts from disease. Targets: Susceptible Host!',
+        clueAr: 'تطعيمات الكوادر الصحية (التهاب الكبد، الإنفلونزا) تعزز مناعة العائل وتحميه. تستهدف: العائل المعرض للإصابة!'
+      }
+    };
+
+    // ⚡ SVG ARROW BREAK VISUAL CONTROLLER (BREAKS CONNECTING ARROWS IN CIRCLE)
+    function updateSvgArrowVisuals() {
+      for (let i = 0; i < 6; i++) {
+        const arrow = document.getElementById(`arrow-path-${i}`);
+        const brokenMarker = document.getElementById(`arrow-broken-${i}`);
+        // An arrow is broken if either node i or the following node is broken
+        const isBroken = (currentStage === 2 && brokenLinksMap && (brokenLinksMap[i] || brokenLinksMap[(i + 1) % 6]));
+        if (arrow) {
+          if (isBroken) {
+            arrow.setAttribute('stroke', '#ef4444');
+            arrow.setAttribute('stroke-width', '5.5');
+            arrow.setAttribute('stroke-dasharray', '8 6');
+            arrow.setAttribute('marker-end', 'url(#arrowBrokenHead)');
+          } else {
+            arrow.setAttribute('stroke', '#0d9488');
+            arrow.setAttribute('stroke-width', '4.5');
+            arrow.removeAttribute('stroke-dasharray');
+            arrow.setAttribute('marker-end', 'url(#arrowTealHead)');
+          }
+        }
+        if (brokenMarker) {
+          if (isBroken) {
+            brokenMarker.classList.remove('hidden');
+          } else {
+            brokenMarker.classList.add('hidden');
+          }
+        }
+      }
+    }
+
+    // 💡 REAL-TIME STAGE 2 HINT & EVALUATION BANNER UPDATER
+    function updateStage2Hint(state, data = {}) {
+      const banner = document.getElementById('stage2-realtime-hint-banner');
+      const icon = document.getElementById('hint-banner-icon');
+      const title = document.getElementById('hint-banner-title');
+      const desc = document.getElementById('hint-banner-desc');
+      const descAr = document.getElementById('hint-banner-desc-ar');
+      const tag = document.getElementById('hint-banner-tag');
+      if (!banner) return;
+
+      if (state === 'ready') {
+        banner.className = "w-full p-4 rounded-2xl border-2 border-cyan-300 bg-gradient-to-r from-sky-50 via-cyan-50 to-teal-50 text-slate-800 shadow-sm transition-all duration-300 flex items-start gap-3.5";
+        if (icon) icon.innerText = "🛡️";
+        if (title) title.innerText = "STEP 1: SELECT A STANDARD PRECAUTION CARD";
+        if (desc) desc.innerText = "Tap any of the 11 Standard Precaution cards below, then tap a link on the wide circle below to test if it breaks transmission!";
+        if (descAr) descAr.innerText = "اختر بطاقة احتياط قياسي أدناه، ثم انقر على حلقة في الدائرة بالأسفل لمعرفة ما إذا كانت تكسر السلسلة!";
+        if (tag) tag.innerText = "CDC Guided";
+      } else if (state === 'link_selected') {
+        const link = data.linkObj;
+        banner.className = "w-full p-4 rounded-2xl border-2 border-indigo-300 bg-indigo-50/90 text-indigo-950 shadow-md transition-all duration-300 flex items-start gap-3.5 ring-3 ring-indigo-300/40";
+        if (icon) icon.innerText = "🔗";
+        if (title) title.innerText = `LINK SELECTED: ${link ? link.name : "Link"}`;
+        if (desc) desc.innerText = `You tapped Link ${link ? link.number : ""}: ${link ? link.name : ""}. Now tap which of the 11 Standard Precaution cards above breaks this link!`;
+        if (descAr) descAr.innerText = `اخترت الحلقة ${link ? link.number : ""}: ${link ? (link.nameAr || link.name) : ""}. الآن انقر على بطاقة الاحتياط القياسي المناسبة أعلاه لكسرها!`;
+        if (tag) tag.innerText = "Select Precaution";
+      } else if (state === 'precaution_selected') {
+        const prec = data.precObj || PRECAUTION_CARDS.find(p => p.id === selectedPrecautionId);
+        banner.className = "w-full p-4 rounded-2xl border-2 border-amber-300 bg-amber-50/90 text-amber-950 shadow-md transition-all duration-300 flex items-start gap-3.5 ring-3 ring-amber-300/40";
+        if (icon) icon.innerText = "🎯";
+        if (title) title.innerText = `STEP 2: TARGET A CHAIN LINK ON THE CIRCLE BELOW`;
+        if (desc) desc.innerText = `Selected Precaution: ${prec ? prec.name : "Precaution"}. Now tap the chain link on the wide circle below that this precaution interrupts!`;
+        if (descAr) descAr.innerText = `اخترت: ${prec ? (prec.nameAr || prec.name) : "الاحتياط"}. الآن انقر على حلقة في الدائرة أدناه لكسرها!`;
+        if (tag) tag.innerText = "Ready to Break";
+      } else if (state === 'correct') {
+        banner.className = "w-full p-4 sm:p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-50 text-emerald-950 shadow-xl transition-all duration-300 flex items-start gap-3.5 ring-4 ring-emerald-400/50 animate-pulse";
+        if (icon) icon.innerText = "✅";
+        if (title) title.innerText = `GOOD! CORRECT PLACEMENT! (أحسنت! موضع صحيح)`;
+        if (desc) desc.innerText = `EXCELLENT! ${data.precObj.name} effectively breaks Link ${data.linkObj.number}: ${data.linkObj.name}! ${data.rationale}`;
+        if (descAr) descAr.innerText = `ممتاز! إجراء (${data.precObj.nameAr || data.precObj.name}) يكسر الحلقة ${data.linkObj.number} (${data.linkObj.nameAr || data.linkObj.name}) بنجاح! ${data.rationaleAr || ''}`;
+        if (tag) tag.innerText = "+2 Points! Chain Broken!";
+      } else if (state === 'wrong') {
+        banner.className = "w-full p-4 sm:p-5 rounded-2xl border-2 border-rose-400 bg-rose-50 text-rose-950 shadow-xl transition-all duration-300 flex items-start gap-3.5 ring-4 ring-rose-400/40";
+        if (icon) icon.innerText = "❌";
+        if (title) title.innerText = `WRONG LINK — TRY AGAIN! (موضع غير صحيح - حاول مرة أخرى)`;
+        if (desc) desc.innerText = `NOT QUITE! ${data.precObj.name} does NOT break Link ${data.linkObj.number} (${data.linkObj.name}). 💡 HINT: ${data.clue}`;
+        if (descAr) descAr.innerText = `ليس هذا الموضع الصحيح! إجراء (${data.precObj.nameAr || data.precObj.name}) لا يكسر هذه الحلقة. 💡 تلميح: ${data.clueAr}`;
+        if (tag) tag.innerText = "Try Another Link";
+      } else if (state === 'hint') {
+        banner.className = "w-full p-4 sm:p-5 rounded-2xl border-2 border-amber-400 bg-amber-50 text-amber-950 shadow-lg transition-all duration-300 flex items-start gap-3.5 ring-3 ring-amber-300/50";
+        if (icon) icon.innerText = "💡";
+        if (title) title.innerText = `CLINICAL HINT FOR: ${data.precName}`;
+        if (desc) desc.innerText = data.clue;
+        if (descAr) descAr.innerText = data.clueAr;
+        if (tag) tag.innerText = "Hint Active";
+      }
+    }
+
+    // 💡 SHOW PRECAUTION HINT ON DEMAND
+    function showPrecautionHint() {
+      if (!selectedPrecautionId) {
+        showToast("💡 Select a Precaution First", "Tap any of the 11 Standard Precaution cards below to see its clinical hint!", "amber");
+        sound.playHintChime();
+        return;
+      }
+      const hint = PRECAUTION_HINTS[selectedPrecautionId];
+      if (hint) {
+        sound.playHintChime();
+        updateStage2Hint('hint', {
+          precName: hint.name,
+          clue: hint.clue,
+          clueAr: hint.clueAr
+        });
+        showToast(`💡 Hint: ${hint.name}`, hint.clue, "amber");
+      }
+    }
+
     function resetBoardNodeVisuals() {
+      updateSvgArrowVisuals();
       renderBoardSlots();
     }
 
@@ -3826,6 +4706,11 @@
       const nextBtn = document.getElementById('btn-next-scenario');
       const checkBtn = document.getElementById('btn-check-answer');
       const roundPointsPill = document.getElementById('round-points-pill');
+
+      // ⏱️ Stop Stopwatch when answering
+      if (isTimerRunning) {
+        stopTimer();
+      }
 
       // Check if user selected Susceptible Host with non-occupational health
       if (selectedLinkId === 5 && selectedPrecautionId !== 'occupational_health') {
@@ -3918,6 +4803,20 @@
           }
           if (checkBtn) checkBtn.classList.add('hidden');
 
+          // 👏 Audience applause / hand clapping for successful chain breaking
+          sound.playApplause(2.2);
+
+          // Update real-time hint banner to GOOD / CORRECT!
+          updateStage2Hint('correct', {
+            precObj: precObj,
+            linkObj: linkObj,
+            rationale: rationale,
+            rationaleAr: rationaleAr
+          });
+
+          // Update SVG arrow break paths
+          updateSvgArrowVisuals();
+
           showToast("💥 CHAIN BROKEN!", `+2 Points! ${precObj.name} breaks Link ${linkObj.number} (${linkObj.name})`, "emerald");
         }
       } else {
@@ -3951,13 +4850,35 @@
         }
 
         teams[currentTeamIndex].wrongCount++;
-        sound.playBigAlarm();
-        showToast("Incorrect Selection", "Discuss as a group and select another precaution or link to retry.", "slate");
+        sound.playLock();
+
+        // Shake the incorrectly targeted circle node
+        const wrongNode = document.getElementById(`node-${selectedLinkId}`);
+        if (wrongNode) {
+          wrongNode.classList.add('shake-anim');
+          setTimeout(() => wrongNode.classList.remove('shake-anim'), 600);
+        }
+
+        // Get smart clinical clue
+        const hintData = PRECAUTION_HINTS[selectedPrecautionId] || {};
+        const clueText = hintData.clue || `According to CDC guidelines, ${precObj.name} primarily interrupts ${validTargetNames}.`;
+        const clueTextAr = hintData.clueAr || `وفقاً لدلائل CDC، هذا الإجراء يقطع أساساً: ${validTargetNamesAr}.`;
+
+        // Update real-time hint banner to WRONG / TRY AGAIN!
+        updateStage2Hint('wrong', {
+          precObj: precObj,
+          linkObj: linkObj,
+          clue: clueText,
+          clueAr: clueTextAr
+        });
+
+        showToast("❌ Incorrect Placement", clueText, "amber");
       }
     }
 
     function triggerLinkBreakVisual(linkId) {
       brokenLinksMap[linkId] = true;
+      updateSvgArrowVisuals();
       renderBoardSlots();
       renderChainLinearTrack();
 
@@ -4156,20 +5077,21 @@
     // =========================================================================
     // 10. TIMER ENGINE (7:00 TOTAL SESSION • ANIMATED 1-2-3 COUNTDOWN START)
     // =========================================================================
-    function triggerCountdownAndStart() {
+    function triggerCountdownAndStart(durationSeconds = 600) {
       if (sound && sound.init) sound.init();
+      setWidescreenMode(true);
 
       if (isCountingDown) return;
 
       if (isTimerRunning) {
-        showToast("Simulation Active", "Timer is already ticking down! Break the chain.", "cyan");
+        showToast("Simulation Active", "Timer is already ticking down!", "cyan");
         return;
       }
 
-      // If timer ran out (<=0), reset back to 7 min
+      // If timer ran out (<=0), reset back to 10 min (or durationSeconds)
       if (challengeSeconds <= 0) {
-        challengeSeconds = 420;
-        sessionSeconds = 420;
+        challengeSeconds = durationSeconds;
+        sessionSeconds = durationSeconds;
         updateTimerDisplay();
       }
 
@@ -4286,9 +5208,23 @@
         sessionSeconds--;
         updateTimerDisplay();
 
+        // ⚠️ FINAL 10 SECONDS COUNTDOWN WARNING (BEEPS ON EVERY SECOND 10..1)
+        if (challengeSeconds <= 10 && challengeSeconds > 0) {
+          if (challengeSeconds !== lastWarningBeepSecond) {
+            lastWarningBeepSecond = challengeSeconds;
+            if (sound && sound.playCountdownBeep) {
+              sound.playCountdownBeep(520 + (10 - challengeSeconds) * 45);
+            }
+          }
+        }
+
+        // 🚨 TIME EXPIRED (0 SECONDS): TRIGGER EMERGENCY KLAXON ALARM & MODAL
         if (challengeSeconds <= 0 || sessionSeconds <= 0) {
+          challengeSeconds = 0;
+          sessionSeconds = 0;
+          updateTimerDisplay();
           stopTimer();
-          finishChallengeSession();
+          handleTimeUpAlarm();
         }
       }, 1000);
     }
@@ -4307,21 +5243,61 @@
       }
     }
 
+    // 🚨 EMERGENCY TIME-UP ALARM & MODAL HANDLER
+    function handleTimeUpAlarm() {
+      if (sound && sound.playTimeUpEmergencyAlarm) {
+        sound.playTimeUpEmergencyAlarm();
+      } else if (sound && sound.playBigAlarm) {
+        sound.playBigAlarm();
+      }
+
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('alarm-flash');
+        setTimeout(() => document.body.classList.remove('alarm-flash'), 2500);
+      }
+
+      const activeTeam = teams[currentTeamIndex];
+      const scoreEl = document.getElementById('timeup-score-readout');
+      const progEl = document.getElementById('timeup-progress-readout');
+
+      if (scoreEl && activeTeam) {
+        scoreEl.innerText = `${activeTeam.score} pts`;
+      }
+      if (progEl) {
+        if (currentMainView === 'puzzle') {
+          const placedCount = boardSlots.filter(s => s !== null).length;
+          const brokenCount = Object.keys(brokenLinksMap).length;
+          progEl.innerText = currentStage === 1 ? `${placedCount}/6 Placed` : `${brokenCount}/6 Broken`;
+        } else {
+          progEl.innerText = `${matchMatchedIds.size}/14 Matched`;
+        }
+      }
+
+      openModal('timeup-modal');
+      showToast("🚨 TIME'S UP!", "10-Minute challenge simulation expired! Great effort.", "red");
+    }
+
+    function restartTimerAndDismiss(durationSeconds = 600) {
+      closeModal('timeup-modal');
+      resetTimer(durationSeconds);
+      triggerCountdownAndStart(durationSeconds);
+    }
+
     function stopTimer() {
       isTimerRunning = false;
       clearInterval(timerInterval);
-      const btn = document.getElementById('btn-timer-toggle');
+
+      // Puzzle 1 controls
       const btnIcon = document.getElementById('timer-btn-icon');
       const btnText = document.getElementById('timer-btn-text');
       if (btnIcon) btnIcon.innerText = '▶';
       if (btnText) btnText.innerText = 'Resume';
-      else if (btn) btn.innerHTML = '▶ Resume';
 
       const startBtn = document.getElementById('btn-start-simulation');
       const startBtnTitle = document.getElementById('start-btn-title');
       const startBtnIcon = document.getElementById('start-btn-icon');
       if (startBtnTitle && challengeSeconds > 0) {
-        startBtnTitle.innerText = "RESUME 7-MIN CHALLENGE";
+        startBtnTitle.innerText = "RESUME 10-MIN CHALLENGE";
         if (startBtnIcon) {
           startBtnIcon.innerText = "▶";
           startBtnIcon.classList.remove('animate-bounce');
@@ -4331,19 +5307,38 @@
         }
       }
 
+      // Puzzle 2 controls
+      const btnIconP2 = document.getElementById('timer-btn-icon-p2');
+      const btnTextP2 = document.getElementById('timer-btn-text-p2');
+      if (btnIconP2) btnIconP2.innerText = '▶';
+      if (btnTextP2) btnTextP2.innerText = 'Resume';
+
+      const startBtnP2 = document.getElementById('btn-start-icebreaker-simulation');
+      const startBtnTitleP2 = document.getElementById('start-btn-title-p2');
+      const startBtnIconP2 = document.getElementById('start-btn-icon-p2');
+      if (startBtnTitleP2 && challengeSeconds > 0) {
+        startBtnTitleP2.innerText = "RESUME 10-MIN CHALLENGE";
+        if (startBtnIconP2) {
+          startBtnIconP2.innerText = "▶";
+          startBtnIconP2.classList.remove('animate-bounce');
+        }
+      }
+
       updateTimerDisplay();
     }
 
-    function resetTimer() {
+    function resetTimer(seconds = 600) {
       stopTimer();
-      sessionSeconds = 420;
-      challengeSeconds = 420;
+      sessionSeconds = seconds;
+      challengeSeconds = seconds;
+      lastWarningBeepSecond = -1;
       updateTimerDisplay();
 
+      // Puzzle 1 reset
       const startBtn = document.getElementById('btn-start-simulation');
       const startBtnTitle = document.getElementById('start-btn-title');
       const startBtnIcon = document.getElementById('start-btn-icon');
-      if (startBtnTitle) startBtnTitle.innerText = "START 7-MIN CHALLENGE";
+      if (startBtnTitle) startBtnTitle.innerText = "START 10-MIN CHALLENGE";
       if (startBtnIcon) {
         startBtnIcon.innerText = "🚀";
         startBtnIcon.classList.add('animate-bounce');
@@ -4357,7 +5352,22 @@
       if (btnIcon) btnIcon.innerText = '▶';
       if (btnText) btnText.innerText = 'Start';
 
-      showToast("Timer Reset", "Countdown reset to 07:00.", "slate");
+      // Puzzle 2 reset
+      const startBtnP2 = document.getElementById('btn-start-icebreaker-simulation');
+      const startBtnTitleP2 = document.getElementById('start-btn-title-p2');
+      const startBtnIconP2 = document.getElementById('start-btn-icon-p2');
+      if (startBtnTitleP2) startBtnTitleP2.innerText = "START 10-MIN CHALLENGE";
+      if (startBtnIconP2) {
+        startBtnIconP2.innerText = "🚀";
+        startBtnIconP2.classList.add('animate-bounce');
+      }
+
+      const btnIconP2 = document.getElementById('timer-btn-icon-p2');
+      const btnTextP2 = document.getElementById('timer-btn-text-p2');
+      if (btnIconP2) btnIconP2.innerText = '▶';
+      if (btnTextP2) btnTextP2.innerText = 'Start';
+
+      showToast("Timer Reset", "Countdown reset to 10:00.", "slate");
     }
 
     function updateTimerDisplay() {
@@ -4365,34 +5375,77 @@
       const sec = Math.max(0, challengeSeconds) % 60;
       const timeStr = `${String(min).padStart(2, '0')}:${String(sec).padStart(2, '0')}`;
 
+      // Puzzle 1 elements
       const display = document.getElementById('timer-display');
       const widget = document.getElementById('simulation-timer-widget');
       const pingGlow = document.getElementById('timer-ping-glow');
       const dotCore = document.getElementById('timer-dot-core');
+
+      // Puzzle 2 elements
+      const displayP2 = document.getElementById('icebreaker-timer-display');
+      const widgetP2 = document.getElementById('icebreaker-timer-widget');
+      const pingGlowP2 = document.getElementById('timer-ping-glow-p2');
+      const dotCoreP2 = document.getElementById('timer-dot-core-p2');
+
       const pillDisplay = document.getElementById('timer-pill-display');
       const pmLabel = document.getElementById('pm-timer-label');
 
       if (display) display.innerText = timeStr;
+      if (displayP2) displayP2.innerText = timeStr;
       if (pillDisplay) pillDisplay.innerText = timeStr;
       if (pmLabel) pmLabel.innerText = timeStr;
 
-      if (widget && display) {
-        if (challengeSeconds <= 30 && challengeSeconds > 0) {
-          display.className = "font-mono text-lg sm:text-xl font-black tracking-widest text-red-400 drop-shadow-[0_0_12px_rgba(239,68,68,0.95)] animate-pulse tabular-nums";
-          widget.className = "flex items-center gap-2.5 bg-gradient-to-r from-[#200404] via-[#3a0808] to-[#200404] text-white border-2 border-red-500 px-3.5 py-1.5 rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse transition-all";
-          if (dotCore) dotCore.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_8px_#ef4444]";
-          if (pingGlow) pingGlow.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90" : "hidden";
-        } else if (challengeSeconds <= 120 && challengeSeconds > 0) {
-          display.className = "font-mono text-lg sm:text-xl font-black tracking-widest text-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.85)] tabular-nums";
-          widget.className = "flex items-center gap-2.5 bg-gradient-to-r from-[#1f1503] via-[#382604] to-[#1f1503] text-white border-2 border-amber-400 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(245,158,11,0.45)] transition-all";
-          if (dotCore) dotCore.className = "relative inline-flex rounded-full h-3 w-3 bg-amber-400 shadow-[0_0_8px_#f59e0b]";
-          if (pingGlow) pingGlow.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" : "hidden";
-        } else {
-          display.className = "font-mono text-lg sm:text-xl font-black tracking-widest text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.85)] tabular-nums";
-          widget.className = "flex items-center gap-2.5 bg-[#021124] text-white border-2 border-cyan-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(6,182,212,0.35)] transition-all";
-          if (dotCore) dotCore.className = isTimerRunning ? "relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-[0_0_8px_#10b981]" : "relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]";
-          if (pingGlow) pingGlow.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" : "hidden";
-        }
+      // Styling based on time remaining:
+      // Intense red pulse for final 10 seconds warning
+      if (challengeSeconds <= 10 && challengeSeconds > 0) {
+        const redClass = "font-mono text-lg sm:text-xl font-black tracking-widest text-red-400 drop-shadow-[0_0_18px_rgba(239,68,68,1)] animate-ping tabular-nums";
+        const redWidgetClass = "flex items-center gap-2.5 bg-gradient-to-r from-[#3b0303] via-[#5c0808] to-[#3b0303] text-white border-2 border-red-500 px-3.5 py-1.5 rounded-2xl shadow-[0_0_25px_rgba(239,68,68,0.95)] animate-pulse transition-all";
+        if (display) display.className = redClass;
+        if (widget) widget.className = redWidgetClass;
+        if (displayP2) displayP2.className = redClass;
+        if (widgetP2) widgetP2.className = redWidgetClass;
+        if (dotCore) dotCore.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_12px_#ef4444]";
+        if (dotCoreP2) dotCoreP2.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_12px_#ef4444]";
+        if (pingGlow) pingGlow.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-95";
+        if (pingGlowP2) pingGlowP2.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-95";
+      } else if (challengeSeconds <= 60 && challengeSeconds > 0) {
+        const warnClass = "font-mono text-lg sm:text-xl font-black tracking-widest text-red-400 drop-shadow-[0_0_12px_rgba(239,68,68,0.95)] animate-pulse tabular-nums";
+        const warnWidgetClass = "flex items-center gap-2.5 bg-gradient-to-r from-[#200404] via-[#3a0808] to-[#200404] text-white border-2 border-red-500 px-3.5 py-1.5 rounded-2xl shadow-[0_0_20px_rgba(239,68,68,0.6)] animate-pulse transition-all";
+        if (display) display.className = warnClass;
+        if (widget) widget.className = warnWidgetClass;
+        if (displayP2) displayP2.className = warnClass;
+        if (widgetP2) widgetP2.className = warnWidgetClass;
+        if (dotCore) dotCore.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_8px_#ef4444]";
+        if (dotCoreP2) dotCoreP2.className = "relative inline-flex rounded-full h-3 w-3 bg-red-500 shadow-[0_0_8px_#ef4444]";
+        if (pingGlow) pingGlow.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90" : "hidden";
+        if (pingGlowP2) pingGlowP2.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-90" : "hidden";
+      } else if (challengeSeconds <= 180 && challengeSeconds > 0) {
+        const amberClass = "font-mono text-lg sm:text-xl font-black tracking-widest text-amber-300 drop-shadow-[0_0_10px_rgba(245,158,11,0.85)] tabular-nums";
+        const amberWidgetClass = "flex items-center gap-2.5 bg-gradient-to-r from-[#1f1503] via-[#382604] to-[#1f1503] text-white border-2 border-amber-400 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(245,158,11,0.45)] transition-all";
+        if (display) display.className = amberClass;
+        if (widget) widget.className = amberWidgetClass;
+        if (displayP2) displayP2.className = amberClass;
+        if (widgetP2) widgetP2.className = amberWidgetClass;
+        if (dotCore) dotCore.className = "relative inline-flex rounded-full h-3 w-3 bg-amber-400 shadow-[0_0_8px_#f59e0b]";
+        if (dotCoreP2) dotCoreP2.className = "relative inline-flex rounded-full h-3 w-3 bg-amber-400 shadow-[0_0_8px_#f59e0b]";
+        if (pingGlow) pingGlow.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" : "hidden";
+        if (pingGlowP2) pingGlowP2.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-300 opacity-75" : "hidden";
+      } else {
+        const cyanClass = "font-mono text-lg sm:text-xl font-black tracking-widest text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.85)] tabular-nums";
+        const cyanWidgetClass = "flex items-center gap-2.5 bg-[#021124] text-white border-2 border-cyan-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(6,182,212,0.35)] transition-all";
+        const tealClass = "font-mono text-lg sm:text-xl font-black tracking-widest text-teal-300 drop-shadow-[0_0_8px_rgba(20,184,166,0.85)] tabular-nums";
+        const tealWidgetClass = "flex items-center gap-2.5 bg-[#011422] text-white border-2 border-teal-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(20,184,166,0.35)] transition-all";
+
+        if (display) display.className = cyanClass;
+        if (widget) widget.className = cyanWidgetClass;
+        if (displayP2) displayP2.className = tealClass;
+        if (widgetP2) widgetP2.className = tealWidgetClass;
+
+        if (dotCore) dotCore.className = isTimerRunning ? "relative inline-flex rounded-full h-3 w-3 bg-emerald-500 shadow-[0_0_8px_#10b981]" : "relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]";
+        if (dotCoreP2) dotCoreP2.className = isTimerRunning ? "relative inline-flex rounded-full h-3 w-3 bg-teal-400 shadow-[0_0_8px_#14b8a6]" : "relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]";
+
+        if (pingGlow) pingGlow.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" : "hidden";
+        if (pingGlowP2) pingGlowP2.className = isTimerRunning ? "animate-ping absolute inline-flex h-full w-full rounded-full bg-teal-400 opacity-75" : "hidden";
       }
     }
 
@@ -4572,6 +5625,9 @@
       }
 
       if (viewName === 'portal') {
+        // Restore sidebar on Main Portal
+        setWidescreenMode(false);
+
         // Remove/hide top header, squads bar, and left turn card from Main Portal page
         if (topHeaderRow) topHeaderRow.classList.add('hidden');
         if (mainHeader) mainHeader.classList.add('hidden');
@@ -4581,8 +5637,10 @@
         if (portalView) portalView.classList.remove('hidden');
         if (btnPortal) btnPortal.className = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-gradient-to-r from-cyan-950 via-[#032347] to-cyan-900 border-cyan-400 text-white shadow-cyan-500/30 ring-2 ring-cyan-400/30";
         if (mobPortal) mobPortal.className = "flex-1 py-2 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-cyan-700 text-white shadow";
-        showToast("🏠 Welcome to IPC Training Puzzles", "Select a puzzle from the left training menu to begin!", "cyan");
+        showToast("🏠 Welcome to IPC Training Puzzles Hub", "Click Start Puzzle 1 or Puzzle 2 below to begin!", "cyan");
       } else if (viewName === 'puzzle') {
+        // ⛶ AUTOMATIC WIDE SCREEN FULL SCREEN VIEW FOR PUZZLE 1
+        setWidescreenMode(true);
         // Reveal top header, squads bar, and left turn card for Puzzle 1
         if (topHeaderRow) topHeaderRow.classList.remove('hidden');
         if (mainHeader) mainHeader.classList.remove('hidden');
@@ -4602,14 +5660,17 @@
         renderBoardSlots();
         renderChainPiecesBank();
 
-        // ⏱️ PREPARE 7-MINUTE TIMER DISPLAY (AWAITING USER START BUTTON)
+        // ⏱️ PREPARE 7-MINUTE TIMER DISPLAY
         updateTimerDisplay();
         if (!isTimerRunning) {
-          showToast("🧩 Puzzle 1: Break the Chain Active", "Click START 7-MIN CHALLENGE below to start the countdown!", "cyan");
+          showToast("🧩 Puzzle 1 Ready (Wide Screen)", "Start dragging & dropping labels immediately, or click Start 7-Min Challenge for timed team play!", "emerald");
         } else {
-          showToast("🧩 Puzzle 1: Break the Chain Active", "Challenge in progress — Break the Chain!", "cyan");
+          showToast("🧩 Puzzle 1: Challenge in Progress", "7-Minute timer running — Break the Chain!", "cyan");
         }
       } else if (viewName === 'icebreaker') {
+        // ⛶ AUTOMATIC WIDE SCREEN FULL SCREEN VIEW FOR PUZZLE 2
+        setWidescreenMode(true);
+
         // Hide puzzle header but keep squads bar & active turn card for Ice Breaker team play
         if (topHeaderRow) topHeaderRow.classList.add('hidden');
         if (mainHeader) mainHeader.classList.add('hidden');
@@ -4620,7 +5681,7 @@
         if (btnIcebreaker) btnIcebreaker.className = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-gradient-to-r from-teal-950 via-[#022c3e] to-cyan-900 border-teal-400 text-white shadow-teal-500/30 ring-2 ring-teal-400/30";
         if (mobIcebreaker) mobIcebreaker.className = "flex-1 py-2 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-teal-700 text-white shadow";
         initMatchGame();
-        showToast("Module 2: Match Definitions", "Tap an IPC Term on the left, then connect it to its clinical definition on the right!", "emerald");
+        showToast("🧊 Puzzle 2 Active (Wide View)", "Tap an IPC Term on the left, then connect it to its clinical definition on the right!", "emerald");
       }
       updateLeftMenuUI();
       return;
@@ -4669,6 +5730,20 @@
           if (drawer.classList.contains('drawer-open')) backdrop.classList.remove('hidden');
           else backdrop.classList.add('hidden');
         }
+      }
+    }
+
+    function toggleTrainerShortcuts() {
+      const collapse = document.getElementById('trainer-shortcuts-collapse');
+      const arrow = document.getElementById('trainer-shortcuts-arrow');
+      if (!collapse) return;
+      const isHidden = collapse.classList.contains('hidden');
+      if (isHidden) {
+        collapse.classList.remove('hidden');
+        if (arrow) arrow.innerText = '▲';
+      } else {
+        collapse.classList.add('hidden');
+        if (arrow) arrow.innerText = '▼';
       }
     }
 
@@ -4763,6 +5838,36 @@
       if (svg) svg.style.opacity = '1';
     }
 
+    // ⛶ WIDE SCREEN / FULL SCREEN VIEW CONTROLLER (FOR ALL PUZZLES)
+    function setWidescreenMode(enable) {
+      const leftNav = document.getElementById('left-nav-menu');
+      const btnToggle = document.getElementById('btn-toggle-menu');
+      const btnToggle2 = document.getElementById('btn-toggle-menu-2');
+      if (!leftNav) return;
+
+      if (enable) {
+        // Hide sidebar so puzzle uses 100% full screen width
+        leftNav.classList.add('hidden');
+        leftNav.classList.remove('lg:flex');
+        if (btnToggle) btnToggle.innerHTML = '<span>🧭</span> <span class="hidden sm:inline">Show Menu</span>';
+        if (btnToggle2) btnToggle2.innerHTML = '<span>🧭</span> <span class="hidden sm:inline">Show Menu</span>';
+      } else {
+        // Reveal sidebar on desktop
+        leftNav.classList.remove('hidden');
+        leftNav.classList.add('lg:flex');
+        if (btnToggle) btnToggle.innerHTML = '<span>⛶</span> <span class="hidden sm:inline">Wide View</span>';
+        if (btnToggle2) btnToggle2.innerHTML = '<span>⛶</span> <span class="hidden sm:inline">Wide View</span>';
+      }
+    }
+
+    function toggleMenuSidebar() {
+      const leftNav = document.getElementById('left-nav-menu');
+      if (!leftNav) return;
+      const isCurrentlyHidden = leftNav.classList.contains('hidden');
+      setWidescreenMode(!isCurrentlyHidden);
+      showToast(isCurrentlyHidden ? "🧭 Left Menu Opened" : "⛶ Widescreen Active", isCurrentlyHidden ? "Sidebar menu is now visible." : "Full wide view activated for puzzles.", "cyan");
+    }
+
     function toggleFullScreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(() => {});
@@ -4805,6 +5910,13 @@
       const btnReveal = document.getElementById('btn-icebreaker-reveal');
       if (btnReveal) btnReveal.classList.add('hidden');
 
+      // Strictly hide the 14-Row Definition Reference Table for students!
+      const refTable = document.getElementById('match-reference-table-container');
+      if (refTable) {
+        refTable.classList.add('hidden');
+        refTable.style.setProperty('display', 'none', 'important');
+      }
+
       const addGroupBtn = document.getElementById('btn-add-group');
       if (addGroupBtn) addGroupBtn.classList.add('hidden');
       const saveArchiveBtn = document.getElementById('btn-save-archive');
@@ -4836,6 +5948,13 @@
 
         const btnReveal = document.getElementById('btn-icebreaker-reveal');
         if (btnReveal) btnReveal.classList.remove('hidden');
+
+        // Restore reference table for Facilitator review
+        const refTable = document.getElementById('match-reference-table-container');
+        if (refTable) {
+          refTable.classList.remove('hidden');
+          refTable.style.removeProperty('display');
+        }
 
         const addGroupBtn = document.getElementById('btn-add-group');
         if (addGroupBtn) addGroupBtn.classList.remove('hidden');
@@ -4881,14 +6000,16 @@
       updateShareModalUI();
     }
 
+    const DEFAULT_HOST_URL = 'https://hammamrjoup.github.io/IPC-Puzzles-student-/';
+
     function getComputedShareUrl() {
       let base = localStorage.getItem('ipc_custom_host_url') || '';
       base = base.trim();
 
       if (!base) {
-        if (window.location.protocol === 'file:') {
-          // If viewing from local file system without a custom host set
-          base = 'http://' + (window.location.hostname || 'localhost') + ':8080' + window.location.pathname.substring(window.location.pathname.lastIndexOf('/'));
+        if (window.location.protocol === 'file:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+          // Default to the official live GitHub Pages URL so scanning on phones works anywhere!
+          base = DEFAULT_HOST_URL;
         } else {
           base = window.location.origin + window.location.pathname;
         }
@@ -4896,7 +6017,7 @@
 
       base = base.replace(/\/+$/, '');
       if (!base.endsWith('.html') && !base.includes('?') && !base.endsWith('/')) {
-        if (base.endsWith(':8080') || base.endsWith(':3000') || base.endsWith(':5500') || !base.includes('.')) {
+        if (base.endsWith(':8080') || base.endsWith(':3000') || base.endsWith(':5500')) {
           base += '/index.html';
         }
       }
@@ -4904,6 +6025,10 @@
       const params = new URLSearchParams();
       if (currentShareTargetView) params.set('view', currentShareTargetView);
       if (currentShareRole) params.set('role', currentShareRole);
+
+      if (!base.endsWith('.html') && !base.endsWith('/')) {
+        base += '/';
+      }
 
       return `${base}?${params.toString()}`;
     }
@@ -4956,15 +6081,9 @@
 
       // 4b. Alert if viewing via file:// and no custom host is configured
       const fileAlert = document.getElementById('file-proto-alert');
-      const hasCustomHost = !!localStorage.getItem('ipc_custom_host_url');
       if (fileAlert) {
-        if (window.location.protocol === 'file:' && !hasCustomHost) {
-          fileAlert.classList.remove('hidden');
-          const details = document.getElementById('host-config-details');
-          if (details) details.classList.remove('hidden');
-        } else {
-          fileAlert.classList.add('hidden');
-        }
+        // Since default is now the live GitHub Pages link, keep alert hidden unless explicitly needed
+        fileAlert.classList.add('hidden');
       }
 
       // 5. Render Barcode / QR Code
@@ -5125,10 +6244,12 @@
       Developed by <strong>Hammam Jubran Rjoup / MSN, CPIC</strong> • Hospital IPC Training
     </div>
   </div>
-  ' + '<' + 'script>' + 'window.onload = function() { setTimeout(function() { window.print(); }, 400); };' + '<' + '/script>' + '
 </body>
 </html>`);
       printWindow.document.close();
+      setTimeout(function() {
+        try { printWindow.focus(); printWindow.print(); } catch(e) {}
+      }, 500);
     }
 
     function toggleCustomHostInput() {
@@ -5328,6 +6449,15 @@
       }
     ];
 
+    let currentMatchStage = 1; // Stage 1 (Items 1-7) or Stage 2 (Items 8-14)
+
+    function initMatchStageDecks(stageNum = 1) {
+      currentMatchStage = stageNum;
+      const stageItems = IPC_MATCH_DATA.filter(item => stageNum === 1 ? item.id <= 7 : item.id > 7);
+      matchShuffledTerms = [...stageItems].sort(() => Math.random() - 0.5);
+      matchShuffledDefs = [...stageItems].sort(() => Math.random() - 0.5);
+    }
+
     function initMatchGame() {
       // Build reference table if empty
       const refTbody = document.getElementById('match-reference-table-body');
@@ -5352,15 +6482,38 @@
         });
       }
 
-      // Initialize shuffled decks if needed
-      if (!matchShuffledTerms || matchShuffledTerms.length === 0) {
-        matchShuffledTerms = [...IPC_MATCH_DATA].sort(() => Math.random() - 0.5);
-      }
-      if (!matchShuffledDefs || matchShuffledDefs.length === 0) {
-        matchShuffledDefs = [...IPC_MATCH_DATA].sort(() => Math.random() - 0.5);
-      }
-
+      if (!currentMatchStage) currentMatchStage = 1;
+      initMatchStageDecks(currentMatchStage);
       renderMatchUI();
+    }
+
+    function setMatchStage(stageNum) {
+      currentMatchStage = stageNum;
+      selectedMatchTermId = null;
+      selectedMatchDefId = null;
+      matchIsEvaluating = false;
+
+      const s1Banner = document.getElementById('match-stage1-complete-banner');
+      if (s1Banner) s1Banner.classList.add('hidden');
+
+      initMatchStageDecks(stageNum);
+      renderMatchUI();
+      sound.playTick();
+    }
+
+    function advanceToMatchStage2() {
+      currentMatchStage = 2;
+      selectedMatchTermId = null;
+      selectedMatchDefId = null;
+      matchIsEvaluating = false;
+
+      const s1Banner = document.getElementById('match-stage1-complete-banner');
+      if (s1Banner) s1Banner.classList.add('hidden');
+
+      initMatchStageDecks(2);
+      sound.playActionTransition(); // 🚀 Action sound when moving to Stage 2!
+      renderMatchUI();
+      showToast("🚀 STAGE 2 ACTIVATED!", "Match the next 7 clinical definitions (HAIs & Precautions)!", "teal");
     }
 
     function shuffleAndResetMatchGame() {
@@ -5368,15 +6521,17 @@
       selectedMatchTermId = null;
       selectedMatchDefId = null;
       matchIsEvaluating = false;
+      currentMatchStage = 1;
 
-      matchShuffledTerms = [...IPC_MATCH_DATA].sort(() => Math.random() - 0.5);
-      matchShuffledDefs = [...IPC_MATCH_DATA].sort(() => Math.random() - 0.5);
+      initMatchStageDecks(1);
 
+      const s1Banner = document.getElementById('match-stage1-complete-banner');
+      if (s1Banner) s1Banner.classList.add('hidden');
       const banner = document.getElementById('match-all-complete-banner');
       if (banner) banner.classList.add('hidden');
 
       renderMatchUI();
-      showToast("🔀 Decks Shuffled", "Definitions and terms shuffled! Match progress reset.", "teal");
+      showToast("🔀 Reset to Stage 1", "Definitions and terms shuffled! Match progress reset to Stage 1.", "teal");
     }
 
     function revealAllMatches() {
@@ -5388,8 +6543,8 @@
 
       const banner = document.getElementById('match-all-complete-banner');
       if (banner) banner.classList.remove('hidden');
-
-      showToast("👁️ Trainer Key Revealed", "All 14 definition pairs revealed for group review.", "indigo");
+      sound.playApplause(); // 👏 Realistic Hand Clapped / Clapping Sound!
+      showToast("👁️ Trainer Key Revealed", "All 14 definition pairs revealed for review.", "indigo");
     }
 
     function handleTermClick(id) {
@@ -5405,6 +6560,12 @@
 
       if (selectedMatchTermId !== null && selectedMatchDefId !== null) {
         checkSelectedMatch();
+      } else if (selectedMatchTermId !== null && selectedMatchDefId === null && window.innerWidth < 1024) {
+        // On mobile, scroll smoothly towards definitions container
+        const defsContainer = document.getElementById('match-defs-container');
+        if (defsContainer) {
+          defsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
       }
     }
 
@@ -5421,6 +6582,22 @@
 
       if (selectedMatchTermId !== null && selectedMatchDefId !== null) {
         checkSelectedMatch();
+      } else if (selectedMatchDefId !== null && selectedMatchTermId === null && window.innerWidth < 1024) {
+        // On mobile, scroll smoothly towards terms container
+        const termsContainer = document.getElementById('match-terms-container');
+        if (termsContainer) {
+          termsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }
+    }
+
+    function scrollToOppositeMatchDeck() {
+      if (selectedMatchTermId !== null && selectedMatchDefId === null) {
+        const defsContainer = document.getElementById('match-defs-container');
+        if (defsContainer) defsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (selectedMatchDefId !== null && selectedMatchTermId === null) {
+        const termsContainer = document.getElementById('match-terms-container');
+        if (termsContainer) termsContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
 
@@ -5444,12 +6621,22 @@
 
         renderMatchUI();
 
-        // Check if all 14 matched
-        if (matchMatchedIds.size === IPC_MATCH_DATA.length) {
+        // Check Stage completion
+        const stage1Ids = [1, 2, 3, 4, 5, 6, 7];
+        const isStage1Complete = stage1Ids.every(id => matchMatchedIds.has(id));
+
+        if (currentMatchStage === 1 && isStage1Complete) {
+          // STAGE 1 COMPLETE!
+          sound.playActionTransition(); // 🚀 Action sound!
+          const s1Banner = document.getElementById('match-stage1-complete-banner');
+          if (s1Banner) s1Banner.classList.remove('hidden');
+          showToast("🎉 STAGE 1 COMPLETE!", "All 7 Core definitions matched! Click to advance to Stage 2!", "emerald");
+        } else if (matchMatchedIds.size === IPC_MATCH_DATA.length) {
+          // ALL 14 MATCHED - GRAND CELEBRATION WITH HAND CLAPPING / APPLAUSE!
           const banner = document.getElementById('match-all-complete-banner');
           if (banner) banner.classList.remove('hidden');
-          sound.playMetalChainBreak();
-          showToast("🎉 Challenge Complete!", "All 14 IPC terms and definitions successfully matched!", "cyan");
+          sound.playApplause(); // 👏 Realistic Hand Clapped / Clapping Sound (تصفيق حار)!
+          showToast("👏 CONGRATULATIONS! ALL 14 MATCHED!", "Standing ovation! Clapping and applause active!", "emerald");
         }
       } else {
         // MISMATCH!
@@ -5480,14 +6667,37 @@
     }
 
     function renderMatchUI() {
-      // 1. Update Progress Pill & Progress Bar
+      // 1. Update Progress Pill & Progress Bar & Stage Tabs
       const counterEl = document.getElementById('match-counter-pill');
       const barEl = document.getElementById('match-progress-bar');
+      const pill1 = document.getElementById('match-stage1-pill');
+      const pill2 = document.getElementById('match-stage2-pill');
+      const tab1 = document.getElementById('tab-match-stage-1');
+      const tab2 = document.getElementById('tab-match-stage-2');
+      const descEl = document.getElementById('match-stage-desc');
+
+      const stage1Matched = [1, 2, 3, 4, 5, 6, 7].filter(id => matchMatchedIds.has(id)).length;
+      const stage2Matched = [8, 9, 10, 11, 12, 13, 14].filter(id => matchMatchedIds.has(id)).length;
       const matchedCount = matchMatchedIds.size;
       const totalCount = IPC_MATCH_DATA.length;
 
+      if (pill1) pill1.innerText = `${stage1Matched}/7 Matched`;
+      if (pill2) pill2.innerText = `${stage2Matched}/7 Matched`;
+
+      const activeTabStyle = "px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-teal-700 text-white shadow ring-2 ring-teal-400/40 cursor-pointer";
+      const inactiveTabStyle = "px-4 py-2 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer";
+
+      if (tab1) tab1.className = (currentMatchStage === 1) ? activeTabStyle : inactiveTabStyle;
+      if (tab2) tab2.className = (currentMatchStage === 2) ? activeTabStyle : inactiveTabStyle;
+
+      if (descEl) {
+        descEl.innerText = (currentMatchStage === 1)
+          ? "Stage 1: Match all 7 core terms to unlock Stage 2!"
+          : "Stage 2: Match all 7 clinical HAIs & precautions to finish!";
+      }
+
       if (counterEl) {
-        counterEl.innerText = `${matchedCount} / ${totalCount} Matched`;
+        counterEl.innerText = `Stage ${currentMatchStage}: ${currentMatchStage === 1 ? stage1Matched : stage2Matched}/7 (Total: ${matchedCount}/${totalCount})`;
       }
       if (barEl) {
         const pct = Math.round((matchedCount / totalCount) * 100);
@@ -5516,6 +6726,33 @@
         } else {
           defHint.className = "text-[11px] font-bold text-teal-800 bg-teal-50 px-2.5 py-0.5 rounded-md border border-teal-200";
           defHint.innerText = "Select a Definition";
+        }
+      }
+
+      // 2b. Mobile Sticky Selection Pill Update
+      const stickyPill = document.getElementById('mobile-match-sticky-pill');
+      const stickyIcon = document.getElementById('mobile-sticky-icon');
+      const stickyLabel = document.getElementById('mobile-sticky-label');
+      const stickyTitle = document.getElementById('mobile-sticky-title');
+      const stickyBtnText = document.getElementById('mobile-sticky-btn-text');
+
+      if (stickyPill) {
+        if (selectedMatchTermId !== null && selectedMatchDefId === null) {
+          const t = IPC_MATCH_DATA.find(d => d.id === selectedMatchTermId);
+          if (stickyIcon) stickyIcon.innerText = t ? t.icon : '🏷️';
+          if (stickyLabel) stickyLabel.innerText = 'Term Selected:';
+          if (stickyTitle) stickyTitle.innerText = t ? t.term : '';
+          if (stickyBtnText) stickyBtnText.innerText = 'Defs 👇';
+          stickyPill.classList.remove('hidden');
+        } else if (selectedMatchDefId !== null && selectedMatchTermId === null) {
+          const d = IPC_MATCH_DATA.find(item => item.id === selectedMatchDefId);
+          if (stickyIcon) stickyIcon.innerText = '📖';
+          if (stickyLabel) stickyLabel.innerText = 'Def Selected:';
+          if (stickyTitle) stickyTitle.innerText = d ? d.term : '';
+          if (stickyBtnText) stickyBtnText.innerText = 'Terms 👆';
+          stickyPill.classList.remove('hidden');
+        } else {
+          stickyPill.classList.add('hidden');
         }
       }
 
