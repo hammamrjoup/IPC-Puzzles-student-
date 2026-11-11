@@ -1,0 +1,11 @@
+==========================================================================
+  AUGUSTA VICTORIA HOSPITAL - STAFF OCCUPATIONAL HEALTH & VACCINATION
+==========================================================================
+ Computer (Local Browser): http://localhost:8085/
+ Server Mode: Secure Localhost Only
+ To open on Mobile / iPad: Run 'Setup_Mobile_Access.bat' once as Administrator,
+ then launch with 'start_server_lan.bat'.
+==========================================================================
+Press Ctrl+C in this terminal window to stop the server.
+
+ [DB] Connected to Native SQLite Central Database: G:\My Drive\Occupational health\Master\avh-occupational-health-standalone\server_data\avh_occupational_health.db
