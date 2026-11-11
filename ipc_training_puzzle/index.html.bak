@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IPC Chain Breaker — 10-Minute Professional Infection Control Puzzle</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @keyframes shatterPulse {
+      0% { transform: scale(1); filter: brightness(1); }
+      50% { transform: scale(1.08); filter: brightness(1.6) drop-shadow(0 0 18px rgba(16, 185, 129, 0.9)); }
+      100% { transform: scale(1); filter: brightness(1); }
+    }
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      15% { transform: translate(-6px, 4px) rotate(-0.5deg); }
+      30% { transform: translate(6px, -4px) rotate(0.5deg); }
+      45% { transform: translate(-4px, -3px); }
+      60% { transform: translate(4px, 3px); }
+      75% { transform: translate(-2px, 1px); }
+    }
+    @keyframes particleBurst {
+      0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 1; }
+      100% { transform: translate(var(--tx), var(--ty)) scale(0) rotate(var(--rot)); opacity: 0; }
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 0.4; transform: scale(1); }
+      50% { opacity: 0.85; transform: scale(1.05); }
+    }
+    .shake-active {
+      animation: screenShake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+    }
+    .shattered-node {
+      animation: shatterPulse 0.6s ease-out;
+      border-color: #10b981 !important;
+      background: linear-gradient(135deg, rgba(6, 78, 59, 0.85), rgba(16, 185, 129, 0.25)) !important;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.6), inset 0 0 15px rgba(16, 185, 129, 0.3) !important;
+    }
+    .particle {
+      position: absolute;
+      pointer-events: none;
+      z-index: 50;
+      animation: particleBurst 0.75s ease-out forwards;
+    }
+    .glass-shard {
+      clip-path: polygon(50% 0%, 100% 70%, 75% 100%, 0% 80%, 20% 20%);
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(16, 185, 129, 0.8));
+      box-shadow: 0 0 8px rgba(255, 255, 255, 0.9);
+    }
+    .circle-slot {
+      transition: all 0.25s ease-in-out;
+    }
+    .circle-slot:hover {
+      transform: translateY(-2px);
+    }
+    /* Printable certificate rules */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #certificate-modal, #certificate-modal * {
+        visibility: visible;
+      }
+      #certificate-modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased select-none font-sans overflow-x-hidden">
+
+  <!-- SOUND FX ENGINE (Web Audio API Synthesizer) -->
+  <script>
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+        this.volume = 0.85;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      toggle(enable) {
+        this.enabled = enable !== undefined ? enable : !this.enabled;
+        return this.enabled;
+      }
+      // Hyper-realistic Glass Shatter / Heavy Chain Break Sound
+      playGlassBreak() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        
+        // 1. Initial Impact Crack (Pitch-dropped burst)
+        const osc = this.ctx.createOscillator();
+        const oscGain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(320, now);
+        osc.frequency.exponentialRampToValueAtTime(45, now + 0.08);
+        oscGain.gain.setValueAtTime(0.7 * this.volume, now);
+        oscGain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+        osc.connect(oscGain);
+        oscGain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+
+        // 2. High-Frequency White Noise Shards Burst
+        const bufferSize = this.ctx.sampleRate * 0.45;
+        const noiseBuffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) {
+          output[i] = Math.random() * 2 - 1;
+        }
+        const whiteNoise = this.ctx.createBufferSource();
+        whiteNoise.buffer = noiseBuffer;
+
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'highpass';
+        filter.frequency.setValueAtTime(1800, now);
+        filter.frequency.exponentialRampToValueAtTime(7500, now + 0.35);
+
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.85 * this.volume, now + 0.01);
+        noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.42);
+
+        whiteNoise.connect(filter);
+        filter.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+        whiteNoise.start(now + 0.01);
+        whiteNoise.stop(now + 0.45);
+
+        // 3. Four Decaying High-Pitched Crystalline Metallic Pings (Glass Tinkles)
+        const pings = [3400, 4850, 6200, 7850];
+        pings.forEach((freq, idx) => {
+          const delay = now + 0.02 + idx * 0.035;
+          const pingOsc = this.ctx.createOscillator();
+          const pingGain = this.ctx.createGain();
+          pingOsc.type = 'sine';
+          pingOsc.frequency.setValueAtTime(freq + (Math.random() * 120 - 60), delay);
+          pingGain.gain.setValueAtTime((0.35 - idx * 0.06) * this.volume, delay);
+          pingGain.gain.exponentialRampToValueAtTime(0.0001, delay + 0.28);
+          pingOsc.connect(pingGain);
+          pingGain.connect(this.ctx.destination);
+          pingOsc.start(delay);
+          pingOsc.stop(delay + 0.3);
+        });
+
+        // 4. Low Metal Snap Ring
+        const metalOsc = this.ctx.createOscillator();
+        const metalGain = this.ctx.createGain();
+        metalOsc.type = 'square';
+        metalOsc.frequency.setValueAtTime(190, now + 0.02);
+        metalOsc.frequency.exponentialRampToValueAtTime(65, now + 0.2);
+        const metalFilter = this.ctx.createBiquadFilter();
+        metalFilter.type = 'bandpass';
+        metalFilter.frequency.setValueAtTime(450, now);
+        metalFilter.Q.setValueAtTime(4, now);
+        metalGain.gain.setValueAtTime(0.4 * this.volume, now + 0.02);
+        metalGain.gain.exponentialRampToValueAtTime(0.001, now + 0.25);
+        metalOsc.connect(metalFilter);
+        metalFilter.connect(metalGain);
+        metalGain.connect(this.ctx.destination);
+        metalOsc.start(now + 0.02);
+        metalOsc.stop(now + 0.26);
+      }
+
+      // Success Chime (Bright Arpeggio)
+      playSuccess() {
+        if (!this.enabled) return;
+        this.init();
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+        notes.forEach((freq, i) => {
+          const t = this.ctx.currentTime + i * 0.07;
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, t);
+          gain.gain.setValueAtTime(0.3 * this.volume, t);
+          gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(t);
+          osc.stop(t + 0.36);
+        });
+      }
+
+      // Chain Link Lock Sound
+      playLock() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(587.33, now); // D5
+        osc.frequency.exponentialRampToValueAtTime(880, now + 0.12); // A5
+        gain.gain.setValueAtTime(0.35 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.22);
+      }
+
+      // Error / Wrong Precaution Buzzer
+      playWrong() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        [0, 0.12].forEach(offset => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(140, now + offset);
+          osc.frequency.exponentialRampToValueAtTime(105, now + offset + 0.09);
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'lowpass';
+          filter.frequency.setValueAtTime(600, now + offset);
+          gain.gain.setValueAtTime(0.35 * this.volume, now + offset);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + offset + 0.1);
+          osc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now + offset);
+          osc.stop(now + offset + 0.11);
+        });
+      }
+
+      // Timer Tick for last 30 seconds
+      playTick() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(950, now);
+        gain.gain.setValueAtTime(0.15 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.05);
+      }
+
+      // Fanfare Celebration for Victory
+      playVictory() {
+        if (!this.enabled) return;
+        this.init();
+        const chords = [
+          { f: [523.25, 659.25, 783.99], t: 0.0, d: 0.2 },
+          { f: [587.33, 739.99, 880.00], t: 0.2, d: 0.2 },
+          { f: [659.25, 830.61, 987.77], t: 0.4, d: 0.25 },
+          { f: [783.99, 987.77, 1174.66, 1567.98], t: 0.65, d: 0.7 }
+        ];
+        chords.forEach(c => {
+          c.f.forEach(freq => {
+            const now = this.ctx.currentTime + c.t;
+            const osc = this.ctx.createOscillator();
+            const gain = this.ctx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(freq, now);
+            gain.gain.setValueAtTime(0.25 * this.volume, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + c.d);
+            osc.connect(gain);
+            gain.connect(this.ctx.destination);
+            osc.start(now);
+            osc.stop(now + c.d + 0.05);
+          });
+        });
+      }
+    }
+
+    const sound = new SoundEngine();
+  </script>
+
+  <!-- APP CONTAINER -->
+  <div id="app" class="max-w-7xl mx-auto p-4 md:p-6 flex flex-col gap-5 min-h-screen">
+    
+    <!-- HEADER BAR: TITLE, 10-MIN TIMER, TRAINER CONTROLS -->
+    <header class="bg-slate-900/90 border border-slate-800 rounded-2xl p-4 md:p-5 shadow-2xl backdrop-blur-md flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3.5">
+        <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-cyan-600 to-emerald-500 flex items-center justify-center text-2xl shadow-lg shadow-cyan-500/20">
+          🛡️
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-xl md:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+              IPC CHAIN BREAKER <span class="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/30">HOSPITAL IPC TRAINING</span>
+            </h1>
+          </div>
+          <p class="text-xs md:text-sm text-slate-400 font-medium">10-Minute Team Infection Prevention & Control Simulation for Doctors & Nurses</p>
+        </div>
+      </div>
+
+      <!-- TIMER & CONTROLS -->
+      <div class="flex items-center gap-3">
+        <!-- 10-Minute Countdown Clock -->
+        <div class="bg-slate-950 border border-slate-800 px-4 py-2 rounded-xl flex items-center gap-3 shadow-inner">
+          <div class="flex flex-col items-center">
+            <span class="text-[11px] uppercase tracking-wider text-slate-400 font-bold">10-Min Timer</span>
+            <span id="timer-display" class="font-mono text-2xl md:text-3xl font-black text-cyan-400 transition-colors">10:00</span>
+          </div>
+          <div class="flex flex-col gap-1">
+            <button id="btn-timer-toggle" onclick="toggleTimer()" class="px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-white transition active:scale-95 shadow">
+              Start
+            </button>
+            <button onclick="resetTimer()" class="px-2.5 py-0.5 text-[11px] font-semibold rounded bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <!-- Audio Mute/Unmute & Volume -->
+        <button id="btn-sound-toggle" onclick="toggleSound()" title="Toggle Sound FX" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-300 flex items-center justify-center text-lg transition active:scale-95">
+          🔊
+        </button>
+
+        <!-- Test Glass Shatter Sound (Trainer Tool) -->
+        <button onclick="sound.playGlassBreak(); triggerShake();" title="Test Shatter Sound" class="hidden md:flex px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-xs font-bold items-center gap-1.5 transition">
+          💥 Test Shatter FX
+        </button>
+
+        <!-- Trainer Debrief Key Modal Button -->
+        <button onclick="openModal('debrief-modal')" class="px-3.5 py-2 rounded-xl bg-indigo-600/30 hover:bg-indigo-600/50 border border-indigo-500/40 text-indigo-200 text-xs font-bold flex items-center gap-1.5 transition active:scale-95">
+          📋 Trainer Key
+        </button>
+      </div>
+    </header>
+
+    <!-- TEAM / GROUP SELECTION & LIVE SCOREBOARD -->
+    <div class="bg-slate-900/70 border border-slate-800/80 rounded-2xl p-4 shadow-xl flex flex-col md:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto pb-1 md:pb-0" id="team-tabs">
+        <!-- Generated Team Tabs (default: 4 groups) -->
+      </div>
+      <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+        <button onclick="addTeamPrompt()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1 transition">
+          + Add Group
+        </button>
+        <button onclick="editCurrentTeamName()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-slate-300 flex items-center gap-1 transition">
+          ✏️ Rename
+        </button>
+        <div class="bg-slate-950 px-4 py-1.5 rounded-xl border border-cyan-500/30 flex items-center gap-2">
+          <span class="text-xs uppercase font-bold text-cyan-400">Score:</span>
+          <span id="current-score" class="text-xl font-black text-white">0</span>
+          <span class="text-xs text-slate-400">pts</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN INTERACTIVE BOARD -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+      
+      <!-- LEFT / MAIN: THE CHAIN OF INFECTION 6-NODE CYCLE (MATCHING IMAGE TEMPLATE) -->
+      <div class="lg:col-span-7 bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-2xl relative overflow-hidden flex flex-col items-center">
+        
+        <!-- Stage Indicator Banner -->
+        <div class="w-full flex items-center justify-between mb-4 pb-3 border-b border-slate-800">
+          <div class="flex items-center gap-2">
+            <span id="stage-badge" class="px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">
+              STAGE 1: ASSEMBLE CHAIN
+            </span>
+            <span id="stage-desc" class="text-xs text-slate-400 font-medium">
+              Place the 6 links of transmission in clockwise order.
+            </span>
+          </div>
+          <button id="btn-quick-auto" onclick="autoSolveStage1()" class="text-xs text-slate-400 hover:text-cyan-300 underline font-medium">
+            (Trainer: Auto-Fill Stage 1)
+          </button>
+        </div>
+
+        <!-- CIRCULAR CHAIN CYCLE BOARD (SVG ARROWS + 6 NODES) -->
+        <div id="chain-board-container" class="relative w-[360px] h-[360px] sm:w-[460px] sm:h-[460px] md:w-[490px] md:h-[490px] my-3 flex items-center justify-center">
+          
+          <!-- Background SVG for Circular Flow Arrows and Pulse -->
+          <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 500 500">
+            <!-- Pulsing outer circle track -->
+            <circle cx="250" cy="250" r="165" fill="none" stroke="rgba(6, 182, 212, 0.15)" stroke-width="4" stroke-dasharray="8 8" />
+            
+            <!-- Directional Flow Arrows connecting nodes in clockwise cycle -->
+            <!-- Top to Top-Right -->
+            <path d="M 285 105 A 165 165 0 0 1 370 155" fill="none" stroke="#06b6d4" stroke-width="3.5" marker-end="url(#arrow)" />
+            <!-- Top-Right to Bottom-Right -->
+            <path d="M 405 240 A 165 165 0 0 1 375 335" fill="none" stroke="#06b6d4" stroke-width="3.5" marker-end="url(#arrow)" />
+            <!-- Bottom-Right to Bottom -->
+            <path d="M 330 395 A 165 165 0 0 1 250 415" fill="none" stroke="#06b6d4" stroke-width="3.5" marker-end="url(#arrow)" />
+            <!-- Bottom to Bottom-Left -->
+            <path d="M 215 415 A 165 165 0 0 1 135 375" fill="none" stroke="#06b6d4" stroke-width="3.5" marker-end="url(#arrow)" />
+            <!-- Bottom-Left to Top-Left -->
+            <path d="M 95 295 A 165 165 0 0 1 95 205" fill="none" stroke="#06b6d4" stroke-width="3.5" marker-end="url(#arrow)" />
+            <!-- Top-Left to Top -->
+            <path d="M 135 125 A 165 165 0 0 1 215 85" fill="none" stroke="#06b6d4" stroke-width="3.5" marker-end="url(#arrow)" />
+
+            <defs>
+              <marker id="arrow" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#06b6d4" />
+              </marker>
+              <marker id="arrow-green" viewBox="0 0 10 10" refX="6" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+                <path d="M 0 1 L 9 5 L 0 9 z" fill="#10b981" />
+              </marker>
+            </defs>
+          </svg>
+
+          <!-- CENTER SHIELD & BROKEN CHAIN BADGE -->
+          <div id="center-shield" class="absolute z-20 flex flex-col items-center justify-center text-center p-3 w-40 h-40 sm:w-44 sm:h-44 rounded-full bg-slate-950/90 border-2 border-cyan-500/40 shadow-2xl backdrop-blur-md transition-all duration-300">
+            <div id="center-icon" class="text-3xl sm:text-4xl mb-1 transform transition-transform duration-300">
+              🔗💥
+            </div>
+            <span class="text-[11px] sm:text-xs font-black tracking-widest text-cyan-300 uppercase">BREAK THE CHAIN</span>
+            <span class="text-[10px] sm:text-[11px] font-bold text-slate-300 tracking-wider">STANDARD PRECAUTIONS</span>
+            <div id="chain-status-text" class="mt-1 text-[10px] text-amber-400 font-semibold px-2 py-0.5 rounded-full bg-amber-500/10">
+              Chain Active (6/6 intact)
+            </div>
+          </div>
+
+          <!-- 6 CIRCULAR NODES (Matching the Uploaded Diagram Layout) -->
+          <!-- 0: TOP (Agent) -->
+          <div id="node-0" data-slot="0" onclick="handleSlotClick(0)" class="circle-slot absolute top-[2%] left-1/2 -translate-x-1/2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400">
+            <span class="text-xs text-cyan-400 font-bold mb-1">Position 1</span>
+            <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click or Drag Agent</span>
+          </div>
+
+          <!-- 1: TOP-RIGHT (Reservoir/Source) -->
+          <div id="node-1" data-slot="1" onclick="handleSlotClick(1)" class="circle-slot absolute top-[18%] right-[2%] w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400">
+            <span class="text-xs text-cyan-400 font-bold mb-1">Position 2</span>
+            <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click or Drag Reservoir</span>
+          </div>
+
+          <!-- 2: BOTTOM-RIGHT (Portal of Exit) -->
+          <div id="node-2" data-slot="2" onclick="handleSlotClick(2)" class="circle-slot absolute bottom-[18%] right-[2%] w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400">
+            <span class="text-xs text-cyan-400 font-bold mb-1">Position 3</span>
+            <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click or Drag Portal of Exit</span>
+          </div>
+
+          <!-- 3: BOTTOM (Modes of Transport) -->
+          <div id="node-3" data-slot="3" onclick="handleSlotClick(3)" class="circle-slot absolute bottom-[2%] left-1/2 -translate-x-1/2 w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400">
+            <span class="text-xs text-cyan-400 font-bold mb-1">Position 4</span>
+            <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click or Drag Mode</span>
+          </div>
+
+          <!-- 4: BOTTOM-LEFT (Portal of Entry) -->
+          <div id="node-4" data-slot="4" onclick="handleSlotClick(4)" class="circle-slot absolute bottom-[18%] left-[2%] w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400">
+            <span class="text-xs text-cyan-400 font-bold mb-1">Position 5</span>
+            <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click or Drag Portal of Entry</span>
+          </div>
+
+          <!-- 5: TOP-LEFT (Susceptible Host) -->
+          <div id="node-5" data-slot="5" onclick="handleSlotClick(5)" class="circle-slot absolute top-[18%] left-[2%] w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400">
+            <span class="text-xs text-cyan-400 font-bold mb-1">Position 6</span>
+            <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click or Drag Host</span>
+          </div>
+
+        </div>
+
+        <!-- Shatter / Break Feedback Toast -->
+        <div id="shatter-toast" class="w-full mt-3 p-3 rounded-xl bg-slate-950/90 border border-slate-800 text-center transition-all opacity-0 pointer-events-none transform translate-y-2">
+          <span id="toast-title" class="font-black text-sm text-emerald-400 uppercase tracking-wide"></span>
+          <p id="toast-desc" class="text-xs text-slate-300 mt-0.5"></p>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: ACTION CONTROLS / PUZZLE CARDS BANK / SCENARIOS -->
+      <div class="lg:col-span-5 flex flex-col gap-5">
+        
+        <!-- SECTION A: STAGE 1 CHAIN PIECES (Visible during Stage 1) -->
+        <div id="stage1-panel" class="bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-2xl">
+          <div class="flex items-center justify-between mb-3">
+            <h2 class="text-base font-bold text-white flex items-center gap-2">
+              <span>🧩</span> Chain of Infection Pieces
+            </h2>
+            <span class="text-xs text-slate-400">Click a piece then click its slot</span>
+          </div>
+          <p class="text-xs text-slate-400 mb-4">
+            Select each element and place it in the correct physiological order of transmission:
+          </p>
+          <div id="chain-pieces-bank" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Dynamically populated pieces -->
+          </div>
+        </div>
+
+        <!-- SECTION B: STAGE 2 BREAK-THE-CHAIN CHALLENGE (Activated after Stage 1) -->
+        <div id="stage2-panel" class="hidden bg-slate-900/80 border border-slate-800 rounded-2xl p-5 shadow-2xl flex-col gap-4">
+          <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+            <div>
+              <h2 class="text-base font-black text-emerald-400 flex items-center gap-2">
+                <span>💥</span> STAGE 2: BREAK THE CHAIN!
+              </h2>
+              <p class="text-xs text-slate-300">Match the Standard Precaution to break each transmission link!</p>
+            </div>
+            <span id="break-count" class="px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-black border border-emerald-500/40">
+              0 / 10 Broken
+            </span>
+          </div>
+
+          <!-- Active Clinical Scenario Card -->
+          <div id="scenario-card" class="bg-gradient-to-r from-slate-950 to-slate-900 border border-cyan-500/30 rounded-xl p-4 shadow-inner relative overflow-hidden">
+            <div class="flex items-center justify-between mb-2">
+              <span id="scenario-num" class="text-[11px] font-bold text-cyan-400 uppercase tracking-wider">Scenario 1 of 10</span>
+              <span id="scenario-target-badge" class="px-2 py-0.5 rounded text-[11px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">Targeting Link</span>
+            </div>
+            <h3 id="scenario-question" class="text-sm font-semibold text-white leading-relaxed mb-2"></h3>
+            <p id="scenario-hint" class="text-xs text-slate-400 italic"></p>
+          </div>
+
+          <!-- 10 STANDARD PRECAUTIONS WEAPONS / CARDS -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-300 uppercase tracking-wider">Select Standard Precaution:</span>
+              <span class="text-[11px] text-slate-400">10 Core Elements</span>
+            </div>
+            <div id="precautions-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <!-- Dynamically populated 10 Standard Precautions -->
+            </div>
+          </div>
+        </div>
+
+        <!-- QUICK TEAM PROGRESS & MINI LEADERBOARD -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-xl">
+          <div class="flex items-center justify-between mb-2">
+            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Team Scoreboard</h3>
+            <button onclick="finishSession()" class="text-xs font-bold text-emerald-400 hover:text-emerald-300 transition">
+              View Final Results 🏆
+            </button>
+          </div>
+          <div id="mini-leaderboard" class="space-y-2">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="mt-auto py-3 text-center text-xs text-slate-400 flex flex-wrap items-center justify-between border-t border-slate-800/80">
+      <div>
+        <span>Standards: <strong>WHO Core Components</strong> & <strong>CDC Standard Precautions</strong></span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="openModal('debrief-modal')" class="hover:text-cyan-400 underline">Trainer Facilitation Guide</button>
+        <span>•</span>
+        <button onclick="resetCurrentGame()" class="hover:text-red-400 underline">Reset Game</button>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- MODAL: FINAL RESULTS & IPC CERTIFICATE -->
+  <div id="results-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-3xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <div class="text-center mb-6">
+        <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-tr from-amber-400 to-yellow-600 flex items-center justify-center text-3xl shadow-xl shadow-amber-500/20 mb-3">
+          🏆
+        </div>
+        <h2 class="text-2xl md:text-3xl font-black text-white">10-Minute IPC Challenge Results!</h2>
+        <p class="text-sm text-slate-400 mt-1">Official Infection Prevention & Control Team Standings</p>
+      </div>
+
+      <!-- WINNING TEAM SPOTLIGHT -->
+      <div id="winner-banner" class="bg-gradient-to-r from-amber-500/20 via-yellow-500/15 to-emerald-500/20 border-2 border-amber-500/40 rounded-2xl p-5 mb-6 text-center">
+        <span class="text-xs font-black uppercase tracking-widest text-amber-300">🎉 Champion IPC Squad 🎉</span>
+        <h3 id="winner-team-name" class="text-2xl md:text-3xl font-black text-white mt-1">Team Semmelweis</h3>
+        <p id="winner-stats" class="text-xs md:text-sm text-slate-300 mt-2 font-medium"></p>
+      </div>
+
+      <!-- FULL SCORE TABLE -->
+      <div class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden mb-6">
+        <table class="w-full text-left text-xs md:text-sm">
+          <thead class="bg-slate-800/80 text-slate-300 uppercase font-bold text-[11px]">
+            <tr>
+              <th class="p-3">Rank</th>
+              <th class="p-3">Group Name</th>
+              <th class="p-3 text-center">Stage 1 Chain</th>
+              <th class="p-3 text-center">Broken Links</th>
+              <th class="p-3 text-right">Score</th>
+            </tr>
+          </thead>
+          <tbody id="results-table-body" class="divide-y divide-slate-800 text-slate-200">
+            <!-- Generated via JS -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- BUTTONS: PRINT CERTIFICATE & CLOSE -->
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <button onclick="showCertificate()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white font-bold text-sm shadow-lg flex items-center gap-2 transition active:scale-95">
+          📜 Generate Printable Certificate
+        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="closeModal('results-modal')" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm transition">
+            Close
+          </button>
+          <button onclick="restartFullGame()" class="px-4 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white font-bold text-sm transition">
+            Start New Round
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: PRINTABLE IPC CERTIFICATE -->
+  <div id="certificate-modal" class="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-white text-slate-900 border-8 border-cyan-800 rounded-3xl max-w-3xl w-full p-8 md:p-12 shadow-2xl relative text-center">
+      
+      <!-- Close / Print Actions Bar (hidden on print) -->
+      <div class="no-print absolute top-4 right-4 flex items-center gap-2">
+        <button onclick="window.print()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 text-white font-bold text-xs shadow hover:bg-emerald-500 transition">
+          🖨️ Print Certificate
+        </button>
+        <button onclick="closeModal('certificate-modal')" class="px-3 py-1.5 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs hover:bg-slate-300 transition">
+          ✕
+        </button>
+      </div>
+
+      <div class="border-4 border-dashed border-cyan-600/30 p-6 md:p-8 rounded-2xl">
+        <div class="flex justify-center items-center gap-2 mb-2">
+          <span class="text-3xl">🛡️</span>
+          <span class="text-xs tracking-widest font-black uppercase text-cyan-800">Hospital Infection Prevention & Control Department</span>
+        </div>
+        <h1 class="text-3xl md:text-4xl font-black text-cyan-950 font-serif uppercase tracking-tight my-2">Certificate of IPC Excellence</h1>
+        <p class="text-sm text-slate-600 italic">This certifies that</p>
+        <h2 id="cert-team-name" class="text-2xl md:text-3xl font-extrabold text-cyan-700 underline underline-offset-8 my-3">Team Semmelweis</h2>
+        <p class="text-sm md:text-base text-slate-700 max-w-lg mx-auto leading-relaxed">
+          Has successfully identified all 6 links of the <strong>Chain of Infection</strong> and masterfully deployed <strong>Standard Precautions</strong> to break transmission cycles during the professional 10-minute IPC clinical simulation.
+        </p>
+
+        <div class="mt-8 pt-6 border-t border-slate-300 grid grid-cols-2 gap-6 text-xs text-slate-600">
+          <div>
+            <div class="font-bold text-slate-900 text-sm">Lead IPC Training Specialist</div>
+            <div>Infection Prevention & Control Unit</div>
+          </div>
+          <div>
+            <div class="font-bold text-slate-900 text-sm" id="cert-date">Date: November 10, 2026</div>
+            <div>Standard Precautions Master Class</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- MODAL: TRAINER DEBRIEF KEY & CLINICAL RATIONALE -->
+  <div id="debrief-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-700 rounded-3xl max-w-4xl w-full p-6 md:p-8 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <div>
+          <h2 class="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+            📋 IPC Trainer Debrief Key & Answers
+          </h2>
+          <p class="text-xs text-slate-400">10-Minute Session Facilitator Reference (CDC / WHO Standard Precautions)</p>
+        </div>
+        <button onclick="closeModal('debrief-modal')" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 text-xs font-bold hover:bg-slate-700">
+          ✕ Close
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs md:text-sm text-slate-300">
+        <!-- 6 Links Summary -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <h3 class="font-bold text-cyan-400 text-sm mb-2">Stage 1: The 6 Chain of Infection Links (In Order)</h3>
+          <ol class="list-decimal list-inside space-y-1 text-slate-300">
+            <li><strong>Agent (Microorganisms)</strong>: Bacteria (MRSA, C. diff), Viruses (Influenza, COVID-19), Fungi, Parasites.</li>
+            <li><strong>Reservoir/Source</strong>: Where pathogens live: patients, staff, water, surfaces, medical equipment.</li>
+            <li><strong>Portal of Exit</strong>: Path to leave reservoir: respiratory droplets, blood, open skin, GI tract.</li>
+            <li><strong>Modes of Transport</strong>: Transmission route: contaminated hands (#1 mode), contact, airborne, droplet.</li>
+            <li><strong>Portal of Entry</strong>: Route into host: broken skin, mucous membranes, IV lines, catheters, incisions.</li>
+            <li><strong>Susceptible Host</strong>: Vulnerable individuals: immunosuppressed, surgical patients, neonates, unvaccinated.</li>
+          </ol>
+        </div>
+
+        <!-- 10 Precautions & How they break the chain -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <h3 class="font-bold text-emerald-400 text-sm mb-2">Stage 2: Standard Precautions & Where They Break the Chain</h3>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">1. Hand Hygiene:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Mode of Transport</em> and <em>Portal of Entry</em>. Single most effective intervention to stop transmission between patients.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">2. Personal Protective Equipment (PPE):</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Portal of Exit</em>, <em>Mode of Transport</em>, and <em>Portal of Entry</em> (gloves, masks, gowns, eye shields).</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">3. Respiratory Hygiene & Cough Etiquette:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Portal of Exit</em> and <em>Mode of Transport</em>. Source control at the point of coughing/sneezing.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">4. Environmental Cleaning:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Reservoir</em> and <em>Mode of Transport</em>. Disinfecting high-touch surfaces (bed rails, call bells, floors).</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">5. Instruments Processing:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Agent</em> and <em>Portal of Entry</em>. Sterilization (autoclave) and high-level disinfection eliminate microorganisms.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">6. Cleaning Patient Care Equipment:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Reservoir</em> and <em>Mode of Transport</em>. Decontamination of shared BP cuffs, stethoscopes, pulse oximeters.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">7. Sharps Injury Prevention:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Portal of Entry</em> and <em>Portal of Exit</em>. Safety engineered needles, no recapping, puncture-resistant bins.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">8. Linen Care:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Reservoir</em> and <em>Mode of Transport</em>. Proper containment of contaminated linen without shaking.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">9. Appropriate Waste Disposal:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Reservoir</em> and <em>Mode of Transport</em>. Biohazard red bags, correct segregation of infectious waste.</p>
+            </div>
+            <div class="p-2.5 rounded-lg bg-slate-900 border border-slate-800">
+              <span class="font-bold text-white">10. Protect Workers & Immunization:</span>
+              <p class="text-slate-400 mt-0.5">Breaks <em>Susceptible Host</em> and <em>Reservoir</em>. Hepatitis B, Influenza, COVID-19 vaccines and post-exposure prophylaxis.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 10-Minute Facilitation Timeline -->
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800">
+          <h3 class="font-bold text-amber-400 text-sm mb-1">Recommended 10-Minute Session Run-Down</h3>
+          <ul class="space-y-1 text-slate-400">
+            <li><strong>Minute 00-01</strong>: Introduce teams & start the 10-min clock.</li>
+            <li><strong>Minute 01-04</strong>: Stage 1 — Assemble the 6 links of the Chain of Infection in order.</li>
+            <li><strong>Minute 04-08</strong>: Stage 2 — Break the Chain clinical scenarios with Standard Precautions.</li>
+            <li><strong>Minute 08-10</strong>: Debrief results, celebrate the champion squad, and hand out certificate!</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CORE GAME LOGIC SCRIPT -->
+  <script>
+    // 1. DATA DEFINITIONS
+    const CHAIN_LINKS = [
+      {
+        id: 0,
+        name: "Agent (Microorganisms)",
+        icon: "🦠",
+        examples: "Bacteria, Viruses, Fungi, Parasites (MRSA, C. diff, COVID-19)",
+        desc: "The pathogen capable of producing infectious disease."
+      },
+      {
+        id: 1,
+        name: "Reservoir/Source",
+        icon: "🏥",
+        examples: "Patients, Healthcare workers, Water, Stethoscope, Bed rails",
+        desc: "The natural habitat where the microorganism lives and multiplies."
+      },
+      {
+        id: 2,
+        name: "Portal of Exit",
+        icon: "🚪",
+        examples: "Respiratory tract, Blood, Open wounds, Secretions, Urine",
+        desc: "The path by which the pathogen leaves the reservoir."
+      },
+      {
+        id: 3,
+        name: "Modes of Transport",
+        icon: "🖐️",
+        examples: "Unwashed hands (#1), Direct contact, Droplets, Equipment",
+        desc: "The mechanism by which the agent travels to the host."
+      },
+      {
+        id: 4,
+        name: "Portal of Entry",
+        icon: "💉",
+        examples: "Broken skin, IV cannula, Urinary catheter, Mucous membranes",
+        desc: "The avenue through which the pathogen enters the new host."
+      },
+      {
+        id: 5,
+        name: "Susceptible Host",
+        icon: "🧑‍🦽",
+        examples: "Immunocompromised, Post-op patients, Elderly, Unvaccinated",
+        desc: "Person lacking sufficient resistance to prevent disease."
+      }
+    ];
+
+    const STANDARD_PRECAUTIONS = [
+      { id: "hand_hygiene", name: "Hand hygiene", icon: "🧼", breaks: [3, 1, 4] },
+      { id: "ppe", name: "Personal Protective Equipment (PPE)", icon: "🧤", breaks: [2, 3, 4] },
+      { id: "respiratory", name: "Respiratory Hygiene & Cough Etiquette", icon: "😷", breaks: [2, 3] },
+      { id: "environmental", name: "Environmental cleaning", icon: "🧹", breaks: [1, 3] },
+      { id: "cleaning_equipment", name: "Cleaning of patient care equipment", icon: "🩺", breaks: [1, 3] },
+      { id: "instruments", name: "Instruments Processing", icon: "🔬", breaks: [0, 4] },
+      { id: "sharps", name: "Sharps; Prevention of Needle Stick Injuries", icon: "💉", breaks: [4, 2] },
+      { id: "linen", name: "Linen care", icon: "🛏️", breaks: [1, 3] },
+      { id: "waste", name: "Appropriate Waste Disposal", icon: "🗑️", breaks: [1, 3] },
+      { id: "protect_workers", name: "Protect workers & immunizations", icon: "🛡️", breaks: [5, 1] }
+    ];
+
+    const CLINICAL_SCENARIOS = [
+      {
+        id: 1,
+        targetNode: 3, // Modes of Transport
+        question: "Between examining an infected wound and touching the next patient's IV line, what is the single most critical standard precaution to BREAK the mode of transport?",
+        hint: "Primary vehicle of nosocomial pathogen cross-transmission in healthcare.",
+        correctId: "hand_hygiene",
+        rationale: "Hand hygiene breaks the Mode of Transport (pathogen transfer on healthcare worker hands)."
+      },
+      {
+        id: 2,
+        targetNode: 4, // Portal of Entry
+        question: "A doctor finishes arterial blood gas sampling. To prevent percutaneous puncture and exposure to bloodborne pathogens, which precaution is essential?",
+        hint: "Never recap needles by two hands; immediately place in puncture-resistant container.",
+        correctId: "sharps",
+        rationale: "Sharps safety breaks Portal of Entry (percutaneous injury) and Portal of Exit."
+      },
+      {
+        id: 3,
+        targetNode: 0, // Agent
+        question: "Surgical instruments used during a major abdominal surgery must have all bacterial spores, viruses, and vegetative cells completely destroyed before next use. Which element achieves this?",
+        hint: "Autoclaving, high-level disinfection, and CSSD validation.",
+        correctId: "instruments",
+        rationale: "Instruments processing (autoclave/sterilization) breaks the Agent link directly by killing all pathogens."
+      },
+      {
+        id: 4,
+        targetNode: 2, // Portal of Exit
+        question: "A patient in the crowded ER waiting room is coughing violently with fever and chills. Which standard precaution immediately stops droplets at their source?",
+        hint: "Offer mask, provide tissues, advise covering nose and mouth.",
+        correctId: "respiratory",
+        rationale: "Respiratory hygiene and cough etiquette breaks Portal of Exit (respiratory tract expulsion)."
+      },
+      {
+        id: 5,
+        targetNode: 1, // Reservoir
+        question: "A hospital bed rail and call bell in a high-turnover ward are contaminated with multi-drug resistant organisms (MDRO). Which precaution eradicates this reservoir?",
+        hint: "Routine disinfection with EPA-registered hospital grade disinfectant.",
+        correctId: "environmental",
+        rationale: "Environmental cleaning breaks the Reservoir/Source by decontaminating inanimate clinical surfaces."
+      },
+      {
+        id: 6,
+        targetNode: 4, // Portal of Entry / Mode of Transport
+        question: "During an emergency intubation with heavy airway secretions and blood spray, the medical team dons face shields, N95 respirators, gloves, and fluid-resistant gowns.",
+        hint: "Barriers protecting healthcare worker mucous membranes and skin.",
+        correctId: "ppe",
+        rationale: "PPE breaks Portal of Entry (eyes, nose, mouth) and prevents contact transmission."
+      },
+      {
+        id: 7,
+        targetNode: 5, // Susceptible Host
+        question: "A newly hired nursing graduate receives Hepatitis B vaccination series and MMR titer checks before clinical assignment in oncology. What precaution protects the host?",
+        hint: "Building acquired immunity against vaccine-preventable occupational pathogens.",
+        correctId: "protect_workers",
+        rationale: "Immunization and worker health protect the Susceptible Host from acquiring and spreading infection."
+      },
+      {
+        id: 8,
+        targetNode: 1, // Reservoir / Mode of Transport
+        question: "A shared portable ultrasound machine and blood pressure cuff were used in an isolation room. What precaution must occur before moving them to the general ward?",
+        hint: "Cleaning and disinfecting non-critical patient care devices between every patient.",
+        correctId: "cleaning_equipment",
+        rationale: "Cleaning patient care equipment breaks Reservoir and Mode of Transport on medical devices."
+      },
+      {
+        id: 9,
+        targetNode: 1, // Reservoir / Mode of Transport
+        question: "Bed sheets heavily soiled with purulent discharge are removed from an occupied bed. Staff bundle them without shaking and place them in leak-proof bags. Which precaution is this?",
+        hint: "Prevents microbial aerosolization and contamination of uniforms.",
+        correctId: "linen",
+        rationale: "Linen care breaks Reservoir and Mode of Transport during handling of soiled textiles."
+      },
+      {
+        id: 10,
+        targetNode: 1, // Reservoir
+        question: "A suction canister containing 1000 mL of bloody pleural fluid needs disposal. Staff deposit it into the designated biohazard waste stream rather than domestic trash.",
+        hint: "Color-coded biohazard containment and regulatory hazardous waste management.",
+        correctId: "waste",
+        rationale: "Appropriate waste disposal eliminates infectious clinical reservoirs safely."
+      }
+    ];
+
+    // 2. STATE MANAGEMENT
+    let teams = [
+      { id: "team-1", name: "Team Semmelweis (ICU)", score: 0, stage1Complete: false, brokenLinks: 0, correctCount: 0, wrongCount: 0 },
+      { id: "team-2", name: "Team Nightingale (Surgery)", score: 0, stage1Complete: false, brokenLinks: 0, correctCount: 0, wrongCount: 0 },
+      { id: "team-3", name: "Team Lister (Emergency)", score: 0, stage1Complete: false, brokenLinks: 0, correctCount: 0, wrongCount: 0 },
+      { id: "team-4", name: "Team Pasteur (General Ward)", score: 0, stage1Complete: false, brokenLinks: 0, correctCount: 0, wrongCount: 0 }
+    ];
+    let currentTeamIndex = 0;
+
+    // Board state for current team
+    let boardSlots = [null, null, null, null, null, null]; // positions 0..5
+    let selectedPieceId = null;
+    let currentStage = 1; // 1 = Chain Assembly, 2 = Break the Chain
+    let currentScenarioIndex = 0;
+    let brokenLinksSet = new Set();
+
+    // 10-Minute Timer state
+    let totalSeconds = 600; // 10:00
+    let timerInterval = null;
+    let isTimerRunning = false;
+
+    // 3. INITIALIZATION
+    window.addEventListener('DOMContentLoaded', () => {
+      renderTeamTabs();
+      renderChainPiecesBank();
+      renderPrecautionsGrid();
+      updateScoreboardUI();
+      loadScenario(0);
+      document.getElementById('cert-date').innerText = 'Date: ' + new Date().toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' });
+    });
+
+    // 4. TEAM MANAGEMENT
+    function renderTeamTabs() {
+      const tabs = document.getElementById('team-tabs');
+      tabs.innerHTML = '';
+      teams.forEach((t, idx) => {
+        const isActive = idx === currentTeamIndex;
+        const btn = document.createElement('button');
+        btn.onclick = () => switchTeam(idx);
+        btn.className = `px-3.5 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 whitespace-nowrap shadow-sm ${
+          isActive 
+            ? 'bg-gradient-to-r from-cyan-600 to-emerald-600 text-white border border-cyan-400' 
+            : 'bg-slate-800/80 hover:bg-slate-700 text-slate-300 border border-slate-700/60'
+        }`;
+        btn.innerHTML = `<span>👥</span> <span>${t.name}</span> <span class="ml-1 px-1.5 py-0.2 rounded-full text-[10px] bg-black/30 font-mono">${t.score}</span>`;
+        tabs.appendChild(btn);
+      });
+      document.getElementById('current-score').innerText = teams[currentTeamIndex].score;
+      renderMiniLeaderboard();
+    }
+
+    function switchTeam(index) {
+      currentTeamIndex = index;
+      renderTeamTabs();
+      // Reset or load that team's progress if wanted, or keep shared interactive tournament board
+      showToast('Team Active: ' + teams[currentTeamIndex].name, 'Ready to answer!', 'cyan');
+    }
+
+    function addTeamPrompt() {
+      const name = prompt("Enter new Group / Squad name:", `Team ${teams.length + 1} (Clinical)`);
+      if (name && name.trim()) {
+        teams.push({
+          id: `team-${Date.now()}`,
+          name: name.trim(),
+          score: 0,
+          stage1Complete: false,
+          brokenLinks: 0,
+          correctCount: 0,
+          wrongCount: 0
+        });
+        currentTeamIndex = teams.length - 1;
+        renderTeamTabs();
+        sound.playSuccess();
+      }
+    }
+
+    function editCurrentTeamName() {
+      const current = teams[currentTeamIndex];
+      const name = prompt("Rename Group:", current.name);
+      if (name && name.trim()) {
+        current.name = name.trim();
+        renderTeamTabs();
+      }
+    }
+
+    function addScore(points) {
+      teams[currentTeamIndex].score += points;
+      document.getElementById('current-score').innerText = teams[currentTeamIndex].score;
+      renderTeamTabs();
+    }
+
+    function renderMiniLeaderboard() {
+      const container = document.getElementById('mini-leaderboard');
+      container.innerHTML = '';
+      const sorted = [...teams].sort((a, b) => b.score - a.score);
+      sorted.forEach((t, rank) => {
+        const item = document.createElement('div');
+        item.className = 'flex items-center justify-between p-2 rounded-lg bg-slate-950/70 border border-slate-800 text-xs';
+        const medal = rank === 0 ? '🥇' : rank === 1 ? '🥈' : rank === 2 ? '🥉' : '🎖️';
+        item.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span>${medal}</span>
+            <span class="font-semibold text-slate-200">${t.name}</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-cyan-400 font-mono font-bold">${t.score} pts</span>
+            <span class="text-[10px] text-slate-500">(${t.brokenLinks} links)</span>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // 5. STAGE 1: CHAIN ASSEMBLY LOGIC
+    function renderChainPiecesBank() {
+      const bank = document.getElementById('chain-pieces-bank');
+      bank.innerHTML = '';
+      
+      // Shuffle pieces for fun puzzle challenge
+      const shuffled = [...CHAIN_LINKS];
+      shuffled.forEach(link => {
+        const isPlaced = boardSlots.includes(link.id);
+        const card = document.createElement('button');
+        card.id = `piece-${link.id}`;
+        card.onclick = () => selectPiece(link.id);
+        card.className = `p-2.5 rounded-xl border text-left flex flex-col justify-between transition-all duration-200 ${
+          isPlaced 
+            ? 'opacity-30 pointer-events-none border-slate-800 bg-slate-950' 
+            : selectedPieceId === link.id
+              ? 'border-cyan-400 bg-cyan-950/40 text-cyan-200 ring-2 ring-cyan-500/50 scale-[1.02]'
+              : 'border-slate-800 bg-slate-950/70 hover:border-slate-700 text-slate-200 hover:bg-slate-800/50'
+        }`;
+        card.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-xl">${link.icon}</span>
+            <span class="font-bold text-xs">${link.name}</span>
+          </div>
+          <p class="text-[10px] text-slate-400 mt-1 line-clamp-1">${link.examples}</p>
+        `;
+        bank.appendChild(card);
+      });
+    }
+
+    function selectPiece(linkId) {
+      selectedPieceId = linkId;
+      renderChainPiecesBank();
+      const link = CHAIN_LINKS.find(l => l.id === linkId);
+      showToast("Selected: " + link.name, "Now click the circle position where it belongs!", "cyan");
+    }
+
+    function handleSlotClick(slotIndex) {
+      if (currentStage === 1) {
+        if (selectedPieceId === null) {
+          showToast("Select a Chain Piece First", "Click one of the pieces on the right panel, then click here.", "amber");
+          sound.playWrong();
+          return;
+        }
+
+        // Validate if selectedPieceId matches this slot
+        if (selectedPieceId === slotIndex) {
+          // CORRECT LINK!
+          boardSlots[slotIndex] = selectedPieceId;
+          const link = CHAIN_LINKS[selectedPieceId];
+          fillSlotUI(slotIndex, link);
+          sound.playLock();
+          addScore(100);
+          showToast(`Correct! Position ${slotIndex + 1}: ${link.name}`, `+100 pts for ${teams[currentTeamIndex].name}!`, 'emerald');
+          selectedPieceId = null;
+          renderChainPiecesBank();
+
+          // Check if all 6 slots are completed
+          checkStage1Completion();
+        } else {
+          // WRONG SLOT
+          sound.playWrong();
+          triggerShake();
+          showToast("Incorrect Position!", `Review transmission order. Where does ${CHAIN_LINKS[selectedPieceId].name} sit in the cycle?`, 'red');
+        }
+      } else {
+        // STAGE 2: Click node to see which precautions break it
+        highlightNodeForBreak(slotIndex);
+      }
+    }
+
+    function fillSlotUI(slotIndex, link) {
+      const node = document.getElementById(`node-${slotIndex}`);
+      node.classList.remove('border-dashed', 'border-cyan-500/50');
+      node.classList.add('border-solid', 'border-cyan-400', 'bg-cyan-950/60');
+      node.innerHTML = `
+        <span class="text-xl sm:text-2xl mb-0.5">${link.icon}</span>
+        <span class="text-[11px] sm:text-xs font-black text-cyan-200 leading-tight">${link.name}</span>
+        <span class="text-[9px] text-slate-400 hidden sm:block mt-0.5 leading-none line-clamp-1">${link.examples}</span>
+      `;
+    }
+
+    function autoSolveStage1() {
+      CHAIN_LINKS.forEach((link, idx) => {
+        boardSlots[idx] = idx;
+        fillSlotUI(idx, link);
+      });
+      renderChainPiecesBank();
+      checkStage1Completion();
+    }
+
+    function checkStage1Completion() {
+      const allFilled = boardSlots.every((s, idx) => s === idx);
+      if (allFilled) {
+        sound.playSuccess();
+        teams[currentTeamIndex].stage1Complete = true;
+        showToast("🎉 CHAIN OF INFECTION ASSEMBLED! 🎉", "Stage 1 Complete! Unlocking Stage 2: Break the Chain!", "emerald");
+        
+        // Transition to Stage 2 after 1.2 seconds
+        setTimeout(() => {
+          activateStage2();
+        }, 1200);
+      }
+    }
+
+    // 6. STAGE 2: BREAK THE CHAIN LOGIC
+    function activateStage2() {
+      currentStage = 2;
+      document.getElementById('stage1-panel').classList.add('hidden');
+      document.getElementById('stage2-panel').classList.remove('hidden');
+      document.getElementById('stage2-panel').classList.add('flex');
+      
+      document.getElementById('stage-badge').innerText = "STAGE 2: BREAK THE CHAIN!";
+      document.getElementById('stage-badge').className = "px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
+      document.getElementById('stage-desc').innerText = "Deploy Standard Precautions against clinical infection cycles!";
+
+      document.getElementById('chain-status-text').innerText = "TARGET READY TO SHATTER!";
+      document.getElementById('chain-status-text').className = "mt-1 text-[10px] text-emerald-400 font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10";
+      
+      loadScenario(0);
+    }
+
+    function renderPrecautionsGrid() {
+      const grid = document.getElementById('precautions-grid');
+      grid.innerHTML = '';
+      STANDARD_PRECAUTIONS.forEach(p => {
+        const btn = document.createElement('button');
+        btn.id = `prec-${p.id}`;
+        btn.onclick = () => deployPrecaution(p.id);
+        btn.className = 'p-2.5 rounded-xl border border-slate-800 bg-slate-950/80 hover:bg-emerald-950/30 hover:border-emerald-500/50 text-left flex items-center gap-2.5 transition active:scale-95 group';
+        btn.innerHTML = `
+          <span class="text-xl group-hover:scale-110 transition-transform">${p.icon}</span>
+          <span class="text-xs font-bold text-slate-200 group-hover:text-emerald-300">${p.name}</span>
+        `;
+        grid.appendChild(btn);
+      });
+    }
+
+    function loadScenario(index) {
+      if (index >= CLINICAL_SCENARIOS.length) {
+        finishSession();
+        return;
+      }
+      currentScenarioIndex = index;
+      const s = CLINICAL_SCENARIOS[index];
+      document.getElementById('scenario-num').innerText = `Scenario ${index + 1} of ${CLINICAL_SCENARIOS.length}`;
+      document.getElementById('scenario-question').innerText = s.question;
+      document.getElementById('scenario-hint').innerText = "💡 Key IPC Clue: " + s.hint;
+
+      const targetLink = CHAIN_LINKS[s.targetNode];
+      document.getElementById('scenario-target-badge').innerText = `Target Link: ${targetLink.name}`;
+      
+      // Highlight target node with pulse glow
+      for (let i = 0; i < 6; i++) {
+        const node = document.getElementById(`node-${i}`);
+        if (i === s.targetNode) {
+          node.classList.add('ring-4', 'ring-amber-400', 'ring-offset-2', 'ring-offset-slate-950');
+        } else {
+          node.classList.remove('ring-4', 'ring-amber-400', 'ring-offset-2', 'ring-offset-slate-950');
+        }
+      }
+    }
+
+    function deployPrecaution(precautionId) {
+      const scenario = CLINICAL_SCENARIOS[currentScenarioIndex];
+      const precaution = STANDARD_PRECAUTIONS.find(p => p.id === precautionId);
+      
+      // Check if this precaution breaks this target scenario
+      const isCorrect = (precautionId === scenario.correctId) || precaution.breaks.includes(scenario.targetNode);
+
+      if (isCorrect) {
+        // 💥💥 SENSATIONAL GLASS SHATTER & CHAIN SNAP! 💥💥
+        sound.playGlassBreak();
+        triggerShake();
+        createShardParticles(scenario.targetNode);
+
+        // Visual shatter effect on target node
+        const node = document.getElementById(`node-${scenario.targetNode}`);
+        node.classList.add('shattered-node');
+        node.innerHTML = `
+          <span class="text-2xl">💥🔗</span>
+          <span class="text-[11px] font-black text-emerald-300 uppercase leading-none">BROKEN!</span>
+          <span class="text-[9px] text-emerald-200 font-semibold mt-0.5 line-clamp-1">${precaution.name}</span>
+        `;
+
+        brokenLinksSet.add(scenario.targetNode);
+        teams[currentTeamIndex].brokenLinks = brokenLinksSet.size;
+        teams[currentTeamIndex].correctCount++;
+        addScore(150); // 150 pts per broken chain!
+
+        document.getElementById('break-count').innerText = `${currentScenarioIndex + 1} / ${CLINICAL_SCENARIOS.length} Broken`;
+        showToast("💥 CRACK! CHAIN LINK SHATTERED! 💥", scenario.rationale, "emerald");
+
+        // Center badge update
+        document.getElementById('center-icon').innerText = '🛡️💥';
+        document.getElementById('center-shield').classList.add('border-emerald-500', 'shadow-emerald-500/40');
+
+        // Move to next scenario after delay
+        setTimeout(() => {
+          loadScenario(currentScenarioIndex + 1);
+        }, 1600);
+
+      } else {
+        // Wrong precaution
+        sound.playWrong();
+        triggerShake();
+        teams[currentTeamIndex].wrongCount++;
+        showToast("Chain Remains Intact!", `That precaution does not effectively break this specific link. Try again!`, "red");
+      }
+    }
+
+    function createShardParticles(targetNodeIndex) {
+      const node = document.getElementById(`node-${targetNodeIndex}`);
+      const rect = node.getBoundingClientRect();
+      const parent = document.getElementById('chain-board-container');
+      const parentRect = parent.getBoundingClientRect();
+
+      const originX = rect.left + rect.width / 2 - parentRect.left;
+      const originY = rect.top + rect.height / 2 - parentRect.top;
+
+      // Create 18 flying glass shards
+      for (let i = 0; i < 18; i++) {
+        const shard = document.createElement('div');
+        shard.className = 'particle glass-shard';
+        const size = Math.floor(Math.random() * 14) + 8;
+        shard.style.width = size + 'px';
+        shard.style.height = size + 'px';
+        shard.style.left = originX + 'px';
+        shard.style.top = originY + 'px';
+
+        const angle = Math.random() * Math.PI * 2;
+        const dist = Math.random() * 160 + 50;
+        const tx = Math.cos(angle) * dist + 'px';
+        const ty = Math.sin(angle) * dist + 'px';
+        const rot = (Math.random() * 720 - 360) + 'deg';
+
+        shard.style.setProperty('--tx', tx);
+        shard.style.setProperty('--ty', ty);
+        shard.style.setProperty('--rot', rot);
+
+        parent.appendChild(shard);
+        setTimeout(() => shard.remove(), 800);
+      }
+    }
+
+    function triggerShake() {
+      const board = document.getElementById('chain-board-container');
+      board.classList.remove('shake-active');
+      void board.offsetWidth; // trigger reflow
+      board.classList.add('shake-active');
+      setTimeout(() => board.classList.remove('shake-active'), 500);
+    }
+
+    // 7. TOAST FEEDBACK
+    function showToast(title, desc, color) {
+      const toast = document.getElementById('shatter-toast');
+      const titleEl = document.getElementById('toast-title');
+      const descEl = document.getElementById('toast-desc');
+
+      titleEl.innerText = title;
+      descEl.innerText = desc;
+
+      if (color === 'emerald') {
+        titleEl.className = "font-black text-sm text-emerald-400 uppercase tracking-wide";
+        toast.className = "w-full mt-3 p-3 rounded-xl bg-emerald-950/90 border border-emerald-500/50 text-center transition-all opacity-100 transform translate-y-0 shadow-lg shadow-emerald-500/20";
+      } else if (color === 'red') {
+        titleEl.className = "font-black text-sm text-red-400 uppercase tracking-wide";
+        toast.className = "w-full mt-3 p-3 rounded-xl bg-red-950/90 border border-red-500/50 text-center transition-all opacity-100 transform translate-y-0 shadow-lg shadow-red-500/20";
+      } else if (color === 'cyan') {
+        titleEl.className = "font-black text-sm text-cyan-400 uppercase tracking-wide";
+        toast.className = "w-full mt-3 p-3 rounded-xl bg-cyan-950/90 border border-cyan-500/50 text-center transition-all opacity-100 transform translate-y-0 shadow-lg shadow-cyan-500/20";
+      } else {
+        titleEl.className = "font-black text-sm text-amber-400 uppercase tracking-wide";
+        toast.className = "w-full mt-3 p-3 rounded-xl bg-amber-950/90 border border-amber-500/50 text-center transition-all opacity-100 transform translate-y-0 shadow-lg shadow-amber-500/20";
+      }
+
+      clearTimeout(window.toastTimer);
+      window.toastTimer = setTimeout(() => {
+        toast.className = "w-full mt-3 p-3 rounded-xl bg-slate-950/90 border border-slate-800 text-center transition-all opacity-0 pointer-events-none transform translate-y-2";
+      }, 5000);
+    }
+
+    // 8. 10-MINUTE TIMER
+    function toggleTimer() {
+      const btn = document.getElementById('btn-timer-toggle');
+      if (isTimerRunning) {
+        clearInterval(timerInterval);
+        isTimerRunning = false;
+        btn.innerText = "Resume";
+        btn.className = "px-2.5 py-1 text-xs font-bold rounded bg-cyan-600 hover:bg-cyan-500 text-white transition active:scale-95 shadow";
+      } else {
+        sound.init(); // enable audio context on user action
+        isTimerRunning = true;
+        btn.innerText = "Pause";
+        btn.className = "px-2.5 py-1 text-xs font-bold rounded bg-amber-600 hover:bg-amber-500 text-white transition active:scale-95 shadow";
+        
+        timerInterval = setInterval(() => {
+          if (totalSeconds > 0) {
+            totalSeconds--;
+            updateTimerDisplay();
+            if (totalSeconds <= 10) {
+              sound.playTick();
+            }
+          } else {
+            clearInterval(timerInterval);
+            isTimerRunning = false;
+            sound.playVictory();
+            finishSession();
+          }
+        }, 1000);
+      }
+    }
+
+    function resetTimer() {
+      clearInterval(timerInterval);
+      isTimerRunning = false;
+      totalSeconds = 600; // 10 minutes
+      document.getElementById('btn-timer-toggle').innerText = "Start";
+      document.getElementById('btn-timer-toggle').className = "px-2.5 py-1 text-xs font-bold rounded bg-emerald-600 hover:bg-emerald-500 text-white transition active:scale-95 shadow";
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(totalSeconds / 60);
+      const secs = totalSeconds % 60;
+      const el = document.getElementById('timer-display');
+      el.innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+      if (totalSeconds <= 60 && totalSeconds > 10) {
+        el.className = "font-mono text-2xl md:text-3xl font-black text-amber-400 animate-pulse";
+      } else if (totalSeconds <= 10) {
+        el.className = "font-mono text-2xl md:text-3xl font-black text-red-500 animate-bounce";
+      } else {
+        el.className = "font-mono text-2xl md:text-3xl font-black text-cyan-400";
+      }
+    }
+
+    function toggleSound() {
+      const enabled = sound.toggle();
+      const btn = document.getElementById('btn-sound-toggle');
+      btn.innerText = enabled ? '🔊' : '🔇';
+      btn.title = enabled ? 'Sound FX Enabled' : 'Sound FX Muted';
+      showToast(enabled ? "Sound FX Active" : "Sound Muted", "", "cyan");
+    }
+
+    // 9. RESULTS & CERTIFICATE MODAL
+    function finishSession() {
+      sound.playVictory();
+      clearInterval(timerInterval);
+
+      // Sort teams
+      const sorted = [...teams].sort((a, b) => b.score - a.score);
+      const winner = sorted[0];
+
+      document.getElementById('winner-team-name').innerText = winner.name;
+      const timeSpentSec = 600 - totalSeconds;
+      const spentMin = Math.floor(timeSpentSec / 60);
+      const spentSec = timeSpentSec % 60;
+      document.getElementById('winner-stats').innerText = `🏆 1st Place with ${winner.score} Points • ${winner.brokenLinks}/6 Chain Links Shattered • Completed in ${spentMin}m ${spentSec}s`;
+
+      const tbody = document.getElementById('results-table-body');
+      tbody.innerHTML = '';
+      sorted.forEach((t, i) => {
+        const tr = document.createElement('tr');
+        const rankMedal = i === 0 ? '🥇 1st' : i === 1 ? '🥈 2nd' : i === 2 ? '🥉 3rd' : `${i + 1}th`;
+        tr.className = i === 0 ? 'bg-amber-500/10 font-bold' : '';
+        tr.innerHTML = `
+          <td class="p-3">${rankMedal}</td>
+          <td class="p-3 flex items-center gap-2">
+            <span>${i === 0 ? '👑' : '👥'}</span>
+            <span>${t.name}</span>
+          </td>
+          <td class="p-3 text-center">${t.stage1Complete ? '✅ Assembled' : '⚡ Partial'}</td>
+          <td class="p-3 text-center"><span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">${t.brokenLinks} Links</span></td>
+          <td class="p-3 text-right font-mono font-black text-cyan-400">${t.score}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      openModal('results-modal');
+    }
+
+    function showCertificate() {
+      const sorted = [...teams].sort((a, b) => b.score - a.score);
+      const winner = sorted[0];
+      document.getElementById('cert-team-name').innerText = winner.name;
+      openModal('certificate-modal');
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove('hidden');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function restartFullGame() {
+      closeModal('results-modal');
+      closeModal('certificate-modal');
+      teams.forEach(t => {
+        t.score = 0;
+        t.stage1Complete = false;
+        t.brokenLinks = 0;
+        t.correctCount = 0;
+        t.wrongCount = 0;
+      });
+      resetCurrentGame();
+      resetTimer();
+    }
+
+    function resetCurrentGame() {
+      boardSlots = [null, null, null, null, null, null];
+      selectedPieceId = null;
+      currentStage = 1;
+      currentScenarioIndex = 0;
+      brokenLinksSet.clear();
+
+      // Reset Node visuals
+      for (let i = 0; i < 6; i++) {
+        const node = document.getElementById(`node-${i}`);
+        node.className = "circle-slot absolute w-28 h-28 sm:w-32 sm:h-32 md:w-36 md:h-36 rounded-full border-2 border-dashed border-cyan-500/50 bg-slate-950/80 flex flex-col items-center justify-center p-2 text-center shadow-lg cursor-pointer z-10 hover:border-cyan-400";
+        node.innerHTML = `
+          <span class="text-xs text-cyan-400 font-bold mb-1">Position ${i + 1}</span>
+          <span class="slot-placeholder text-[11px] text-slate-500 font-medium">Click Piece</span>
+        `;
+        // reapply positioning
+        if (i === 0) node.classList.add('top-[2%]', 'left-1/2', '-translate-x-1/2');
+        if (i === 1) node.classList.add('top-[18%]', 'right-[2%]');
+        if (i === 2) node.classList.add('bottom-[18%]', 'right-[2%]');
+        if (i === 3) node.classList.add('bottom-[2%]', 'left-1/2', '-translate-x-1/2');
+        if (i === 4) node.classList.add('bottom-[18%]', 'left-[2%]');
+        if (i === 5) node.classList.add('top-[18%]', 'left-[2%]');
+      }
+
+      document.getElementById('stage1-panel').classList.remove('hidden');
+      document.getElementById('stage2-panel').classList.add('hidden');
+      document.getElementById('stage2-panel').classList.remove('flex');
+      
+      document.getElementById('stage-badge').innerText = "STAGE 1: ASSEMBLE CHAIN";
+      document.getElementById('stage-badge').className = "px-2.5 py-1 rounded-md text-xs font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+      document.getElementById('stage-desc').innerText = "Place the 6 links of transmission in clockwise order.";
+
+      document.getElementById('center-icon').innerText = '🔗💥';
+      document.getElementById('center-shield').className = "absolute z-20 flex flex-col items-center justify-center text-center p-3 w-40 h-40 sm:w-44 sm:h-44 rounded-full bg-slate-950/90 border-2 border-cyan-500/40 shadow-2xl backdrop-blur-md transition-all duration-300";
+      document.getElementById('chain-status-text').innerText = "Chain Active (6/6 intact)";
+      document.getElementById('chain-status-text').className = "mt-1 text-[10px] text-amber-400 font-semibold px-2 py-0.5 rounded-full bg-amber-500/10";
+
+      renderChainPiecesBank();
+      renderTeamTabs();
+      showToast("Game Reset", "Ready for the next 10-minute training session!", "cyan");
+    }
+  </script>
+
+</body>
+</html>

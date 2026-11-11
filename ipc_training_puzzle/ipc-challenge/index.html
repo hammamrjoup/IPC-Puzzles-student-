@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>IPC Challenge — Healthcare Infection Control Micro-Simulations</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+
+  <!-- React 18 & ReactDOM 18 CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.3.1/umd/react.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.3.1/umd/react-dom.production.min.js"></script>
+
+  <!-- Babel Standalone for In-Browser JSX/TSX Execution -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.24.7/babel.min.js"></script>
+
+  <!-- Load Editable Clinical Data File -->
+  <script src="./src/data/clinicalContent.js"></script>
+
+  <style>
+    /* Mobile-first touch & focus optimizations */
+    button:focus-visible {
+      outline: 2px solid #06b6d4;
+      outline-offset: 2px;
+    }
+    .custom-scroll::-webkit-scrollbar {
+      height: 6px;
+      width: 6px;
+    }
+    .custom-scroll::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen selection:bg-cyan-500 selection:text-white">
+  
+  <div id="root">
+    <!-- Fallback message if JavaScript is disabled -->
+    <noscript>
+      <div class="p-6 text-center text-red-400 font-bold">
+        JavaScript is required to run the IPC Challenge application.
+      </div>
+    </noscript>
+  </div>
+
+  <!-- APPLICATION SCRIPT (React + Babel) -->
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    // Use CLINICAL_GAMES from window (loaded from src/data/clinicalContent.js)
+    // with inline fallback if loaded directly via file protocol without relative file access
+    const MASTER_GAMES = window.CLINICAL_GAMES || [
+      {
+        id: 'glove-trap',
+        number: 1,
+        title: 'The Glove Trap',
+        subtitle: 'Put the steps in order',
+        tagline: 'Standard Precautions • Hand Hygiene & PPE',
+        scenario: 'A bedside nurse removes a heavily soiled post-surgical wound dressing and needs to immediately apply a fresh sterile dressing to the same patient.',
+        huddleDiscussionPrompt: 'Ask your team: "When a dressing change gets hectic or supplies are running low, what temptations cause staff to skip hand hygiene between glove changes? How do we hold each other accountable?"',
+        whyItMatters: 'Gloves are NOT an impermeable shield. Microscopic defects, tears, and touching the contaminated outer glove surface during doffing transfer bacteria and viruses directly onto your hands. If you slip fresh gloves onto unwashed hands, you trap pathogens in a warm, moist environment and contaminate the exterior of the new gloves while donning them. Hand hygiene between glove removal and new glove application is mandatory to protect your patient from surgical site infections.',
+        cdcLinks: [
+          { title: 'CDC Clean Hands in Healthcare', url: 'https://www.cdc.gov/clean-hands/hcp/clinical-safety/', label: 'CDC Clean Hands' },
+          { title: 'CDC Core Infection Control Practices', url: 'https://www.cdc.gov/infection-control/hcp/core-practices/', label: 'CDC Core Practices' }
+        ],
+        type: 'order',
+        cards: [
+          { id: 'remove-gloves', text: 'Remove used gloves', icon: '🧤' },
+          { id: 'hand-hygiene', text: 'Perform hand hygiene (alcohol rub or soap & water)', icon: '🧼' },
+          { id: 'put-fresh-gloves', text: 'Put on fresh gloves', icon: '✨' }
+        ],
+        correctOrder: ['remove-gloves', 'hand-hygiene', 'put-fresh-gloves']
+      },
+      {
+        id: 'traveling-cuff',
+        number: 2,
+        title: 'The Traveling Cuff',
+        subtitle: 'Find the two checkpoints',
+        tagline: 'Medical Equipment Reprocessing • Non-Critical Items',
+        scenario: 'A portable, reusable electronic blood pressure cuff is used on Patient A in Room 101. The nursing assistant then carries it down the hall to measure vitals on Patient B in Room 103. Afterwards, the cuff is returned to the clean supply storage alcove.',
+        huddleDiscussionPrompt: 'Ask your team: "Where do equipment wipes live on our unit? Are we allowing the manufacturer\'s required wet contact time when wiping blood pressure cuffs between patients?"',
+        whyItMatters: 'Reusable medical devices that contact intact skin are classified as non-critical equipment under the Spaulding classification. They are proven vehicles for transmitting multidrug-resistant organisms (MDROs) including MRSA, VRE, and C. auris between patients. Staff must clean and disinfect reusable cuffs at TWO non-negotiable checkpoints: (1) After use on Patient A before touching Patient B, and (2) After use on Patient B before placing it back into clean storage. Always follow the cuff manufacturer\'s Instructions for Use (IFU) for approved chemical disinfectants and required contact times.',
+        cdcLinks: [
+          { title: 'CDC Core Practices', url: 'https://www.cdc.gov/infection-control/hcp/core-practices/', label: 'CDC Core Practices' },
+          { title: 'CDC Isolation Precautions', url: 'https://www.cdc.gov/infection-control/hcp/isolation-precautions/recommendations.html', label: 'CDC Isolation Precautions' }
+        ],
+        type: 'pathway-checkpoints',
+        steps: [
+          { id: 'patient-a', label: 'Patient A', location: 'Room 101 (Used on Patient)', icon: '🧑‍🦽' },
+          { id: 'patient-b', label: 'Patient B', location: 'Room 103 (Next Patient)', icon: '🛏️' },
+          { id: 'clean-storage', label: 'Clean Storage', location: 'Supply Alcove (Ready for Next Shift)', icon: '📦' }
+        ],
+        checkpoints: [
+          { id: 'cp-between-patients', label: 'Checkpoint 1: Between Patient A and Patient B', description: 'Clean and low-level disinfect the cuff immediately after Patient A before placing it on Patient B.', isCorrect: true },
+          { id: 'cp-before-storage', label: 'Checkpoint 2: Between Patient B and Clean Storage', description: 'Clean and low-level disinfect the cuff immediately after Patient B before returning it to the clean supply alcove.', isCorrect: true },
+          { id: 'cp-distractor-shift', label: 'Checkpoint 3: End of 12-Hour Shift Only', description: 'Wait until the end of the shift to clean all equipment in bulk.', isCorrect: false },
+          { id: 'cp-distractor-visible', label: 'Checkpoint 4: Only when Visibly Soiled', description: 'Only wipe the cuff if blood, sweat, or body fluid is visibly apparent on the fabric.', isCorrect: false }
+        ],
+        requiredCount: 2
+      },
+      {
+        id: 'new-needle',
+        number: 3,
+        title: 'The New Needle',
+        subtitle: 'Spot two safety problems',
+        tagline: 'Safe Injection Practices • Bloodborne Pathogens',
+        scenario: 'After administering an intramuscular pain medication to Patient A, a clinician changes the needle, keeps the used syringe, and uses that same syringe with the new needle to draw medication from a shared multi-dose vial for Patient B.',
+        huddleDiscussionPrompt: 'Ask your team: "Why does the misconception persist that changing the needle protects the syringe? What is our unit protocol if someone discovers an entered multi-dose vial of unknown origin?"',
+        whyItMatters: 'CDC injection safety guidelines establish a strict rule: One Needle, One Syringe, Only One Time. Once an injection is given, backflow of microscopic blood and interstitial fluid immediately contaminates both the needle and the syringe barrel. Changing the needle does NOT make the syringe sterile. Re-entering any multi-dose or single-dose vial with a used syringe introduces Patient A\'s bloodborne pathogens (such as Hepatitis B, Hepatitis C, HIV, and bacteria) directly into the vial, jeopardizing Patient B and every subsequent patient. The contaminated vial must be quarantined and discarded immediately.',
+        cdcLinks: [
+          { title: 'CDC Core Practices', url: 'https://www.cdc.gov/infection-control/hcp/core-practices/', label: 'CDC Core Practices' },
+          { title: 'CDC Isolation Precautions', url: 'https://www.cdc.gov/infection-control/hcp/isolation-precautions/recommendations.html', label: 'CDC Isolation Precautions' }
+        ],
+        type: 'multi-select',
+        question: 'Select the TWO critical infection control problems in this scenario:',
+        choices: [
+          { id: 'syringe-reuse', text: 'The used syringe cannot be reused for another patient, even if a new sterile needle is attached.', isCorrect: true },
+          { id: 'vial-contamination', text: 'Entering the multi-dose vial with the used syringe can contaminate the entire medication vial.', isCorrect: true },
+          { id: 'distractor-filter', text: 'The clinician failed to use a glass-filtered aspiration straw when piercing the rubber septum.', isCorrect: false },
+          { id: 'distractor-gauge', text: 'Patient B required a different needle gauge size for intramuscular delivery.', isCorrect: false }
+        ],
+        requiredCount: 2
+      },
+      {
+        id: 'shortcut-30s',
+        number: 4,
+        title: 'The 30-Second Shortcut',
+        subtitle: 'Make the next move',
+        tagline: 'Environmental Cleaning • Wet Contact Time',
+        scenario: 'You are wiping down a high-touch overbed table after patient discharge. The hospital disinfectant wipe canister label specifies a required contact time of 2 MINUTES VISIBLY WET. However, strong air conditioning dries the surface completely at 30 seconds.',
+        huddleDiscussionPrompt: 'Ask your team: "Do we know the wet contact time of the wipes currently stocked on our medication carts versus our isolation carts? Where do we find that kill time on the canister?"',
+        whyItMatters: 'Disinfectants do not kill pathogens on contact. They require a specific, EPA-tested period of continuous liquid contact (wet contact time or kill time) to penetrate bacterial cell walls, dissolve viral envelopes, and kill fungal spores. If a disinfectant dries prematurely at 30 seconds instead of the required 2 minutes, disinfection is incomplete and pathogens survive. Staff must reapply the wipe as directed to ensure the surface stays visibly wet for the entire required 2 minutes.',
+        cdcLinks: [
+          { title: 'CDC Environmental Infection Control', url: 'https://www.cdc.gov/infection-control/hcp/isolation-precautions/recommendations.html', label: 'CDC Isolation Precautions' },
+          { title: 'CDC Core Practices', url: 'https://www.cdc.gov/infection-control/hcp/core-practices/', label: 'CDC Core Practices' }
+        ],
+        type: 'single-choice',
+        productName: 'Cavi-Shield Disinfectant Wipes (EPA Reg. No. 1043-12)',
+        requiredWetTimeSeconds: 120,
+        evaporatedAtSeconds: 30,
+        question: 'The table has dried at 30 seconds, but the label requires 2 minutes. What should you do next?',
+        choices: [
+          { id: 'reapply-wet', text: 'Reapply the product as directed so the surface stays visibly wet for the full required contact time (2 minutes).', isCorrect: true },
+          { id: 'assume-clean', text: 'Assume the table is clean because 30 seconds is sufficient to eliminate common bacteria.', isCorrect: false },
+          { id: 'dry-towel', text: 'Wipe the surface with a dry paper towel to lock in the residual chemical film.', isCorrect: false },
+          { id: 'fan-surface', text: 'Fan the surface vigorously to accelerate the chemical bonding of the antimicrobial agent.', isCorrect: false }
+        ]
+      },
+      {
+        id: 'waiting-room',
+        number: 5,
+        title: 'The Waiting-Room Clue',
+        subtitle: 'Choose three actions',
+        tagline: 'Respiratory Hygiene • Source Control & Triage',
+        scenario: 'A patient walks into a crowded outpatient clinic waiting room coughing frequently into their bare hand, sneezing, and sniffling before being triaged or assessed by clinical staff.',
+        huddleDiscussionPrompt: 'Ask your team: "Is our respiratory hygiene kiosk at the front entrance fully stocked with pediatric and adult masks, tissues, and working hand rub dispensers today?"',
+        whyItMatters: 'Respiratory hygiene and cough etiquette are standard precautions applied at the point of initial healthcare entry. Uncontained respiratory droplets from coughs and sneezes contaminate surfaces within 6 feet and circulate in crowded spaces. The three immediate triage interventions are: (1) Source control by offering a mask if tolerated, (2) Offering tissues and prompt hand hygiene access to contain infectious secretions, and (3) Spatial separation of at least 3 feet (or placement into an exam room) to keep immunocompromised and vulnerable patients safe.',
+        cdcLinks: [
+          { title: 'CDC Core Practices', url: 'https://www.cdc.gov/infection-control/hcp/core-practices/', label: 'CDC Core Practices' },
+          { title: 'CDC Isolation Precautions', url: 'https://www.cdc.gov/infection-control/hcp/isolation-precautions/recommendations.html', label: 'CDC Isolation Precautions' }
+        ],
+        type: 'multi-select',
+        question: 'Select the THREE immediate actions staff should take right now at reception:',
+        choices: [
+          { id: 'offer-mask', text: 'Offer a well-fitting mask to the patient if tolerated (source control).', isCorrect: true },
+          { id: 'tissues-hand-hygiene', text: 'Provide tissues and immediate access to alcohol-based hand rub or handwashing.', isCorrect: true },
+          { id: 'spatial-separation', text: 'Separate the coughing patient from others (at least 3 feet / 1 meter) or place them in an exam room if space permits.', isCorrect: true },
+          { id: 'distractor-aiir', text: 'Immediately transfer the patient to a negative-pressure Airborne Infection Isolation Room (AIIR) before intake triage.', isCorrect: false },
+          { id: 'distractor-car', text: 'Instruct the patient to wait outside in the clinic parking lot until their appointment time.', isCorrect: false },
+          { id: 'distractor-antibiotic', text: 'Provide oral prophylactic antibiotics at the front desk before the nurse assessment.', isCorrect: false }
+        ],
+        requiredCount: 3
+      }
+    ];
+
+    const STORAGE_KEY = 'ipc_challenge_v1_progress';
+
+    function App() {
+      const [activeGameId, setActiveGameId] = useState(null);
+      const [isFacilitatorMode, setIsFacilitatorMode] = useState(false);
+
+      const [progress, setProgress] = useState(() => {
+        try {
+          const saved = localStorage.getItem(STORAGE_KEY);
+          if (saved) return JSON.parse(saved);
+        } catch (e) {
+          console.warn('LocalStorage error', e);
+        }
+        return { firstAttemptScores: {}, completed: {}, attemptsCount: {} };
+      });
+
+      useEffect(() => {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+        } catch (e) {
+          console.warn('LocalStorage save error', e);
+        }
+      }, [progress]);
+
+      // Interactive states
+      const [gloveCardsOrder, setGloveCardsOrder] = useState(['hand-hygiene', 'remove-gloves', 'put-fresh-gloves']);
+      const [selectedCheckpoints, setSelectedCheckpoints] = useState([]);
+      const [selectedNeedleProblems, setSelectedNeedleProblems] = useState([]);
+      const [selectedShortcutChoice, setSelectedShortcutChoice] = useState(null);
+      const [selectedWaitingRoomActions, setSelectedWaitingRoomActions] = useState([]);
+
+      const [isAnswerChecked, setIsAnswerChecked] = useState(false);
+      const [isCurrentCorrect, setIsCurrentCorrect] = useState(false);
+      const [showFacilitatorReveal, setShowFacilitatorReveal] = useState(false);
+
+      const handleOpenGame = (gameId) => {
+        setActiveGameId(gameId);
+        setIsAnswerChecked(false);
+        setIsCurrentCorrect(false);
+        setShowFacilitatorReveal(false);
+
+        if (gameId === 'glove-trap') {
+          setGloveCardsOrder(['hand-hygiene', 'remove-gloves', 'put-fresh-gloves']);
+        } else if (gameId === 'traveling-cuff') {
+          setSelectedCheckpoints([]);
+        } else if (gameId === 'new-needle') {
+          setSelectedNeedleProblems([]);
+        } else if (gameId === 'shortcut-30s') {
+          setSelectedShortcutChoice(null);
+        } else if (gameId === 'waiting-room') {
+          setSelectedWaitingRoomActions([]);
+        }
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const handleBackToHome = () => {
+        setActiveGameId(null);
+        setIsAnswerChecked(false);
+        setIsCurrentCorrect(false);
+        setShowFacilitatorReveal(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const moveGloveCard = (index, direction) => {
+        if (isAnswerChecked) setIsAnswerChecked(false);
+        const newOrder = [...gloveCardsOrder];
+        const targetIndex = direction === 'up' ? index - 1 : index + 1;
+        if (targetIndex < 0 || targetIndex >= newOrder.length) return;
+        const temp = newOrder[index];
+        newOrder[index] = newOrder[targetIndex];
+        newOrder[targetIndex] = temp;
+        setGloveCardsOrder(newOrder);
+      };
+
+      const toggleMulti = (list, setList, id, maxAllowed) => {
+        if (isAnswerChecked) setIsAnswerChecked(false);
+        if (list.includes(id)) {
+          setList(list.filter(item => item !== id));
+        } else {
+          if (maxAllowed && list.length >= maxAllowed) {
+            setList([...list.slice(1), id]);
+          } else {
+            setList([...list, id]);
+          }
+        }
+      };
+
+      const handleCheckAnswer = () => {
+        if (!activeGameId) return;
+        let isCorrect = false;
+
+        if (activeGameId === 'glove-trap') {
+          const correct = ['remove-gloves', 'hand-hygiene', 'put-fresh-gloves'];
+          isCorrect =
+            gloveCardsOrder.length === 3 &&
+            gloveCardsOrder[0] === correct[0] &&
+            gloveCardsOrder[1] === correct[1] &&
+            gloveCardsOrder[2] === correct[2];
+        } else if (activeGameId === 'traveling-cuff') {
+          const required = ['cp-between-patients', 'cp-before-storage'];
+          isCorrect =
+            selectedCheckpoints.length === 2 &&
+            required.every(id => selectedCheckpoints.includes(id));
+        } else if (activeGameId === 'new-needle') {
+          const required = ['syringe-reuse', 'vial-contamination'];
+          isCorrect =
+            selectedNeedleProblems.length === 2 &&
+            required.every(id => selectedNeedleProblems.includes(id));
+        } else if (activeGameId === 'shortcut-30s') {
+          isCorrect = selectedShortcutChoice === 'reapply-wet';
+        } else if (activeGameId === 'waiting-room') {
+          const required = ['offer-mask', 'tissues-hand-hygiene', 'spatial-separation'];
+          isCorrect =
+            selectedWaitingRoomActions.length === 3 &&
+            required.every(id => selectedWaitingRoomActions.includes(id));
+        }
+
+        setIsCurrentCorrect(isCorrect);
+        setIsAnswerChecked(true);
+
+        setProgress(prev => {
+          const currentAttempts = (prev.attemptsCount[activeGameId] || 0) + 1;
+          const isFirst = prev.firstAttemptScores[activeGameId] === undefined;
+
+          const updatedFirst = isFirst
+            ? { ...prev.firstAttemptScores, [activeGameId]: isCorrect }
+            : prev.firstAttemptScores;
+
+          const updatedCompleted = isCorrect
+            ? { ...prev.completed, [activeGameId]: true }
+            : prev.completed;
+
+          return {
+            firstAttemptScores: updatedFirst,
+            completed: updatedCompleted,
+            attemptsCount: {
+              ...prev.attemptsCount,
+              [activeGameId]: currentAttempts
+            }
+          };
+        });
+      };
+
+      const handleResetProgress = () => {
+        if (confirm('Reset all scores and completed challenges?')) {
+          setProgress({ firstAttemptScores: {}, completed: {}, attemptsCount: {} });
+          setIsAnswerChecked(false);
+          setIsCurrentCorrect(false);
+          setShowFacilitatorReveal(false);
+        }
+      };
+
+      const totalGames = MASTER_GAMES.length;
+      const completedCount = Object.values(progress.completed).filter(Boolean).length;
+      const firstAttemptCorrectCount = Object.values(progress.firstAttemptScores).filter(val => val === true).length;
+      const firstAttemptTotalCount = Object.keys(progress.firstAttemptScores).length;
+
+      const currentGame = MASTER_GAMES.find(g => g.id === activeGameId);
+
+      return (
+        <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans antialiased">
+          {/* HEADER */}
+          <header className="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 shadow-md">
+            <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+              <div onClick={handleBackToHome} className="flex items-center gap-2.5 cursor-pointer group select-none">
+                <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-600 to-teal-500 flex items-center justify-center text-xl shadow-md group-hover:scale-105 transition-transform">
+                  🛡️
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-black text-base sm:text-lg tracking-tight text-white">IPC Challenge</span>
+                    <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40">
+                      CDC Safe Care
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 font-medium hidden sm:block">
+                    Infection Prevention Micro-Simulations
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setIsFacilitatorMode(!isFacilitatorMode)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-black transition-all flex items-center gap-1.5 border shadow-sm ${
+                    isFacilitatorMode
+                      ? 'bg-amber-500/20 border-amber-400 text-amber-300 ring-2 ring-amber-400/20'
+                      : 'bg-slate-800 hover:bg-slate-700 border-slate-700 text-slate-300'
+                  }`}
+                  aria-pressed={isFacilitatorMode}
+                >
+                  <span>{isFacilitatorMode ? '👥' : '👤'}</span>
+                  <span className="hidden sm:inline">{isFacilitatorMode ? 'Facilitator Mode' : 'Facilitator'}</span>
+                  <span className="sm:hidden">{isFacilitatorMode ? 'Huddle' : 'Facilitator'}</span>
+                </button>
+
+                <div className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-cyan-300 flex items-center gap-1 shadow-inner" title="First-Attempt Score">
+                  <span className="text-amber-400">🌟</span>
+                  <span>{firstAttemptCorrectCount}/{totalGames}</span>
+                </div>
+
+                <div className="px-2.5 py-1.5 rounded-xl bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-emerald-400 flex items-center gap-1 shadow-inner" title="Completed Challenges">
+                  <span>✅</span>
+                  <span>{completedCount}/{totalGames}</span>
+                </div>
+              </div>
+            </div>
+          </header>
+
+          {/* FACILITATOR NOTICE */}
+          {isFacilitatorMode && (
+            <div className="bg-gradient-to-r from-amber-950 via-slate-900 to-amber-950 border-b border-amber-500/40 px-4 py-2 text-center text-xs text-amber-200 flex items-center justify-center gap-2 shadow-inner">
+              <span className="text-base">📢</span>
+              <span className="font-bold">FACILITATOR / SHIFT HUDDLE MODE ACTIVE:</span>
+              <span className="text-amber-100 hidden sm:inline">
+                Each scenario includes group discussion prompts and a "Reveal Answer" key.
+              </span>
+            </div>
+          )}
+
+          {/* MAIN CONTAINER */}
+          <main className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 flex flex-col gap-6">
+            {/* VIEW 1: HOME SCREEN (ALL 5 CHALLENGES) */}
+            {!activeGameId && (
+              <section className="flex flex-col gap-6">
+                <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-slate-900 via-[#031d3d] to-slate-900 border-2 border-cyan-500/50 p-6 sm:p-8 shadow-2xl text-left">
+                  <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div className="space-y-2 max-w-xl">
+                      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-cyan-950/80 border border-cyan-400/40 text-cyan-300 text-xs font-black uppercase tracking-wider">
+                        <span>🏥</span>
+                        <span>Hospital IPC Training • 5 Clinical Scenarios</span>
+                      </div>
+                      <h1 className="text-2xl sm:text-3xl font-black text-white tracking-tight leading-tight">
+                        Master the Critical Infection Control Checkpoints
+                      </h1>
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-medium">
+                        Play through 5 realistic clinical situations designed for bedside nurses, doctors, and allied health staff. Start anywhere, test your clinical instincts, and practice for zero healthcare-associated infections.
+                      </p>
+                    </div>
+
+                    <div className="w-full md:w-auto flex-shrink-0 bg-slate-950/80 border border-cyan-500/40 rounded-2xl p-4 flex flex-col gap-2 min-w-[200px] text-center shadow-lg">
+                      <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">
+                        Challenge Progress
+                      </span>
+                      <div className="flex items-center justify-around gap-4 pt-1">
+                        <div>
+                          <span className="text-2xl font-black text-amber-400">
+                            {firstAttemptCorrectCount}/{totalGames}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block font-bold">1st Try Score</span>
+                        </div>
+                        <div className="h-8 w-px bg-slate-800" />
+                        <div>
+                          <span className="text-2xl font-black text-emerald-400">
+                            {completedCount}/{totalGames}
+                          </span>
+                          <span className="text-[10px] text-slate-400 block font-bold">Completed</span>
+                        </div>
+                      </div>
+                      {firstAttemptTotalCount > 0 && (
+                        <button
+                          onClick={handleResetProgress}
+                          className="text-[10px] text-red-400 hover:text-red-300 underline font-semibold mt-1 transition"
+                        >
+                          Reset Practice Data
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h2 className="text-sm font-black uppercase tracking-wider text-slate-400 flex items-center gap-2">
+                      <span>🎮</span>
+                      <span>Choose Any Challenge to Begin (1 to 5)</span>
+                    </h2>
+                    <span className="text-xs text-slate-500 font-medium">
+                      Tap card to play • Retries allowed
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {MASTER_GAMES.map(game => {
+                      const isCompleted = progress.completed[game.id] === true;
+                      const firstScore = progress.firstAttemptScores[game.id];
+
+                      return (
+                        <div
+                          key={game.id}
+                          onClick={() => handleOpenGame(game.id)}
+                          className={`group relative rounded-3xl p-5 border-2 transition-all duration-200 cursor-pointer text-left flex flex-col justify-between shadow-lg hover:shadow-cyan-500/10 active:scale-[0.99] ${
+                            isCompleted
+                              ? 'bg-slate-900/90 border-emerald-500/50 hover:border-emerald-400'
+                              : 'bg-slate-900/80 border-slate-800 hover:border-cyan-400'
+                          }`}
+                        >
+                          <div>
+                            <div className="flex items-center justify-between gap-2 mb-2.5">
+                              <span className="w-7 h-7 rounded-lg bg-cyan-950 text-cyan-300 border border-cyan-400/40 text-xs font-black flex items-center justify-center">
+                                #{game.number}
+                              </span>
+
+                              <div>
+                                {firstScore === true && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-950 text-emerald-300 border border-emerald-500/50">
+                                    <span>🌟</span> <span>1st Try Correct</span>
+                                  </span>
+                                )}
+                                {firstScore === false && isCompleted && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-teal-950 text-teal-300 border border-teal-500/50">
+                                    <span>✅</span> <span>Mastered (Retry)</span>
+                                  </span>
+                                )}
+                                {firstScore === false && !isCompleted && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-rose-950 text-rose-300 border border-rose-500/50">
+                                    <span>🔄</span> <span>Needs Retry</span>
+                                  </span>
+                                )}
+                                {firstScore === undefined && (
+                                  <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-400 border border-slate-700">
+                                    <span>⚪</span> <span>Not Attempted</span>
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <h3 className="text-base sm:text-lg font-black text-white group-hover:text-cyan-300 transition-colors flex items-center justify-between">
+                              <span>{game.title}</span>
+                              <span className="text-lg opacity-80 group-hover:translate-x-1 transition-transform">→</span>
+                            </h3>
+                            <span className="text-xs font-bold text-cyan-400/80 block mt-0.5">
+                              {game.subtitle}
+                            </span>
+
+                            <p className="text-xs text-slate-300 line-clamp-2 mt-2 leading-relaxed">
+                              {game.scenario}
+                            </p>
+                          </div>
+
+                          <div className="mt-4 pt-3 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-medium">
+                            <span className="text-slate-400 font-bold">{game.tagline}</span>
+                            <span className="font-bold text-cyan-400 group-hover:underline">
+                              {isCompleted ? 'Review & Practice' : 'Start Game'}
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* CDC Reference Links */}
+                <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 text-xs text-slate-400 flex flex-col sm:flex-row items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-base">📚</span>
+                    <span>Guidance based on CDC Healthcare Infection Control Core Practices.</span>
+                  </div>
+                  <div className="flex items-center gap-3 font-bold text-cyan-400">
+                    <a href="https://www.cdc.gov/infection-control/hcp/core-practices/" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      CDC Core Practices ↗
+                    </a>
+                    <span>•</span>
+                    <a href="https://www.cdc.gov/clean-hands/hcp/clinical-safety/" target="_blank" rel="noopener noreferrer" className="hover:underline">
+                      Hand Hygiene ↗
+                    </a>
+                  </div>
+                </div>
+              </section>
+            )}
+
+            {/* VIEW 2: ACTIVE GAME PLAY VIEW */}
+            {activeGameId && currentGame && (
+              <section className="flex flex-col gap-5">
+                <div className="flex items-center justify-between gap-3 pb-2 border-b border-slate-800">
+                  <button
+                    onClick={handleBackToHome}
+                    className="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 hover:text-white border border-slate-700 text-xs font-black transition flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                  >
+                    <span>←</span> <span>All Challenges</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-400 font-bold">
+                      Challenge {currentGame.number} of {totalGames}
+                    </span>
+                    <span className="px-2.5 py-0.5 rounded-full bg-cyan-950 text-cyan-300 border border-cyan-500/40 text-[10px] font-black uppercase">
+                      {currentGame.tagline}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-5 sm:p-6 rounded-3xl bg-slate-900 border-2 border-slate-800 shadow-xl space-y-3 text-left">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black text-white flex items-center gap-2">
+                        <span>#{currentGame.number}</span>
+                        <span>{currentGame.title}</span>
+                      </h2>
+                      <p className="text-xs sm:text-sm font-bold text-cyan-400">
+                        {currentGame.subtitle}
+                      </p>
+                    </div>
+
+                    <div>
+                      {progress.completed[currentGame.id] && (
+                        <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-black bg-emerald-950 text-emerald-300 border border-emerald-500/50">
+                          <span>✅</span> <span>Challenge Mastered</span>
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-2xl bg-slate-950/90 border border-slate-800 space-y-1">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-cyan-400 flex items-center gap-1">
+                      <span>📋</span> <span>Clinical Scenario:</span>
+                    </span>
+                    <p className="text-xs sm:text-sm text-slate-200 font-medium leading-relaxed">
+                      {currentGame.scenario}
+                    </p>
+                  </div>
+
+                  {/* FACILITATOR SHIFT HUDDLE BOX */}
+                  {isFacilitatorMode && (
+                    <div className="p-4 rounded-2xl bg-amber-950/40 border-2 border-amber-500/60 text-amber-200 space-y-2.5">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <span className="text-xs font-black uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                          <span>👥</span> <span>Shift Huddle Teaching & Facilitation Guide:</span>
+                        </span>
+                        <button
+                          onClick={() => setShowFacilitatorReveal(!showFacilitatorReveal)}
+                          className="px-3 py-1 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/60 text-xs font-black transition active:scale-95"
+                        >
+                          {showFacilitatorReveal ? '🙈 Hide Answer' : '👁️ Reveal Answer'}
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-amber-100 font-medium leading-relaxed italic bg-amber-950/60 p-2.5 rounded-xl border border-amber-600/30">
+                        {currentGame.huddleDiscussionPrompt}
+                      </p>
+
+                      {showFacilitatorReveal && (
+                        <div className="pt-2 border-t border-amber-500/30 text-xs space-y-1.5">
+                          <strong className="text-amber-300 block font-black">
+                            Facilitator Key & Teaching Points:
+                          </strong>
+                          <p className="text-slate-200 text-xs leading-relaxed">
+                            {currentGame.whyItMatters}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* GAMEPLAY INTERFACE */}
+                <div className="p-5 sm:p-6 rounded-3xl bg-slate-900 border border-slate-800 shadow-xl space-y-5 text-left">
+                  {/* GAME 1: THE GLOVE TRAP */}
+                  {currentGame.id === 'glove-trap' && (
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between flex-wrap gap-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                          <span>🧤</span>
+                          <span>Put the three steps in the correct clinical order:</span>
+                        </label>
+                        <span className="text-[11px] text-slate-400">
+                          Use Move Up (⬆️) / Down (⬇️) buttons or keyboard
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col gap-3">
+                        {gloveCardsOrder.map((cardId, index) => {
+                          const cardObj = currentGame.cards.find(c => c.id === cardId);
+                          if (!cardObj) return null;
+                          return (
+                            <div
+                              key={cardId}
+                              className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-slate-950 border-2 border-cyan-500/30 shadow-md transition-all"
+                            >
+                              <div className="flex items-center gap-3">
+                                <span className="w-8 h-8 rounded-xl bg-cyan-900/60 text-cyan-300 border border-cyan-400/40 text-xs font-black flex items-center justify-center flex-shrink-0">
+                                  Step {index + 1}
+                                </span>
+                                <span className="text-xl sm:text-2xl">{cardObj.icon}</span>
+                                <span className="text-xs sm:text-sm font-bold text-white">
+                                  {cardObj.text}
+                                </span>
+                              </div>
+
+                              <div className="flex items-center gap-1.5 flex-shrink-0">
+                                <button
+                                  onClick={() => moveGloveCard(index, 'up')}
+                                  disabled={index === 0}
+                                  aria-label={`Move ${cardObj.text} up`}
+                                  className={`p-2 rounded-xl text-xs font-black border transition ${
+                                    index === 0
+                                      ? 'opacity-30 border-slate-800 text-slate-600 cursor-not-allowed'
+                                      : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border-slate-700 active:scale-95'
+                                  }`}
+                                >
+                                  ⬆️ Up
+                                </button>
+                                <button
+                                  onClick={() => moveGloveCard(index, 'down')}
+                                  disabled={index === gloveCardsOrder.length - 1}
+                                  aria-label={`Move ${cardObj.text} down`}
+                                  className={`p-2 rounded-xl text-xs font-black border transition ${
+                                    index === gloveCardsOrder.length - 1
+                                      ? 'opacity-30 border-slate-800 text-slate-600 cursor-not-allowed'
+                                      : 'bg-slate-800 hover:bg-slate-700 text-cyan-300 border-slate-700 active:scale-95'
+                                  }`}
+                                >
+                                  ⬇️ Down
+                                </button>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* GAME 2: THE TRAVELING CUFF */}
+                  {currentGame.id === 'traveling-cuff' && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                          <span>🩺</span>
+                          <span>Select the TWO checkpoints where cleaning & disinfection must occur:</span>
+                        </label>
+                        <span className="text-[11px] text-slate-400">
+                          Cuff path: Patient A (Room 101) → Patient B (Room 103) → Clean Storage
+                        </span>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 flex items-center justify-between text-center overflow-x-auto gap-2">
+                        {currentGame.steps.map((st, i) => (
+                          <React.Fragment key={st.id}>
+                            <div className="flex flex-col items-center min-w-[90px] p-2 rounded-xl bg-slate-900 border border-slate-800">
+                              <span className="text-2xl">{st.icon}</span>
+                              <span className="text-xs font-bold text-white mt-1">{st.label}</span>
+                              <span className="text-[9px] text-slate-400">{st.location}</span>
+                            </div>
+                            {i < currentGame.steps.length - 1 && (
+                              <div className="text-cyan-400 font-black text-lg px-1 animate-pulse">
+                                ➔
+                              </div>
+                            )}
+                          </React.Fragment>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2.5">
+                        {currentGame.checkpoints.map(cp => {
+                          const isSelected = selectedCheckpoints.includes(cp.id);
+                          return (
+                            <button
+                              key={cp.id}
+                              onClick={() => toggleMulti(selectedCheckpoints, setSelectedCheckpoints, cp.id, 2)}
+                              aria-pressed={isSelected}
+                              className={`p-3.5 rounded-2xl border-2 text-left transition flex items-start gap-3 active:scale-[0.99] ${
+                                isSelected
+                                  ? 'bg-cyan-950/70 border-cyan-400 text-white shadow-md'
+                                  : 'bg-slate-950 hover:bg-slate-800/80 border-slate-800 text-slate-300'
+                              }`}
+                            >
+                              <span className="text-xl flex-shrink-0 mt-0.5">
+                                {isSelected ? '☑️' : '⬜'}
+                              </span>
+                              <div>
+                                <span className="font-bold text-xs sm:text-sm block text-white">
+                                  {cp.label}
+                                </span>
+                                <span className="text-[11px] text-slate-400 block mt-0.5">
+                                  {cp.description}
+                                </span>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* GAME 3: THE NEW NEEDLE */}
+                  {currentGame.id === 'new-needle' && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                          <span>💉</span>
+                          <span>{currentGame.question}</span>
+                        </label>
+                        <span className="text-[11px] text-slate-400">
+                          Scenario: Clinician changed the needle, kept used syringe, and drew from a shared vial
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2.5">
+                        {currentGame.choices.map(c => {
+                          const isSelected = selectedNeedleProblems.includes(c.id);
+                          return (
+                            <button
+                              key={c.id}
+                              onClick={() => toggleMulti(selectedNeedleProblems, setSelectedNeedleProblems, c.id, 2)}
+                              aria-pressed={isSelected}
+                              className={`p-3.5 rounded-2xl border-2 text-left transition flex items-start gap-3 active:scale-[0.99] ${
+                                isSelected
+                                  ? 'bg-cyan-950/70 border-cyan-400 text-white shadow-md'
+                                  : 'bg-slate-950 hover:bg-slate-800/80 border-slate-800 text-slate-300'
+                              }`}
+                            >
+                              <span className="text-xl flex-shrink-0 mt-0.5">
+                                {isSelected ? '☑️' : '⬜'}
+                              </span>
+                              <span className="text-xs sm:text-sm font-bold leading-snug">
+                                {c.text}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* GAME 4: THE 30-SECOND SHORTCUT */}
+                  {currentGame.id === 'shortcut-30s' && (
+                    <div className="space-y-4">
+                      <div className="p-4 rounded-2xl bg-gradient-to-r from-teal-950 to-cyan-950 border-2 border-teal-400/60 shadow-lg space-y-2">
+                        <div className="flex items-center justify-between gap-2 border-b border-teal-500/30 pb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-2xl">🧴</span>
+                            <div>
+                              <span className="text-xs font-black uppercase tracking-wider text-teal-300 block">
+                                Hospital Disinfectant Wipe Canister Label
+                              </span>
+                              <span className="text-[10px] text-slate-300 font-mono">
+                                {currentGame.productName}
+                              </span>
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-rose-500/30 border border-rose-400 text-rose-300">
+                            EPA Registered
+                          </span>
+                        </div>
+
+                        <div className="p-2.5 rounded-xl bg-black/40 border border-teal-400/30 flex items-center justify-between text-xs font-bold text-white">
+                          <span>REQUIRED WET CONTACT TIME:</span>
+                          <span className="font-mono text-amber-300 text-sm font-black animate-pulse">
+                            2 MINUTES VISIBLY WET (120 SECONDS)
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="p-3.5 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                        <div className="flex items-center justify-between text-xs font-bold">
+                          <span className="text-cyan-400">💧 Wiped: 0s (Wet)</span>
+                          <span className="text-rose-400 font-black">☀️ DRIED OUT AT 30s!</span>
+                          <span className="text-slate-400">Target: 2 Min (120s)</span>
+                        </div>
+
+                        <div className="w-full h-5 rounded-full bg-slate-800 overflow-hidden relative flex">
+                          <div
+                            style={{ width: '25%' }}
+                            className="h-full bg-gradient-to-r from-teal-500 to-amber-500 flex items-center justify-center text-[10px] font-black text-black"
+                            title="30s Elapsed - Surface Evaporated"
+                          >
+                            30s Wet
+                          </div>
+                          <div
+                            style={{ width: '75%' }}
+                            className="h-full bg-rose-950/60 border-l-2 border-dashed border-rose-500 flex items-center justify-center text-[10px] font-bold text-rose-300"
+                            title="Surface prematurely dry!"
+                          >
+                            Surface Dried Early (Disinfection Incomplete)
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-slate-400 text-center font-medium">
+                          ⚠️ Note: This timeline is a visual aid so you don't have to wait 2 real minutes.
+                        </p>
+                      </div>
+
+                      <div className="space-y-2">
+                        <label className="text-xs font-black uppercase tracking-wider text-slate-300 block">
+                          {currentGame.question}
+                        </label>
+
+                        <div className="grid grid-cols-1 gap-2.5">
+                          {currentGame.choices.map(c => {
+                            const isSelected = selectedShortcutChoice === c.id;
+                            return (
+                              <button
+                                key={c.id}
+                                onClick={() => {
+                                  if (isAnswerChecked) setIsAnswerChecked(false);
+                                  setSelectedShortcutChoice(c.id);
+                                }}
+                                aria-pressed={isSelected}
+                                className={`p-3.5 rounded-2xl border-2 text-left transition flex items-start gap-3 active:scale-[0.99] ${
+                                  isSelected
+                                    ? 'bg-cyan-950/70 border-cyan-400 text-white shadow-md'
+                                    : 'bg-slate-950 hover:bg-slate-800/80 border-slate-800 text-slate-300'
+                                }`}
+                              >
+                                <span className="text-xl flex-shrink-0 mt-0.5">
+                                  {isSelected ? '🔘' : '⚪'}
+                                </span>
+                                <span className="text-xs sm:text-sm font-bold leading-snug">
+                                  {c.text}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* GAME 5: THE WAITING-ROOM CLUE */}
+                  {currentGame.id === 'waiting-room' && (
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-xs font-black uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
+                          <span>😷</span>
+                          <span>{currentGame.question}</span>
+                        </label>
+                        <span className="text-[11px] text-slate-400">
+                          Patient coughing into bare hands at crowded reception desk (Pick 3)
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-1 gap-2.5">
+                        {currentGame.choices.map(c => {
+                          const isSelected = selectedWaitingRoomActions.includes(c.id);
+                          return (
+                            <button
+                              key={c.id}
+                              onClick={() => toggleMulti(selectedWaitingRoomActions, setSelectedWaitingRoomActions, c.id, 3)}
+                              aria-pressed={isSelected}
+                              className={`p-3.5 rounded-2xl border-2 text-left transition flex items-start gap-3 active:scale-[0.99] ${
+                                isSelected
+                                  ? 'bg-cyan-950/70 border-cyan-400 text-white shadow-md'
+                                  : 'bg-slate-950 hover:bg-slate-800/80 border-slate-800 text-slate-300'
+                              }`}
+                            >
+                              <span className="text-xl flex-shrink-0 mt-0.5">
+                                {isSelected ? '☑️' : '⬜'}
+                              </span>
+                              <span className="text-xs sm:text-sm font-bold leading-snug">
+                                {c.text}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* CHECK ANSWER ACTION BUTTONS */}
+                  <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
+                    <button
+                      onClick={handleCheckAnswer}
+                      className="px-6 py-3 rounded-2xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-black text-sm shadow-xl active:scale-95 transition flex items-center gap-2 cursor-pointer"
+                    >
+                      <span>🔍</span>
+                      <span>Check Answer</span>
+                    </button>
+
+                    {isAnswerChecked && (
+                      <button
+                        onClick={() => {
+                          setIsAnswerChecked(false);
+                          setIsCurrentCorrect(false);
+                        }}
+                        className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition active:scale-95 border border-slate-700 cursor-pointer"
+                      >
+                        🔄 Clear & Retry
+                      </button>
+                    )}
+                  </div>
+
+                  {/* IMMEDIATE FEEDBACK CARD */}
+                  {isAnswerChecked && (
+                    <div
+                      className={`p-5 rounded-3xl border-2 shadow-2xl transition-all space-y-4 ${
+                        isCurrentCorrect
+                          ? 'bg-emerald-950/70 border-emerald-500 text-emerald-100'
+                          : 'bg-rose-950/70 border-rose-500 text-rose-100'
+                      }`}
+                      role="alert"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div
+                          className={`w-10 h-10 rounded-2xl flex items-center justify-center text-2xl flex-shrink-0 ${
+                            isCurrentCorrect ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'
+                          }`}
+                        >
+                          {isCurrentCorrect ? '✅' : '❌'}
+                        </div>
+                        <div>
+                          <h4 className="text-base sm:text-lg font-black tracking-tight">
+                            {isCurrentCorrect
+                              ? 'CORRECT! Challenge Mastered.'
+                              : 'INCORRECT OR INCOMPLETE — Needs Review'}
+                          </h4>
+                          <p className="text-xs opacity-90 font-medium">
+                            {isCurrentCorrect
+                              ? 'Outstanding clinical decision-making adhering to CDC guidelines.'
+                              : 'Review the rationale below and try again to cement your clinical knowledge.'}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="p-4 rounded-2xl bg-black/40 border border-white/10 space-y-1.5 text-left">
+                        <span className="text-xs font-black uppercase tracking-wider text-cyan-300 flex items-center gap-1.5">
+                          <span>💡</span> <span>Why This Answer Matters:</span>
+                        </span>
+                        <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+                          {currentGame.whyItMatters}
+                        </p>
+                      </div>
+
+                      <div className="pt-2 border-t border-white/10 space-y-1.5">
+                        <span className="text-[11px] font-black uppercase tracking-wider text-slate-400 block">
+                          Official CDC Guidance References:
+                        </span>
+                        <div className="flex flex-wrap gap-2">
+                          {currentGame.cdcLinks.map((link, idx) => (
+                            <a
+                              key={idx}
+                              href={link.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-cyan-300 hover:text-white border border-cyan-500/40 text-xs font-bold transition shadow-sm"
+                            >
+                              <span>📖</span>
+                              <span>{link.label} ↗</span>
+                            </a>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="pt-2 flex items-center justify-between gap-3 flex-wrap">
+                        <button
+                          onClick={handleBackToHome}
+                          className="px-4 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold border border-slate-700 transition"
+                        >
+                          ← Back to All Challenges
+                        </button>
+
+                        {currentGame.number < totalGames && (
+                          <button
+                            onClick={() => {
+                              const nextGame = MASTER_GAMES.find(g => g.number === currentGame.number + 1);
+                              if (nextGame) handleOpenGame(nextGame.id);
+                            }}
+                            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-black text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer"
+                          >
+                            <span>Next Challenge (#{currentGame.number + 1})</span>
+                            <span>➔</span>
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </section>
+            )}
+          </main>
+
+          {/* FOOTER */}
+          <footer className="mt-auto border-t border-slate-800 bg-slate-900/60 py-4 px-4 text-center text-xs text-slate-500">
+            <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+              <span>IPC Challenge • Mobile-Friendly Clinical Education Tool</span>
+              <div className="flex items-center gap-2 font-medium">
+                <span>Client-Side App</span>
+                <span>•</span>
+                <span>No Patient Data</span>
+                <span>•</span>
+                <button onClick={handleResetProgress} className="text-red-400 hover:underline">
+                  Reset Data
+                </button>
+              </div>
+            </div>
+          </footer>
+        </div>
+      );
+    }
+
+    const rootEl = document.getElementById('root');
+    if (rootEl) {
+      ReactDOM.createRoot(rootEl).render(<App />);
+    }
+  </script>
+</body>
+</html>
