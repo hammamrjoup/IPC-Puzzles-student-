@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>IPC Chain Breaker — Hospital IPC Training</title>
   
   <!-- Tailwind CSS CDN -->
@@ -29,26 +29,43 @@
       max-width: 100vw !important;
       margin: 0 !important;
       padding: var(--sat) var(--sar) var(--sab) var(--sal) !important;
-      overflow: hidden !important;
-      overscroll-behavior: none !important;
-      position: fixed !important;
-      inset: 0 !important;
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      overscroll-behavior-y: contain !important;
+      position: relative !important;
+    }
+
+    @media (min-width: 1024px) {
+      html, body.game-fullscreen-mode {
+        overflow: hidden !important;
+        position: fixed !important;
+        inset: 0 !important;
+      }
     }
 
     body.game-fullscreen-mode #app {
-      height: 100% !important;
-      height: 100dvh !important;
-      max-height: 100dvh !important;
+      min-height: 100% !important;
+      min-height: 100dvh !important;
       width: 100% !important;
       width: 100vw !important;
       max-width: 100vw !important;
       margin: 0 !important;
       padding: clamp(0.12rem, 0.35vh, 0.3rem) clamp(0.2rem, 0.5vw, 0.45rem) !important;
       gap: 0.2rem !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       display: flex !important;
       flex-direction: column !important;
       box-sizing: border-box !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #app {
+        height: 100% !important;
+        height: 100dvh !important;
+        max-height: 100dvh !important;
+        overflow: hidden !important;
+      }
     }
 
     body.game-fullscreen-mode #top-header-row,
@@ -66,31 +83,47 @@
     body.game-fullscreen-mode main {
       flex: 1 1 0% !important;
       min-height: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
       width: 100% !important;
       display: flex !important;
       flex-direction: column !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       margin: 0 !important;
       gap: 0 !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #main-workspace-row,
+      body.game-fullscreen-mode main {
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
     }
 
     body.game-fullscreen-mode #view-puzzle:not(.hidden),
     body.game-fullscreen-mode #view-icebreaker:not(.hidden) {
       flex: 1 1 0% !important;
       min-height: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
       width: 100% !important;
       max-width: 100% !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 0.2rem !important;
       padding: 0 !important;
       margin: 0 !important;
       box-sizing: border-box !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #view-puzzle:not(.hidden),
+      body.game-fullscreen-mode #view-icebreaker:not(.hidden) {
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
     }
 
     body.game-fullscreen-mode #view-puzzle.hidden,
@@ -108,20 +141,28 @@
     body.game-fullscreen-mode #view-icebreaker:not(.hidden) > div:nth-child(2) {
       flex: 1 1 0% !important;
       min-height: 0 !important;
-      height: calc(100% - 44px) !important;
-      max-height: calc(100% - 44px) !important;
       display: flex !important;
       flex-direction: column !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       width: 100% !important;
       gap: 0.2rem !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #view-puzzle:not(.hidden) > div:nth-child(2),
+      body.game-fullscreen-mode #view-icebreaker:not(.hidden) > div:nth-child(2) {
+        height: calc(100% - 44px) !important;
+        max-height: calc(100% - 44px) !important;
+        overflow: hidden !important;
+      }
     }
 
     /* Compact Unified Top Game Navigation Bars */
     #stage-nav-bar,
     #match-stages-bar {
       flex-shrink: 0 !important;
-      min-height: 38px !important;
+      min-height: 44px !important;
       padding: 0.25rem 0.5rem !important;
       margin: 0 !important;
       border-radius: 0.75rem !important;
@@ -153,47 +194,92 @@
     body.game-fullscreen-mode #puzzle-gameplay-arena {
       flex: 1 1 0% !important;
       min-height: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
       width: 100% !important;
       display: flex !important;
       flex-direction: column !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       gap: 0.2rem !important;
     }
 
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #puzzle-gameplay-arena {
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
+    }
+
+    /* Responsive Arena Container: Column on Mobile Portrait, Row on Desktop & Phone Landscape */
     body.game-fullscreen-mode #stage-arena-container {
-      flex: 1 1 0% !important;
+      flex: 1 1 auto !important;
       min-height: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
       width: 100% !important;
       display: flex !important;
-      flex-direction: row !important;
+      flex-direction: column !important;
       align-items: stretch !important;
-      justify-content: center !important;
+      justify-content: flex-start !important;
       gap: 0.4rem !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       padding: 0 !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #stage-arena-container {
+        flex-direction: row !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 550px) {
+      body.game-fullscreen-mode #stage-arena-container {
+        flex-direction: row !important;
+        align-items: stretch !important;
+        height: calc(100vh - 46px) !important;
+        height: calc(100dvh - 46px) !important;
+        overflow: hidden !important;
+      }
     }
 
     /* Board Card on Left / Center */
     body.game-fullscreen-mode #board-card {
-      flex: 1 1 auto !important;
+      flex: 0 0 auto !important;
       min-height: 0 !important;
       min-width: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
-      align-self: stretch !important;
+      width: 100% !important;
+      max-width: 1024px !important;
+      align-self: center !important;
       display: flex !important;
       flex-direction: column !important;
       align-items: center !important;
       justify-content: center !important;
       padding: 0.25rem !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       position: relative !important;
       border-radius: 1rem !important;
       background: white !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #board-card {
+        flex: 1 1 auto !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 550px) {
+      body.game-fullscreen-mode #board-card {
+        flex: 1 1 58% !important;
+        width: 58% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
     }
 
     body.game-fullscreen-mode #board-aspect-box {
@@ -201,31 +287,63 @@
       height: auto !important;
       width: 100% !important;
       max-width: 1024px !important;
-      max-height: 100% !important;
+      max-height: 46vh !important;
       position: relative !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
-      margin: auto !important;
+      margin: 0 auto !important;
       flex-shrink: 1 !important;
     }
 
-    /* Stage 1 Panel: 6 Chain Cards Column on Right */
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #board-aspect-box {
+        max-height: 100% !important;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 550px) {
+      body.game-fullscreen-mode #board-aspect-box {
+        max-height: calc(100vh - 54px) !important;
+        max-height: calc(100dvh - 54px) !important;
+      }
+    }
+
+    /* Stage 1 Panel: 6 Chain Cards */
     body.game-fullscreen-mode #stage1-panel:not(.hidden) {
-      width: clamp(260px, 26vw, 340px) !important;
-      flex-shrink: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
-      align-self: stretch !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 1 1 auto !important;
       display: flex !important;
       flex-direction: column !important;
-      justify-content: space-between !important;
+      justify-content: flex-start !important;
       padding: 0.35rem 0.45rem !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       border-radius: 1rem !important;
       background: white !important;
       border: 2px solid #cbd5e1 !important;
       margin: 0 !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #stage1-panel:not(.hidden) {
+        width: clamp(260px, 26vw, 340px) !important;
+        flex: 0 0 clamp(260px, 26vw, 340px) !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 550px) {
+      body.game-fullscreen-mode #stage1-panel:not(.hidden) {
+        width: 42% !important;
+        flex: 0 0 42% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+      }
     }
 
     body.game-fullscreen-mode #stage1-panel.hidden,
@@ -238,42 +356,75 @@
     body.game-fullscreen-mode #chain-pieces-bank {
       flex: 1 1 auto !important;
       min-height: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-      justify-content: space-between !important;
-      gap: 0.25rem !important;
-      overflow: hidden !important;
+      display: grid !important;
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      gap: 0.35rem !important;
       padding: 0.1rem 0 !important;
+    }
+
+    @media (min-width: 640px) and (max-width: 1023px) and (orientation: portrait) {
+      body.game-fullscreen-mode #chain-pieces-bank {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #chain-pieces-bank {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+        gap: 0.25rem !important;
+        overflow: hidden !important;
+      }
     }
 
     body.game-fullscreen-mode #chain-pieces-bank .draggable-item,
     body.game-fullscreen-mode #chain-pieces-bank > div {
-      flex: 1 1 auto !important;
-      min-height: 0 !important;
-      max-height: calc((100% - 1.25rem) / 6) !important;
-      padding: clamp(0.18rem, 0.6vh, 0.45rem) 0.45rem !important;
+      min-height: 46px !important;
+      padding: clamp(0.2rem, 0.6vh, 0.45rem) 0.45rem !important;
       display: flex !important;
       align-items: center !important;
       border-radius: 0.75rem !important;
       font-size: clamp(9px, 0.95vw, 11px) !important;
+      touch-action: manipulation !important;
+      cursor: pointer !important;
     }
 
     /* Stage 2 Panel: 11 CDC Standard Precaution Tools */
     body.game-fullscreen-mode #stage2-panel:not(.hidden) {
-      width: clamp(330px, 35vw, 480px) !important;
-      flex-shrink: 0 !important;
-      height: 100% !important;
-      max-height: 100% !important;
-      align-self: stretch !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 1 1 auto !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: flex-start !important;
       padding: 0.35rem 0.45rem !important;
-      overflow: hidden !important;
+      overflow-x: hidden !important;
+      overflow-y: visible !important;
       border-radius: 1rem !important;
       background: white !important;
       border: 2px solid #cbd5e1 !important;
       margin: 0 !important;
+    }
+
+    @media (min-width: 1024px) {
+      body.game-fullscreen-mode #stage2-panel:not(.hidden) {
+        width: clamp(330px, 35vw, 480px) !important;
+        flex: 0 0 clamp(330px, 35vw, 480px) !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 550px) {
+      body.game-fullscreen-mode #stage2-panel:not(.hidden) {
+        width: 42% !important;
+        flex: 0 0 42% !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+      }
     }
 
     #precautions-deck-wrapper,
@@ -282,7 +433,7 @@
       min-height: 0 !important;
       display: flex !important;
       flex-direction: column !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       width: 100% !important;
     }
 
@@ -293,32 +444,55 @@
       display: grid !important;
       grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       align-content: start !important;
-      gap: 0.2rem !important;
-      overflow-y: auto !important;
-      max-height: 100% !important;
+      gap: 0.3rem !important;
       padding: 0.1rem 0 !important;
     }
 
     .precaution-tool-card,
+    body .precaution-tool-card,
     body.game-fullscreen-mode .precaution-tool-card {
-      padding: clamp(0.15rem, 0.4vh, 0.3rem) 0.35rem !important;
-      min-height: 32px !important;
-      max-height: 48px !important;
+      padding: 0.35rem 0.5rem !important;
+      min-height: 48px !important;
+      height: auto !important;
+      max-height: none !important;
       display: flex !important;
       align-items: center !important;
       justify-content: space-between !important;
-      gap: 0.25rem !important;
-      border-radius: 0.7rem !important;
-      font-size: clamp(8.5px, 0.88vw, 10.5px) !important;
+      gap: 0.35rem !important;
+      border-radius: 0.75rem !important;
       cursor: pointer !important;
-      overflow: hidden !important;
+      touch-action: manipulation !important;
+      overflow: visible !important;
+    }
+
+    .precaution-tool-card .prec-tool-title,
+    body .precaution-tool-card .prec-tool-title,
+    body.game-fullscreen-mode .precaution-tool-card .prec-tool-title {
+      font-size: 11px !important;
+      line-height: 1.2 !important;
+      letter-spacing: -0.01em !important;
+      font-weight: 800 !important;
+      white-space: normal !important;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
+    }
+
+    .precaution-tool-card .prec-tool-title-ar,
+    body .precaution-tool-card .prec-tool-title-ar,
+    body.game-fullscreen-mode .precaution-tool-card .prec-tool-title-ar {
+      font-size: 9.5px !important;
+      line-height: 1.2 !important;
+      font-weight: 700 !important;
+      white-space: normal !important;
+      word-break: normal !important;
+      overflow-wrap: break-word !important;
     }
 
     .precaution-tool-card .prec-badge,
     body.game-fullscreen-mode .precaution-tool-card .prec-badge {
-      font-size: 8px !important;
-      padding: 1px 4px !important;
-      border-radius: 5px !important;
+      font-size: 8.5px !important;
+      padding: 1px 5px !important;
+      border-radius: 6px !important;
       flex-shrink: 0 !important;
       display: inline-block !important;
       white-space: nowrap !important;
@@ -446,16 +620,28 @@
       body.game-fullscreen-mode #precautions-grid {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 0.15rem !important;
+        gap: 0.35rem !important;
         align-content: start !important;
         overflow-y: auto !important;
       }
 
       body.game-fullscreen-mode .precaution-tool-card {
-        min-height: 28px !important;
-        max-height: 38px !important;
-        padding: 0.12rem 0.3rem !important;
+        min-height: 44px !important;
+        max-height: none !important;
+        height: auto !important;
+        padding: 0.25rem 0.45rem !important;
+        font-size: 10px !important;
+      }
+      body.game-fullscreen-mode .precaution-tool-card span.flex-shrink-0 {
+        font-size: 1.25rem !important;
+      }
+      body.game-fullscreen-mode .precaution-tool-card span.card-wrap-text {
+        font-size: 10px !important;
+        line-height: 1.15 !important;
+      }
+      body.game-fullscreen-mode .precaution-tool-card span[dir="rtl"] {
         font-size: 9px !important;
+        line-height: 1.15 !important;
       }
     }
 
@@ -549,16 +735,28 @@
       }
       body.game-fullscreen-mode #precautions-grid {
         display: grid !important;
-        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-        gap: 0.1rem !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.35rem !important;
         align-content: start !important;
       }
       .precaution-tool-card,
       body.game-fullscreen-mode .precaution-tool-card {
-        min-height: 24px !important;
-        max-height: 32px !important;
-        padding: 0.06rem 0.18rem !important;
+        min-height: 42px !important;
+        max-height: none !important;
+        height: auto !important;
+        padding: 0.15rem 0.3rem !important;
+        font-size: 9px !important;
+      }
+      body.game-fullscreen-mode .precaution-tool-card span.flex-shrink-0 {
+        font-size: 1.1rem !important;
+      }
+      body.game-fullscreen-mode .precaution-tool-card span.card-wrap-text {
+        font-size: 8.5px !important;
+        line-height: 1.1 !important;
+      }
+      body.game-fullscreen-mode .precaution-tool-card span[dir="rtl"] {
         font-size: 8px !important;
+        line-height: 1.1 !important;
       }
     }
 
@@ -891,14 +1089,35 @@
       
       /* Make circle slots on phone boards compact and avoid text overlap */
       .circle-slot {
-        border-radius: 0.85rem !important;
+        border-radius: 0.75rem !important;
+        width: 27% !important;
+        min-height: 44px !important;
+        touch-action: manipulation !important;
       }
-      #node-0 { top: 22% !important; min-height: 16% !important; }
-      #node-1 { top: 36% !important; min-height: 16% !important; }
-      #node-2 { top: 70% !important; min-height: 16% !important; }
-      #node-3 { top: 84% !important; min-height: 16% !important; }
-      #node-4 { top: 70% !important; min-height: 16% !important; }
-      #node-5 { top: 36% !important; min-height: 16% !important; }
+      #node-0 { top: 21% !important; left: 50% !important; }
+      #node-1 { top: 36% !important; left: 78% !important; }
+      #node-2 { top: 70% !important; left: 78% !important; }
+      #node-3 { top: 85% !important; left: 50% !important; }
+      #node-4 { top: 70% !important; left: 22% !important; }
+      #node-5 { top: 36% !important; left: 22% !important; }
+      #center-shield {
+        top: 53% !important;
+        left: 50% !important;
+        width: 18.5% !important;
+        aspect-ratio: 1 / 1 !important;
+        padding: 2px !important;
+      }
+      #cycle-start-badge {
+        top: 2% !important;
+        padding: 2px 6px !important;
+        font-size: 8px !important;
+      }
+      .node-info-btn {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 11px !important;
+        touch-action: manipulation !important;
+      }
       
       /* Smooth touch scrolling */
       html, body {
@@ -986,7 +1205,7 @@
       width: 100% !important;
     }
 
-    @media (max-width: 639px) and (orientation: portrait) {
+    @media (max-width: 1023px) and (orientation: portrait) {
       #stage-arena-container,
       body.game-fullscreen-mode #stage-arena-container,
       #stage-arena-container.stage2-side-by-side {
@@ -998,37 +1217,51 @@
       #stage-arena-container #board-card {
         width: 100% !important;
         max-width: 100% !important;
-        height: 42% !important;
-        max-height: 42% !important;
+        height: 44% !important;
+        max-height: 48vh !important;
         flex: 0 0 auto !important;
       }
       #stage1-panel:not(.hidden),
       body.game-fullscreen-mode #stage1-panel:not(.hidden),
-      #stage-arena-container #stage1-panel:not(.hidden) {
-        width: 100% !important;
-        max-width: 100% !important;
-        min-width: 0 !important;
-        flex: 1 1 0% !important;
-        height: 56% !important;
-        max-height: 56% !important;
-      }
+      #stage-arena-container #stage1-panel:not(.hidden),
       #stage2-panel:not(.hidden),
       body.game-fullscreen-mode #stage2-panel:not(.hidden),
       #stage-arena-container #stage2-panel:not(.hidden) {
         width: 100% !important;
         max-width: 100% !important;
         min-width: 0 !important;
-        flex: 1 1 0% !important;
-        height: 56% !important;
-        max-height: 56% !important;
+        flex: 1 1 auto !important;
+        height: auto !important;
+        max-height: none !important;
       }
       #chain-pieces-bank,
       body.game-fullscreen-mode #chain-pieces-bank,
       #stage1-panel #chain-pieces-bank {
         display: grid !important;
         grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-        gap: 0.2rem !important;
-        height: calc(100% - 28px) !important;
+        gap: 0.35rem !important;
+        height: auto !important;
+      }
+      #precautions-grid,
+      body.game-fullscreen-mode #precautions-grid,
+      #stage2-panel #precautions-grid {
+        display: grid !important;
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.35rem !important;
+        height: auto !important;
+      }
+    }
+
+    @media (min-width: 640px) and (max-width: 1023px) and (orientation: portrait) {
+      #chain-pieces-bank,
+      body.game-fullscreen-mode #chain-pieces-bank,
+      #stage1-panel #chain-pieces-bank {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+      #precautions-grid,
+      body.game-fullscreen-mode #precautions-grid,
+      #stage2-panel #precautions-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
       }
     }
 
@@ -1036,7 +1269,7 @@
     /* 🌟 ENHANCED WRAPPING & ACCESSIBILITY (NO ELLIPSIS CUT-OFFS) 🌟 */
     .card-wrap-text {
       white-space: normal !important;
-      word-break: break-word !important;
+      word-break: normal !important;
       overflow-wrap: break-word !important;
       text-overflow: clip !important;
     }
@@ -2374,166 +2607,178 @@
         <div id="view-puzzle" class="hidden flex flex-col gap-3 w-full">
           
           <!-- 🧭 TOP NAVIGATION BAR (PORTAL & STAGES) 🧭 -->
-          <div id="stage-nav-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-2.5 shadow-sm flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
+          <div id="stage-nav-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-1.5 sm:p-2.5 shadow-sm flex items-center justify-between gap-1.5 flex-nowrap">
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
               <!-- 🏠 Main Portal return button -->
-              <button onclick="switchMainView('portal')" title="Return to Main Portal Hub" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-[#02182c] text-cyan-200 hover:text-white border border-cyan-500/50 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer">
+              <button onclick="switchMainView('portal')" title="Return to Main Portal Hub" class="px-2 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-[#02182c] text-cyan-200 hover:text-white border border-cyan-500/50 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer">
                 <span>🏛️</span>
-                <span>Main Portal</span>
+                <span class="hidden sm:inline">Portal</span>
               </button>
 
               <!-- 🏷️ SMALL VIEW NAME BADGE (CLEAN & COMPACT) 🏷️ -->
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#021b35] to-[#03284d] border border-cyan-400/70 text-white shadow-xs">
+              <div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#021b35] to-[#03284d] border border-cyan-400/70 text-white shadow-xs">
                 <span class="text-sm">🛡️</span>
                 <div class="flex flex-col leading-tight">
                   <span class="text-xs font-black tracking-tight text-cyan-300">IPC CHAIN BREAKER</span>
-                  <span class="text-[9px] text-slate-300 font-semibold hidden md:inline">Hammam Jubran Rjoup / MSN, CPIC</span>
+                  <span class="text-[9px] text-slate-300 font-semibold hidden lg:inline">Hammam Jubran Rjoup / MSN, CPIC</span>
                 </div>
               </div>
 
               <!-- 1️⃣ Stage 1: Assemble Chain -->
               <button id="tab-stage-1" onclick="activateStage1()" 
-                      class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-cyan-700 text-white shadow ring-2 ring-cyan-400/40 cursor-pointer">
-                <span>1️⃣</span> <span>Stage 1: Assemble Chain</span>
-                <span id="stage1-count-pill" class="ml-1 px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">0/6 Placed</span>
+                      class="px-2 sm:px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 bg-cyan-700 text-white shadow ring-2 ring-cyan-400/40 cursor-pointer">
+                <span>1️⃣</span> <span class="hidden xs:inline">Stage 1</span>
+                <span id="stage1-count-pill" class="ml-0.5 sm:ml-1 px-1.5 py-0.5 rounded-md bg-white/20 text-[10px] font-mono">0/6</span>
               </button>
               
               <!-- 2️⃣ Stage 2: Break the Chain -->
               <button id="tab-stage-2" onclick="activateStage2()" 
-                      class="px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
-                <span>2️⃣</span> <span>Stage 2: Break the Chain</span>
-                <span id="stage2-round-pill" class="ml-1 px-1.5 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-mono">Round 1/11</span>
+                      class="px-2 sm:px-3 py-1.5 rounded-xl text-xs font-black transition flex items-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer">
+                <span>2️⃣</span> <span class="hidden xs:inline">Stage 2</span>
+                <span id="stage2-round-pill" class="ml-0.5 sm:ml-1 px-1.5 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-mono">0/6</span>
               </button>
             </div>
 
             <!-- RIGHT ACTION GROUP (Turns, Certificate, Share, Fullscreen, Trainer) -->
-            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              
-              <!-- 👥 SQUADS / GROUP TURNS IN NAV BAR -->
-              <div class="flex items-center gap-1.5 bg-gradient-to-r from-cyan-950 via-[#032347] to-cyan-900 border border-cyan-400/80 px-2.5 py-1 rounded-xl shadow-xs text-white">
-                <span class="text-xs">👥</span>
-                <span class="active-team-name text-xs font-black text-cyan-200 max-w-[90px] truncate">Group 1</span>
-                <span class="text-[10px] font-bold text-cyan-300 px-1.5 py-0.5 rounded bg-white/10 font-mono">
-                  <span class="active-turn-score">0</span> pts
-                </span>
-                <button onclick="moveToNextGroup()" title="Rotate turn to next group" class="ml-1 px-2 py-0.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[10px] font-black flex items-center gap-0.5 transition active:scale-95 cursor-pointer shadow-xs">
-                  <span>⏭️</span> <span>Next</span>
-                </button>
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+              <!-- Score Badge (Always Visible) -->
+              <div class="flex items-center gap-1 bg-gradient-to-r from-cyan-950 to-cyan-900 border border-cyan-400/80 px-2 sm:px-2.5 py-1 rounded-xl shadow-xs text-white">
+                <span class="text-xs">🏆</span>
+                <span class="active-turn-score text-xs font-black text-cyan-200">0</span>
+                <span class="text-[9px] text-cyan-300 font-mono">pts</span>
               </div>
 
-              <!-- 🎓 CERTIFICATE -->
-              <button onclick="showCertificate()" title="View and print completion certificate" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
-                <span>🎓</span> <span class="hidden sm:inline">Certificate</span>
+              <!-- 📱 MOBILE MENU TRIGGER BUTTON (Visible on < 1024px) -->
+              <button onclick="openMobileGameMenu()" title="Open Game Menu (قائمة الخيارات)" class="lg:hidden px-2.5 py-1.5 rounded-xl bg-[#021329] hover:bg-[#032347] text-cyan-300 border-2 border-cyan-400 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
+                <span>☰</span>
+                <span class="text-[10px] hidden xs:inline">Menu</span>
               </button>
 
-              <!-- 📲 SHARE BARCODE -->
-              <button onclick="openShareModal('puzzle')" title="Share Puzzle 1 Barcode & Link" class="px-2.5 py-1.5 rounded-xl bg-teal-800 hover:bg-teal-700 text-teal-100 border border-teal-500/50 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
-                <span>📲</span> <span class="hidden sm:inline">Share</span>
-              </button>
+              <!-- 🖥️ DESKTOP ONLY ACTIONS BAR (Hidden on Mobile) -->
+              <div class="hidden lg:flex items-center gap-1.5">
+                <!-- 👥 SQUADS / GROUP TURNS IN NAV BAR -->
+                <div class="flex items-center gap-1.5 bg-gradient-to-r from-cyan-950 via-[#032347] to-cyan-900 border border-cyan-400/80 px-2.5 py-1 rounded-xl shadow-xs text-white">
+                  <span class="text-xs">👥</span>
+                  <span class="active-team-name text-xs font-black text-cyan-200 max-w-[90px] truncate">Group 1</span>
+                  <button onclick="moveToNextGroup()" title="Rotate turn to next group" class="ml-1 px-2 py-0.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-[10px] font-black flex items-center gap-0.5 transition active:scale-95 cursor-pointer shadow-xs">
+                    <span>⏭️</span> <span>Next</span>
+                  </button>
+                </div>
 
-              <!-- 🧊 CHOOSE PUZZLE 2 IN NEW PAGE -->
-              <button onclick="openPuzzle2InNewPage()" title="Choose Puzzle 2 in New Page (Closes Previous Puzzle)" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/40 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
-                <span>🧊</span> <span class="hidden md:inline">Puzzle 2 ↗</span>
-              </button>
-
-              <!-- ⛶ FULL SCREEN -->
-              <button id="btn-nav-fullscreen" onclick="toggleFullScreen()" title="Toggle Full Screen (ملء الشاشة)" class="px-2.5 py-1.5 rounded-xl bg-[#021329] hover:bg-[#032347] text-cyan-300 border-2 border-cyan-400 text-xs font-black transition active:scale-95 shadow flex items-center gap-1 cursor-pointer">
-                <span class="fs-icon">⛶</span> <span class="fs-text hidden sm:inline">Full Screen</span>
-              </button>
-
-              <!-- ⚙️ TRAINER CONTROLS (Only visible to trainers) -->
-              <!-- ⚙️ UNIFIED SUPERVISOR SESSION MANAGEMENT DROPDOWN -->
-              <div class="trainer-only relative inline-block text-left" id="supervisor-menu-container">
-                <button id="btn-supervisor-menu" onclick="toggleSupervisorMenu(event)" 
-                        class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-900 via-[#032347] to-cyan-950 text-cyan-200 hover:text-white border-2 border-cyan-400/80 text-xs font-black flex items-center gap-1.5 shadow-md hover:shadow-cyan-500/30 transition active:scale-95 cursor-pointer">
-                  <span>⚙️</span>
-                  <span class="tracking-tight">إدارة الجلسة (Session Management)</span>
-                  <span class="text-[10px] ml-1">▾</span>
+                <!-- 🎓 CERTIFICATE -->
+                <button onclick="showCertificate()" title="View and print completion certificate" class="px-2.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
+                  <span>🎓</span> <span class="hidden sm:inline">Certificate</span>
                 </button>
-                
-                <!-- Dropdown Popover Menu -->
-                <div id="supervisor-dropdown" class="hidden absolute right-0 mt-2 w-80 rounded-2xl bg-[#021329] border-2 border-cyan-400 shadow-2xl z-50 p-2 text-white text-xs divide-y divide-slate-800">
-                  <!-- 1. Session Control: Play / Pause / Resume -->
-                  <div class="py-1">
-                    <div class="px-2 py-1 text-[10px] uppercase font-black text-cyan-400">1. التحكم بالجلسة (Session Control)</div>
-                    <button onclick="supervisorAction('toggle_pause')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold" id="sup-menu-pause-text">⏸️ إيقاف الجلسة مؤقتاً</span>
-                      <span class="text-[10px] text-slate-400">تجميد المؤقت والإجابة</span>
-                    </button>
-                    <button onclick="supervisorAction('restart_current')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold">🔄 إعادة تشغيل المرحلة</span>
-                      <span class="text-[10px] text-slate-400">إعادة البدء من الصفر</span>
-                    </button>
-                  </div>
 
-                  <!-- 2. Stage Switch -->
-                  <div class="py-1">
-                    <div class="px-2 py-1 text-[10px] uppercase font-black text-teal-400">2. الانتقال بين المراحل (Stages)</div>
-                    <button onclick="supervisorAction('switch_stage', 1)" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold">1️⃣ المرحلة 1: بناء السلسلة</span>
-                      <span class="text-[10px] text-slate-400">Assemble Chain</span>
-                    </button>
-                    <button onclick="supervisorAction('switch_stage', 2)" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold">2️⃣ المرحلة 2: كسر السلسلة</span>
-                      <span class="text-[10px] text-slate-400">Break Chain</span>
-                    </button>
-                  </div>
+                <!-- 📲 SHARE BARCODE -->
+                <button onclick="openShareModal('puzzle')" title="Share Puzzle 1 Barcode & Link" class="px-2.5 py-1.5 rounded-xl bg-teal-800 hover:bg-teal-700 text-teal-100 border border-teal-500/50 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
+                  <span>📲</span> <span class="hidden sm:inline">Share</span>
+                </button>
 
-                  <!-- 3. Timer & Difficulty Settings -->
-                  <div class="py-1">
-                    <div class="px-2 py-1 text-[10px] uppercase font-black text-amber-400">3. إعدادات الوقت والتحدي (Settings)</div>
-                    <div class="px-3 py-1.5 flex items-center justify-between">
-                      <span class="font-bold">وقت المرحلة:</span>
-                      <div class="flex items-center gap-1">
-                        <button onclick="supervisorAction('set_timer', 120)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">2د</button>
-                        <button onclick="supervisorAction('set_timer', 180)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">3د</button>
-                        <button onclick="supervisorAction('set_timer', 240)" class="px-1.5 py-0.5 rounded bg-cyan-700 text-[10px] font-bold ring-1 ring-cyan-300">4د</button>
-                        <button onclick="supervisorAction('set_timer', 300)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">5د</button>
-                        <button onclick="supervisorAction('set_timer', 600)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">10د</button>
-                      </div>
+                <!-- 🧊 CHOOSE PUZZLE 2 IN NEW PAGE -->
+                <button onclick="openPuzzle2InNewPage()" title="Choose Puzzle 2 in New Page" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/40 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
+                  <span>🧊</span> <span>Puzzle 2 ↗</span>
+                </button>
+
+                <!-- ⛶ FULL SCREEN -->
+                <button id="btn-nav-fullscreen" onclick="toggleFullScreen()" title="Toggle Full Screen" class="px-2.5 py-1.5 rounded-xl bg-[#021329] hover:bg-[#032347] text-cyan-300 border-2 border-cyan-400 text-xs font-black transition active:scale-95 shadow flex items-center gap-1 cursor-pointer">
+                  <span class="fs-icon">⛶</span> <span class="fs-text">Full Screen</span>
+                </button>
+
+                <!-- ⚙️ TRAINER CONTROLS (Only visible to trainers) -->
+                <!-- ⚙️ UNIFIED SUPERVISOR SESSION MANAGEMENT DROPDOWN -->
+                <div class="trainer-only relative inline-block text-left" id="supervisor-menu-container">
+                  <button id="btn-supervisor-menu" onclick="toggleSupervisorMenu(event)" 
+                          class="px-3 py-1.5 rounded-xl bg-gradient-to-r from-slate-900 via-[#032347] to-cyan-950 text-cyan-200 hover:text-white border-2 border-cyan-400/80 text-xs font-black flex items-center gap-1.5 shadow-md hover:shadow-cyan-500/30 transition active:scale-95 cursor-pointer">
+                    <span>⚙️</span>
+                    <span class="tracking-tight">إدارة الجلسة</span>
+                    <span class="text-[10px] ml-1">▾</span>
+                  </button>
+                  
+                  <!-- Dropdown Popover Menu -->
+                  <div id="supervisor-dropdown" class="hidden absolute right-0 mt-2 w-80 rounded-2xl bg-[#021329] border-2 border-cyan-400 shadow-2xl z-50 p-2 text-white text-xs divide-y divide-slate-800">
+                    <!-- 1. Session Control: Play / Pause / Resume -->
+                    <div class="py-1">
+                      <div class="px-2 py-1 text-[10px] uppercase font-black text-cyan-400">1. التحكم بالجلسة (Session Control)</div>
+                      <button onclick="supervisorAction('toggle_pause')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold" id="sup-menu-pause-text">⏸️ إيقاف الجلسة مؤقتاً</span>
+                        <span class="text-[10px] text-slate-400">تجميد المؤقت والإجابة</span>
+                      </button>
+                      <button onclick="supervisorAction('restart_current')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold">🔄 إعادة تشغيل المرحلة</span>
+                        <span class="text-[10px] text-slate-400">إعادة البدء من الصفر</span>
+                      </button>
                     </div>
-                    <button onclick="supervisorAction('toggle_hints')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold" id="sup-menu-hints-text">💡 تفعيل التلميحات الذكية</span>
-                      <span class="text-[10px] text-emerald-400" id="sup-menu-hints-status">مفعّلة ✓</span>
-                    </button>
-                  </div>
 
-                  <!-- 4. Audio & Music -->
-                  <div class="py-1">
-                    <div class="px-2 py-1 text-[10px] uppercase font-black text-purple-400">4. الأصوات والموسيقى (Audio)</div>
-                    <button onclick="supervisorAction('toggle_music')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold" id="sup-menu-music-text">🎵 الموسيقى الخلفية الهادئة</span>
-                      <span class="text-[10px] text-slate-400" id="sup-menu-music-status">مكتومة ✕</span>
-                    </button>
-                    <button onclick="supervisorAction('toggle_all_sound')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold" id="sup-menu-sound-text">🔊 المؤثرات الصوتية</span>
-                      <span class="text-[10px] text-emerald-400" id="sup-menu-sound-status">مفعّلة ✓</span>
-                    </button>
-                  </div>
+                    <!-- 2. Stage Switch -->
+                    <div class="py-1">
+                      <div class="px-2 py-1 text-[10px] uppercase font-black text-teal-400">2. الانتقال بين المراحل (Stages)</div>
+                      <button onclick="supervisorAction('switch_stage', 1)" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold">1️⃣ المرحلة 1: بناء السلسلة</span>
+                        <span class="text-[10px] text-slate-400">Assemble Chain</span>
+                      </button>
+                      <button onclick="supervisorAction('switch_stage', 2)" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold">2️⃣ المرحلة 2: كسر السلسلة</span>
+                        <span class="text-[10px] text-slate-400">Break Chain</span>
+                      </button>
+                    </div>
 
-                  <!-- 5. Solution & Debrief -->
-                  <div class="py-1">
-                    <div class="px-2 py-1 text-[10px] uppercase font-black text-rose-400">5. الشرح والمراجعة (Review)</div>
-                    <button onclick="supervisorAction('reveal_solution')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold text-rose-300">👁️ إظهار الحل للمراجعة</span>
-                      <span class="text-[10px] text-slate-400">Debrief Review</span>
-                    </button>
-                    <button onclick="supervisorAction('view_scores')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold text-amber-300">📊 لوحة النتائج والفرق</span>
-                      <span class="text-[10px] text-slate-400">Scoreboard</span>
-                    </button>
-                    <button onclick="supervisorAction('open_debrief_guide')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
-                      <span class="font-bold text-teal-300">📋 دليل تيسير المشرف</span>
-                      <span class="text-[10px] text-slate-400">Trainer Guide</span>
-                    </button>
-                  </div>
+                    <!-- 3. Timer & Difficulty Settings -->
+                    <div class="py-1">
+                      <div class="px-2 py-1 text-[10px] uppercase font-black text-amber-400">3. إعدادات الوقت والتحدي (Settings)</div>
+                      <div class="px-3 py-1.5 flex items-center justify-between">
+                        <span class="font-bold">وقت المرحلة:</span>
+                        <div class="flex items-center gap-1">
+                          <button onclick="supervisorAction('set_timer', 120)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">2د</button>
+                          <button onclick="supervisorAction('set_timer', 180)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">3د</button>
+                          <button onclick="supervisorAction('set_timer', 240)" class="px-1.5 py-0.5 rounded bg-cyan-700 text-[10px] font-bold ring-1 ring-cyan-300">4د</button>
+                          <button onclick="supervisorAction('set_timer', 300)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">5د</button>
+                          <button onclick="supervisorAction('set_timer', 600)" class="px-1.5 py-0.5 rounded bg-slate-800 hover:bg-cyan-700 text-[10px] font-bold">10د</button>
+                        </div>
+                      </div>
+                      <button onclick="supervisorAction('toggle_hints')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold" id="sup-menu-hints-text">💡 تفعيل التلميحات الذكية</span>
+                        <span class="text-[10px] text-emerald-400" id="sup-menu-hints-status">مفعّلة ✓</span>
+                      </button>
+                    </div>
 
-                  <!-- 6. Student Mode Share -->
-                  <div class="pt-1">
-                    <button onclick="supervisorAction('share_student_qr')" class="w-full text-center px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
-                      <span>📲</span>
-                      <span>مشاركة وضع الطالب (رابط + QR)</span>
-                    </button>
+                    <!-- 4. Audio & Music -->
+                    <div class="py-1">
+                      <div class="px-2 py-1 text-[10px] uppercase font-black text-purple-400">4. الأصوات والموسيقى (Audio)</div>
+                      <button onclick="supervisorAction('toggle_music')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold" id="sup-menu-music-text">🎵 الموسيقى الخلفية الهادئة</span>
+                        <span class="text-[10px] text-slate-400" id="sup-menu-music-status">مكتومة ✕</span>
+                      </button>
+                      <button onclick="supervisorAction('toggle_all_sound')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold" id="sup-menu-sound-text">🔊 المؤثرات الصوتية</span>
+                        <span class="text-[10px] text-emerald-400" id="sup-menu-sound-status">مفعّلة ✓</span>
+                      </button>
+                    </div>
+
+                    <!-- 5. Solution & Debrief -->
+                    <div class="py-1">
+                      <div class="px-2 py-1 text-[10px] uppercase font-black text-rose-400">5. الشرح والمراجعة (Review)</div>
+                      <button onclick="supervisorAction('reveal_solution')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold text-rose-300">👁️ إظهار الحل للمراجعة</span>
+                        <span class="text-[10px] text-slate-400">Debrief Review</span>
+                      </button>
+                      <button onclick="supervisorAction('view_scores')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold text-amber-300">📊 لوحة النتائج والفرق</span>
+                        <span class="text-[10px] text-slate-400">Scoreboard</span>
+                      </button>
+                      <button onclick="supervisorAction('open_debrief_guide')" class="w-full text-right px-3 py-2 rounded-xl hover:bg-white/10 flex items-center justify-between transition cursor-pointer">
+                        <span class="font-bold text-teal-300">📋 دليل تيسير المشرف</span>
+                        <span class="text-[10px] text-slate-400">Trainer Guide</span>
+                      </button>
+                    </div>
+
+                    <!-- 6. Student Mode Share -->
+                    <div class="pt-1">
+                      <button onclick="supervisorAction('share_student_qr')" class="w-full text-center px-3 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black flex items-center justify-center gap-2 transition cursor-pointer shadow-md">
+                        <span>📲</span>
+                        <span>مشاركة وضع الطالب (رابط + QR)</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -2552,47 +2797,43 @@
           <!-- 🎯 PUZZLE ARENA (TIMER + BOARD + LABELS) — FULL 100% WIDTH 🎯 -->
           <div class="w-full flex flex-col gap-2.5 items-center">
             <!-- ⏱️ 10-MINUTE SIMULATION CONTROL & START BAR (IN MIDDLE) ⏱️ -->
-              <div id="bottom-timer-bar" class="w-full max-w-[1024px] mx-auto p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-slate-950 via-[#031527] to-slate-950 border-2 border-cyan-500/80 shadow-lg flex flex-wrap items-center justify-center gap-3 sm:gap-5 text-center">
+              <div id="bottom-timer-bar" class="w-full max-w-[1024px] mx-auto p-1.5 sm:p-3 rounded-2xl bg-gradient-to-r from-slate-950 via-[#031527] to-slate-950 border-2 border-cyan-500/80 shadow-md flex items-center justify-between gap-2 text-center flex-wrap">
                 <!-- Start Simulation Button with 1-2-3 Countdown Trigger & Forbidden Notice -->
-                <div class="flex flex-wrap items-center justify-center gap-2.5">
+                <div class="flex items-center gap-1.5 flex-wrap">
                   <button id="btn-start-simulation" onclick="triggerCountdownAndStart(currentStage === 1 ? 240 : 360)" 
-                          class="group relative px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-xs sm:text-sm shadow-[0_0_25px_rgba(16,185,129,0.7)] flex items-center justify-center gap-2 transition-all duration-200 active:scale-95 cursor-pointer border-2 border-emerald-300 ring-4 ring-emerald-400/50 animate-pulse">
+                          class="group relative px-3 sm:px-5 py-1.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 hover:from-emerald-400 hover:to-cyan-500 text-white font-black text-xs sm:text-sm shadow-[0_0_20px_rgba(16,185,129,0.7)] flex items-center justify-center gap-1.5 sm:gap-2 transition-all duration-200 active:scale-95 cursor-pointer border border-emerald-300 ring-2 sm:ring-4 ring-emerald-400/50 animate-pulse min-h-[44px]">
                     <span id="start-btn-icon" class="text-base sm:text-lg animate-bounce">🚀</span>
-                    <div class="text-center leading-tight">
+                    <div class="text-left sm:text-center leading-tight">
                       <div id="start-btn-title" class="font-black tracking-wide text-xs sm:text-sm text-white drop-shadow-sm uppercase">START 4-MIN CHALLENGE</div>
-                      <div class="text-[9.5px] text-emerald-100 font-bold" dir="rtl">ابدأ التحدي (4 دقائق)</div>
+                      <div class="text-[9px] text-emerald-100 font-bold" dir="rtl">ابدأ التحدي (4 دقائق)</div>
                     </div>
                   </button>
 
-                  <!-- ⛔ FORBIDDEN TO START WITHOUT PRESSING HERE NOTICE ⛔ -->
-                  <div id="forbidden-start-notice" class="flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs font-black shadow-inner animate-pulse text-center">
+                  <!-- ⛔ FORBIDDEN NOTICE (Hidden on mobile) ⛔ -->
+                  <div id="forbidden-start-notice" class="hidden md:flex items-center justify-center gap-2 px-3 py-1.5 rounded-xl bg-red-950/80 border border-red-500 text-red-200 text-xs font-black shadow-inner animate-pulse text-center">
                     <span class="text-lg text-red-400">⛔</span>
                     <div class="flex flex-col leading-tight text-center">
-                      <span class="text-[10px] sm:text-xs font-black uppercase text-red-300">Forbidden to start without pressing here!</span>
-                      <span class="text-[9px] text-red-200 font-bold" dir="rtl">ممنوع البدء دون الضغط هنا أولاً</span>
+                      <span class="text-[10px] font-black uppercase text-red-300">Start Countdown First!</span>
+                      <span class="text-[9px] text-red-200 font-bold" dir="rtl">ممنوع البدء دون الضغط أولاً</span>
                     </div>
                   </div>
                 </div>
 
-                <!-- 10-Minute Timer Readout, Status Dot & Controls -->
-                <div id="simulation-timer-widget" class="flex items-center justify-center gap-2.5 bg-[#021124] text-white border-2 border-cyan-400/90 px-3.5 py-1.5 rounded-2xl shadow-[0_0_18px_rgba(6,182,212,0.35)] transition-all">
-                  <span class="relative flex h-3 w-3">
+                <!-- Timer Readout & Controls -->
+                <div id="simulation-timer-widget" class="flex items-center justify-center gap-2 sm:gap-2.5 bg-[#021124] text-white border-2 border-cyan-400/90 px-2.5 sm:px-3.5 py-1 sm:py-1.5 rounded-xl sm:rounded-2xl shadow-[0_0_15px_rgba(6,182,212,0.35)] transition-all min-h-[44px]">
+                  <span class="relative flex h-2.5 w-2.5 sm:h-3 sm:w-3">
                     <span id="timer-ping-glow" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span id="timer-dot-core" class="relative inline-flex rounded-full h-3 w-3 bg-slate-500 shadow-[0_0_6px_#64748b]"></span>
+                    <span id="timer-dot-core" class="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-slate-500 shadow-[0_0_6px_#64748b]"></span>
                   </span>
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base">⏱️</span>
-                    <div class="flex flex-col leading-none">
-                      <span class="text-[9.5px] font-black uppercase tracking-wider text-cyan-300 hidden sm:inline">Timer</span>
-                      <span class="text-[8px] text-cyan-400 font-bold hidden sm:inline" dir="rtl">المؤقت</span>
-                    </div>
+                  <div class="flex items-center gap-1">
+                    <span class="text-sm sm:text-base">⏱️</span>
                   </div>
-                  <span id="timer-display" class="font-mono text-lg sm:text-xl font-black tracking-widest text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.85)] tabular-nums">10:00</span>
-                  <div class="flex items-center gap-1.5 border-l border-cyan-500/40 pl-2">
-                    <button id="btn-timer-toggle" onclick="toggleTimer()" title="Pause / Resume Timer" class="px-2.5 py-1 text-xs font-black rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition active:scale-95 shadow flex items-center gap-1 cursor-pointer">
+                  <span id="timer-display" class="font-mono text-base sm:text-xl font-black tracking-widest text-cyan-300 drop-shadow-[0_0_8px_rgba(6,182,212,0.85)] tabular-nums">04:00</span>
+                  <div class="flex items-center gap-1 border-l border-cyan-500/40 pl-1.5 sm:pl-2">
+                    <button id="btn-timer-toggle" onclick="toggleTimer()" title="Pause / Resume Timer" class="px-2.5 sm:px-3 py-1 sm:py-1.5 text-xs font-black rounded-lg sm:rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white transition active:scale-95 shadow flex items-center gap-1 cursor-pointer min-h-[36px]">
                       <span id="timer-btn-icon">▶</span> <span id="timer-btn-text">Start</span>
                     </button>
-                    <button onclick="resetTimer()" title="Reset Timer to 10:00" class="px-2 py-1 text-xs font-bold rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700 cursor-pointer">
+                    <button onclick="resetTimer()" title="Reset Timer" class="px-2 py-1 text-xs font-bold rounded-lg sm:rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition active:scale-95 border border-slate-700 cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center">
                       ↺
                     </button>
                   </div>
@@ -2669,22 +2910,28 @@
           <div id="board-card" class="w-full max-w-[1024px] bg-white border-2 border-slate-300 rounded-2xl p-2 sm:p-3 shadow-lg flex flex-col items-center relative overflow-hidden transition-all duration-300">
             
             <!-- Stage Status Header -->
-            <div id="board-card-header" class="w-full flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200 flex-wrap gap-2">
-              <div class="flex items-center gap-2">
-                <span id="stage-badge" class="px-2.5 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider bg-cyan-100 text-cyan-800 border border-cyan-300 shadow-xs">
+            <div id="board-card-header" class="w-full flex items-center justify-between mb-1 pb-1 border-b border-slate-200 flex-wrap gap-1">
+              <div class="flex items-center gap-1.5">
+                <span id="stage-badge" class="px-2 py-0.5 rounded-lg text-xs font-black uppercase tracking-wider bg-cyan-100 text-cyan-800 border border-cyan-300 shadow-xs">
                   STAGE 1: ASSEMBLE CHAIN
+                </span>
+                <span class="text-xs font-black text-[#0f2942] sm:hidden flex items-center gap-1">
+                  <span>سلسلة انتقال العدوى</span>
                 </span>
                 <span id="stage-desc" class="text-xs text-slate-600 font-semibold hidden sm:inline">
                   Drag or tap labels into the 6 empty circular positions in clockwise order.
                 </span>
               </div>
+              <span class="text-[10px] font-bold text-teal-700 sm:hidden">
+                🛡️ Break One Link
+              </span>
             </div>
 
             <!-- 16:9 BOARD CANVAS (Matches Slide Vector Infographic 1024x576) -->
             <div id="board-aspect-box" class="w-full aspect-[1024/576] relative rounded-xl overflow-hidden border border-slate-300 shadow-sm bg-gradient-to-br from-slate-50 via-white to-sky-50 flex items-center justify-center select-none">
               
               <!-- Top Left Header -->
-              <div class="absolute top-2.5 left-3 sm:top-3.5 sm:left-4 select-none pointer-events-none z-10 text-left">
+              <div class="hidden sm:block absolute top-2.5 left-3 sm:top-3.5 sm:left-4 select-none pointer-events-none z-10 text-left">
                 <h3 class="text-sm sm:text-xl md:text-2xl font-black text-[#0f2942] tracking-tight leading-tight flex items-center gap-2">
                   <span>سلسلة انتقال العدوى</span>
                   <span class="text-xs sm:text-sm font-bold text-slate-500 font-sans">(Chain of Infection)</span>
@@ -2695,7 +2942,7 @@
               </div>
 
               <!-- Top Right Badge -->
-              <div class="absolute top-2.5 right-3 sm:top-3.5 sm:right-4 select-none pointer-events-none z-10 flex items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-300 text-[8px] sm:text-[10px] md:text-xs font-black text-sky-900 shadow-xs backdrop-blur-sm">
+              <div class="hidden sm:flex absolute top-2.5 right-3 sm:top-3.5 sm:right-4 select-none pointer-events-none z-10 items-center gap-1.5 px-3 py-1 rounded-full bg-sky-50 border border-sky-300 text-[8px] sm:text-[10px] md:text-xs font-black text-sky-900 shadow-xs backdrop-blur-sm">
                 <span>PRIMARY HEALTH CARE • NURSING</span>
                 <span class="text-xs sm:text-sm">👥🏥</span>
               </div>
@@ -2784,32 +3031,29 @@
 
               <!-- CENTER SHIELD & TARGET HUB (Exact center at 50%, 53%) -->
               <div id="center-shield" 
-                   class="circle-slot !w-[21%] !aspect-square !top-[53%] !left-[50%] bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 border-3 border-teal-400 shadow-xl backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-2 transition-all duration-300 pointer-events-none rounded-full">
-                <div id="center-icon" class="text-xl sm:text-2xl mb-1 flex items-center justify-center gap-1">
+                   class="circle-slot !w-[18.5%] sm:!w-[21%] !aspect-square !top-[53%] !left-[50%] bg-gradient-to-br from-teal-50 via-cyan-50 to-emerald-50 border-2 sm:border-3 border-teal-400 shadow-xl backdrop-blur-md z-10 flex flex-col items-center justify-center text-center p-1 sm:p-2 transition-all duration-300 pointer-events-none rounded-full">
+                <div id="center-icon" class="text-xs sm:text-xl mb-0.5 flex items-center justify-center gap-0.5 sm:gap-1">
                   <span class="text-teal-700">⛓️</span>
-                  <span class="text-amber-500 animate-pulse text-sm">💥</span>
+                  <span class="text-amber-500 animate-pulse text-[10px] sm:text-xs">💥</span>
                   <span class="text-teal-700">🔗</span>
                 </div>
-                <h4 class="text-[9px] sm:text-[11px] md:text-[12px] font-black tracking-wider text-teal-950 uppercase leading-none">
-                  BREAK ONE LINK
+                <h4 class="text-[7.5px] sm:text-[10px] md:text-[11px] font-black tracking-wider text-teal-950 uppercase leading-none">
+                  BREAK CHAIN
                 </h4>
-                <span class="text-[7.5px] sm:text-[9.5px] md:text-[10px] font-black text-teal-700 uppercase tracking-widest leading-none mt-1">
-                  STOP TRANSMISSION
-                </span>
-                <div id="chain-status-text" class="mt-1 text-[7px] sm:text-[8px] md:text-[9px] text-teal-950 font-black px-2.5 py-0.5 rounded-full bg-teal-200/90 border border-teal-300 shadow-xs leading-tight">
+                <div id="chain-status-text" class="mt-0.5 text-[6.5px] sm:text-[8px] md:text-[9px] text-teal-950 font-black px-1.5 sm:px-2.5 py-0.2 sm:py-0.5 rounded-full bg-teal-200/90 border border-teal-300 shadow-xs leading-tight">
                   0 of 6 Links Placed
                 </div>
-                <div class="mt-1 text-[7px] sm:text-[8.5px] font-extrabold text-cyan-900 bg-cyan-100/90 px-2 py-0.5 rounded-full border border-cyan-300">
-                  ↻ اتجاه دورة العدوى (Clockwise)
+                <div class="mt-0.5 text-[6px] sm:text-[8px] font-extrabold text-cyan-900 bg-cyan-100/90 px-1.5 sm:px-2 py-0.2 sm:py-0.5 rounded-full border border-cyan-300">
+                  ↻ Clockwise
                 </div>
               </div>
 
               <!-- THE 6 CIRCULAR DROP/CLICK SLOTS ON BOARD CANVAS -->
               <!-- 🚩 START OF CYCLE INDICATOR ON NODE 0 🚩 -->
-              <div id="cycle-start-badge" class="absolute top-[8%] left-[50%] -translate-x-1/2 z-30 px-3 py-1 rounded-full bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 text-white font-black text-[10px] sm:text-xs shadow-lg border-2 border-white flex items-center gap-1.5 animate-pulse pointer-events-none whitespace-nowrap">
+              <div id="cycle-start-badge" class="absolute top-[2%] sm:top-[8%] left-[50%] -translate-x-1/2 z-30 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full bg-gradient-to-r from-rose-600 via-red-600 to-amber-600 text-white font-black text-[9px] sm:text-xs shadow-md border border-white flex items-center gap-1 animate-pulse pointer-events-none whitespace-nowrap">
                 <span>🚩</span>
                 <span>Start: 1. Infectious Agent</span>
-                <span class="text-[9px] text-amber-200 font-bold" dir="rtl">(العامل الممرض)</span>
+                <span class="text-[8.5px] text-amber-200 font-bold hidden sm:inline" dir="rtl">(العامل الممرض)</span>
               </div>
               <div id="node-0" data-slot="0" onclick="handleSlotClick(0)" class="circle-slot"></div>
               <div id="node-1" data-slot="1" onclick="handleSlotClick(1)" class="circle-slot"></div>
@@ -2818,6 +3062,28 @@
               <div id="node-4" data-slot="4" onclick="handleSlotClick(4)" class="circle-slot"></div>
               <div id="node-5" data-slot="5" onclick="handleSlotClick(5)" class="circle-slot"></div>
 
+            </div>
+
+            <!-- 💡 UNIFIED GAMEPLAY HINT PANEL (BELOW CIRCLE DIAGRAM IN NORMAL FLOW) -->
+            <div id="gameplay-hint-panel" class="hidden w-full max-w-[960px] mt-2.5 p-3 sm:p-4 rounded-2xl border-2 border-amber-300 bg-gradient-to-r from-amber-50 via-amber-100/70 to-yellow-50 text-amber-950 shadow-md transition-all duration-300 select-none">
+              <div class="flex items-start justify-between gap-2.5">
+                <div class="flex items-start gap-2.5 flex-1 min-w-0">
+                  <span id="gameplay-hint-icon" class="text-2xl sm:text-3xl flex-shrink-0 animate-bounce">💡</span>
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap mb-1">
+                      <span id="gameplay-hint-badge" class="text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900 border border-amber-300">
+                        CLINICAL HINT • تلميح سريري
+                      </span>
+                      <span id="gameplay-hint-tool-name" class="text-xs font-black text-amber-950"></span>
+                    </div>
+                    <p id="gameplay-hint-en" class="text-xs sm:text-sm font-bold text-amber-950 leading-snug"></p>
+                    <p id="gameplay-hint-ar" class="text-xs sm:text-sm font-bold text-amber-900 mt-1 leading-snug bg-white/80 p-2 rounded-xl border border-amber-200" dir="rtl"></p>
+                  </div>
+                </div>
+                <button type="button" onclick="hideGameplayHintPanel()" title="Close hint" class="min-w-[36px] min-h-[36px] flex items-center justify-center rounded-xl bg-amber-200/80 hover:bg-amber-300 text-amber-950 text-sm font-black transition active:scale-95 cursor-pointer flex-shrink-0">
+                  ✕
+                </button>
+              </div>
             </div>
 
             <!-- Toast / Feedback Indicator -->
@@ -2859,19 +3125,19 @@
               </div>
 
               <!-- 🔨 EQUIPPED TOOL BANNER (SHOWN WHEN A PRECAUTION CARD IS EQUIPPED) -->
-              <div id="equipped-tool-banner" class="hidden p-3 rounded-2xl bg-gradient-to-r from-cyan-950 via-[#032347] to-teal-950 text-white border-2 border-cyan-400 shadow-md flex items-center justify-between gap-2 transition-all duration-300 animate-pulse">
-                <div class="flex items-center gap-2.5 min-w-0">
-                  <span class="text-2xl" id="equipped-tool-icon">🧼</span>
+              <div id="equipped-tool-banner" class="hidden p-2.5 sm:p-3 rounded-2xl bg-gradient-to-r from-cyan-950 via-[#032347] to-teal-950 text-white border-2 border-cyan-400 shadow-md flex items-center justify-between gap-2 transition-all duration-300">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="text-xl sm:text-2xl" id="equipped-tool-icon">🧼</span>
                   <div class="flex flex-col min-w-0">
-                    <span class="text-[9px] uppercase font-black text-cyan-300 tracking-wider">🔨 ACTIVE TOOL EQUIPPED</span>
+                    <span class="text-[8.5px] uppercase font-black text-cyan-300 tracking-wider">🔨 ACTIVE TOOL EQUIPPED</span>
                     <span class="text-xs sm:text-sm font-black text-white truncate" id="equipped-tool-name">Hand Hygiene</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-2 shrink-0">
-                  <span class="text-[11px] font-bold text-cyan-200 bg-white/10 px-2.5 py-1 rounded-lg hidden sm:inline">
-                    👉 Tap any matching link on the circle to break it!
+                  <span class="text-[10px] sm:text-[11px] font-bold text-cyan-200 bg-white/10 px-2 py-0.5 rounded-lg hidden xs:inline">
+                    👉 Tap a chain link!
                   </span>
-                  <button onclick="clearEquippedTool()" class="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-[10px] font-bold active:scale-95 cursor-pointer">
+                  <button onclick="clearEquippedTool()" class="min-w-[44px] min-h-[44px] px-3 py-1.5 rounded-xl bg-white/20 hover:bg-white/30 text-white text-xs font-bold active:scale-95 cursor-pointer flex items-center justify-center">
                     ✕ Cancel
                   </button>
                 </div>
@@ -2879,12 +3145,20 @@
 
               <!-- PRECAUTION TOOLS DECK (11 CDC STANDARD PRECAUTIONS) -->
               <div id="precautions-deck-wrapper" class="flex-1 flex flex-col min-h-0 overflow-hidden w-full">
-                <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200 flex-wrap gap-2 shrink-0">
-                  <span class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
-                    <span>🛡️</span> Standard Precaution Tools (Drag or Tap to Break Links):
-                  </span>
-                  <span id="selected-prec-label" class="text-[11px] font-bold text-cyan-800 bg-cyan-50 px-2.5 py-0.5 rounded-md border border-cyan-200">
-                    Tap or Drag a Tool to the Circle
+                <div class="flex items-center justify-between mb-1.5 pb-1 border-b border-slate-200 flex-wrap gap-1.5 shrink-0">
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <span class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1">
+                      <span>🛡️</span> Tools:
+                    </span>
+                    <button type="button" id="btn-prec-page-1" onclick="switchPrecPage(1)" class="px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer bg-cyan-700 text-white shadow ring-2 ring-cyan-400/40">
+                      🛡️ Tools 1-6
+                    </button>
+                    <button type="button" id="btn-prec-page-2" onclick="switchPrecPage(2)" class="px-2.5 py-1 rounded-xl text-xs font-bold transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200">
+                      🏥 Tools 7-11
+                    </button>
+                  </div>
+                  <span id="selected-prec-label" class="text-[10px] sm:text-[11px] font-bold text-cyan-800 bg-cyan-50 px-2 py-0.5 rounded-md border border-cyan-200">
+                    Tap a tool, then tap a link
                   </span>
                 </div>
                 <div id="precautions-grid" class="flex-1 grid grid-cols-2 gap-1.5 sm:gap-2 p-1 overflow-y-auto">
@@ -3980,6 +4254,172 @@
     </div>
   </div>
 
+  <!-- ℹ️ CLINICAL DETAILS MODAL FOR CHAIN LINKS (MOBILE & DESKTOP) ℹ️ -->
+  <div id="link-details-modal" class="fixed inset-0 z-[130] bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-cyan-400 overflow-hidden animate-scale-up">
+      <!-- Header -->
+      <div class="p-3.5 sm:p-4 bg-gradient-to-r from-[#021b35] via-[#03284d] to-[#011425] text-white flex items-center justify-between">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <span id="link-modal-icon" class="text-2xl sm:text-3xl shrink-0">🦠</span>
+          <div class="min-w-0">
+            <h3 id="link-modal-title-en" class="font-black text-sm sm:text-base text-cyan-200 leading-tight truncate"></h3>
+            <div id="link-modal-title-ar" class="text-xs font-bold text-slate-300 leading-tight mt-0.5" dir="rtl"></div>
+          </div>
+        </div>
+        <button onclick="closeLinkDetailsModal()" class="min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-black text-lg transition active:scale-95 cursor-pointer shrink-0">
+          ✕
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-3 text-slate-800 text-xs sm:text-sm">
+        <!-- Clinical Definition -->
+        <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200">
+          <span class="font-black text-cyan-900 uppercase text-[10px] tracking-wider block mb-1">📖 Clinical Definition • التعريف السريري</span>
+          <p id="link-modal-desc" class="text-slate-700 leading-relaxed font-medium"></p>
+        </div>
+        <!-- Examples -->
+        <div class="p-3 rounded-2xl bg-amber-50/70 border border-amber-200">
+          <span class="font-black text-amber-900 uppercase text-[10px] tracking-wider block mb-1">🔬 Clinical Examples • أمثلة سريرية</span>
+          <p id="link-modal-examples-en" class="text-slate-800 font-semibold leading-relaxed"></p>
+          <p id="link-modal-examples-ar" class="text-amber-950 font-bold leading-relaxed mt-0.5" dir="rtl"></p>
+        </div>
+        <!-- How to Break This Link -->
+        <div class="p-3 rounded-2xl bg-emerald-50/70 border border-emerald-200">
+          <span class="font-black text-emerald-900 uppercase text-[10px] tracking-wider block mb-1">🛡️ How CDC Precautions Break This Link • سبل كسر الحلقة</span>
+          <p id="link-modal-actions" class="text-emerald-950 font-semibold leading-relaxed" dir="rtl"></p>
+        </div>
+        <!-- Applied Tools (in Stage 2) -->
+        <div id="link-modal-applied-section" class="hidden p-3 rounded-2xl bg-red-50/80 border border-red-200">
+          <span class="font-black text-red-900 uppercase text-[10px] tracking-wider block mb-1.5">⚡ Applied Precautions • الاحتياطات المطبقة</span>
+          <div id="link-modal-applied-list" class="flex flex-col gap-1.5"></div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-end">
+        <button onclick="closeLinkDetailsModal()" class="min-h-[44px] px-6 py-2.5 rounded-xl bg-cyan-700 hover:bg-cyan-600 text-white font-black text-xs transition active:scale-95 shadow cursor-pointer">
+          Close • إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 📱 MOBILE UNIFIED GAME MENU MODAL 📱 -->
+  <div id="mobile-game-menu-modal" class="fixed inset-0 z-[130] bg-slate-950/85 backdrop-blur-sm hidden flex items-end sm:items-center justify-center p-0 sm:p-4 transition-all">
+    <div class="bg-[#021329] border-t-2 sm:border-2 border-cyan-400 rounded-t-3xl sm:rounded-3xl max-w-md w-full max-h-[85vh] flex flex-col shadow-2xl text-white overflow-hidden animate-slide-up">
+      <!-- Header -->
+      <div class="p-3.5 bg-gradient-to-r from-[#021b35] via-[#03284d] to-[#011425] border-b border-cyan-500/30 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span class="text-lg">⚙️</span>
+          <h3 class="font-black text-sm text-cyan-300">Game Menu • قائمة الخيارات</h3>
+        </div>
+        <button onclick="closeMobileGameMenu()" class="min-w-[44px] min-h-[44px] rounded-full bg-white/10 hover:bg-white/20 text-white flex items-center justify-center font-black text-sm transition active:scale-95 cursor-pointer">
+          ✕
+        </button>
+      </div>
+      <!-- Body -->
+      <div class="p-4 overflow-y-auto flex flex-col gap-2.5 text-xs">
+        <!-- Squad Turn Section -->
+        <div class="p-3 rounded-2xl bg-white/5 border border-cyan-500/30 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-base">👥</span>
+            <div>
+              <span class="text-[10px] text-slate-400 block font-bold">Active Squad • الفريق الحالي</span>
+              <span id="mob-menu-team-name" class="font-black text-cyan-200">Group 1</span>
+              <span id="mob-menu-team-score" class="ml-1.5 px-2 py-0.5 rounded bg-cyan-900/60 text-cyan-300 font-mono text-[10px]">0 pts</span>
+            </div>
+          </div>
+          <button onclick="moveToNextGroup(); closeMobileGameMenu();" class="min-h-[44px] px-3.5 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-black flex items-center gap-1 active:scale-95 cursor-pointer shadow">
+            <span>Next Squad</span> <span>⏭️</span>
+          </button>
+        </div>
+
+        <!-- Quick Action Buttons Grid -->
+        <div class="grid grid-cols-2 gap-2">
+          <!-- Reset / Empty Slots -->
+          <button onclick="if(currentStage===1){resetStage1Slots();}else{resetStage2BrokenLinks();} closeMobileGameMenu();" class="min-h-[48px] p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center gap-2 font-bold active:scale-95 cursor-pointer">
+            <span class="text-base">🔄</span>
+            <div class="text-left leading-tight">
+              <span class="block font-black">Reset Slots</span>
+              <span class="text-[9px] text-slate-400">تفريغ المواضع</span>
+            </div>
+          </button>
+
+          <!-- Toggle Sound -->
+          <button onclick="if(sound&&sound.toggleMute){sound.toggleMute();} closeMobileGameMenu();" class="min-h-[48px] p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-700 text-slate-200 flex items-center gap-2 font-bold active:scale-95 cursor-pointer">
+            <span class="text-base">🔊</span>
+            <div class="text-left leading-tight">
+              <span class="block font-black">Sound FX</span>
+              <span class="text-[9px] text-slate-400">كتم / تشغيل</span>
+            </div>
+          </button>
+
+          <!-- Share Barcode -->
+          <button onclick="openShareModal('puzzle'); closeMobileGameMenu();" class="min-h-[48px] p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-teal-500/50 text-teal-200 flex items-center gap-2 font-bold active:scale-95 cursor-pointer">
+            <span class="text-base">📲</span>
+            <div class="text-left leading-tight">
+              <span class="block font-black">Share QR</span>
+              <span class="text-[9px] text-slate-400">مشاركة الباركود</span>
+            </div>
+          </button>
+
+          <!-- Certificate -->
+          <button onclick="showCertificate(); closeMobileGameMenu();" class="min-h-[48px] p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-emerald-500/50 text-emerald-200 flex items-center gap-2 font-bold active:scale-95 cursor-pointer">
+            <span class="text-base">🎓</span>
+            <div class="text-left leading-tight">
+              <span class="block font-black">Certificate</span>
+              <span class="text-[9px] text-slate-400">شهادة الإنجاز</span>
+            </div>
+          </button>
+
+          <!-- Toggle Fullscreen -->
+          <button onclick="toggleFullScreen(); closeMobileGameMenu();" class="min-h-[48px] p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-cyan-500/50 text-cyan-200 flex items-center gap-2 font-bold active:scale-95 cursor-pointer">
+            <span class="text-base">⛶</span>
+            <div class="text-left leading-tight">
+              <span class="block font-black">Full Screen</span>
+              <span class="text-[9px] text-slate-400">ملء الشاشة</span>
+            </div>
+          </button>
+
+          <!-- Switch to Puzzle 2 -->
+          <button onclick="openPuzzle2InNewPage(); closeMobileGameMenu();" class="min-h-[48px] p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-teal-500/50 text-teal-200 flex items-center gap-2 font-bold active:scale-95 cursor-pointer">
+            <span class="text-base">🧊</span>
+            <div class="text-left leading-tight">
+              <span class="block font-black">Puzzle 2 ↗</span>
+              <span class="text-[9px] text-slate-400">لغز التعريفات</span>
+            </div>
+          </button>
+        </div>
+
+        <!-- Instructor Controls Section (trainer-only) -->
+        <div id="mob-menu-trainer-section" class="trainer-only mt-2 p-3 rounded-2xl bg-cyan-950/40 border border-cyan-400/50 flex flex-col gap-2">
+          <div class="text-[10px] font-black uppercase text-cyan-300 tracking-wider flex items-center gap-1">
+            <span>⚙️</span> Instructor Controls (مخصص للمشرف)
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="supervisorAction('toggle_pause'); closeMobileGameMenu();" class="min-h-[44px] p-2 rounded-xl bg-slate-800 text-cyan-200 text-[11px] font-bold text-center">
+              ⏸️ Pause / Resume
+            </button>
+            <button onclick="supervisorAction('restart_current'); closeMobileGameMenu();" class="min-h-[44px] p-2 rounded-xl bg-slate-800 text-cyan-200 text-[11px] font-bold text-center">
+              🔄 Restart Stage
+            </button>
+            <button onclick="supervisorAction('view_scores'); closeMobileGameMenu();" class="min-h-[44px] p-2 rounded-xl bg-slate-800 text-amber-300 text-[11px] font-bold text-center">
+              📊 Scoreboard
+            </button>
+            <button onclick="supervisorAction('open_debrief_guide'); closeMobileGameMenu();" class="min-h-[44px] p-2 rounded-xl bg-slate-800 text-teal-300 text-[11px] font-bold text-center">
+              📋 Debrief Guide
+            </button>
+          </div>
+        </div>
+      </div>
+      <!-- Footer -->
+      <div class="p-3 bg-slate-900 border-t border-slate-800 flex justify-end">
+        <button onclick="closeMobileGameMenu()" class="min-h-[44px] px-5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold transition active:scale-95 cursor-pointer">
+          Close • إغلاق
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- CORE GAME LOGIC SCRIPT -->
   <script>
     // =========================================================================
@@ -4198,10 +4638,10 @@
       {
         id: "reprocessing_equipment",
         number: 10,
-        name: "Reprocessing Reusable Equipment",
-        nameAr: "إعادة معالجة وتعقيم المعدات الطبية",
-        icon: "🩺",
-        desc: "Clean, disinfect, and sterilize reusable equipment according to manufacturer's instructions and standards."
+        name: "Medical Equipment (Sterilization)",
+        nameAr: "المعدات الطبية (التعقيم)",
+        icon: "♨️🔬",
+        desc: "Reprocess, disinfect, and sterilize reusable equipment. Sterilization destroys all microorganisms, including bacterial spores."
       },
       {
         id: "occupational_health",
@@ -4374,16 +4814,14 @@
         name: 'Hand Hygiene',
         nameAr: 'نظافة اليدين',
         icon: '🧼',
-        validLinks: [3, 4, 1], // Transmission (3), Entry (4), Reservoir (1)
+        validLinks: [3, 4], // Transmission (3), Entry (4)
         contextsAr: {
-          3: 'نظافة اليدين بالماء والصابون أو الكحول الطبي بين رعاية المرضى تقطع وسيلة انتقال الميكروبات عبر الأيدي (طريقة الانتقال).',
-          4: 'نظافة اليدين فوراً قبل الإجراءات المعقمة أو لمس القساطر والجروح تحمي مداخل العدوى في جسم المريض (بوابة الدخول).',
-          1: 'تنظيف اليدين يزيل المستعمرات الميكروبية العابرة ويمنع تحول أيدي الكوادر إلى مستودع جرثومي مؤقت (المستودع).'
+          3: 'نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي.',
+          4: 'نظافة اليدين قبل التعامل مع القسطرة تساعد على منع دخول الميكروبات عبرها.'
         },
         contextsEn: {
-          3: 'Performing hand hygiene interrupts hand transmission between patients and surfaces (Mode of Transmission).',
-          4: 'Cleaning hands immediately before aseptic procedures shields vulnerable entry sites (Portal of Entry).',
-          1: 'Eradicates transient flora, preventing hands from harboring pathogen reservoirs (Reservoir).'
+          3: 'Hand hygiene interrupts the transfer of germs on hands.',
+          4: 'Cleaning your hands before accessing the catheter helps prevent germs from entering through it.'
         }
       },
       ppe: {
@@ -4480,15 +4918,36 @@
       },
       reprocessing_equipment: {
         id: 'reprocessing_equipment',
-        name: 'Reprocessing Medical Equipment',
-        nameAr: 'إعادة معالجة وتعقيم المعدات الطبية',
-        icon: '♨️',
-        validLinks: [1, 3], // Reservoir (1), Transmission (3)
+        name: 'Medical Equipment (Sterilization)',
+        nameAr: 'المعدات الطبية (التعقيم)',
+        shortName: 'Sterilization',
+        icon: '♨️🔬',
+        validLinks: [0, 1, 3], // Infectious Agent (0), Reservoir (1), Transmission (3)
         contextsAr: {
+          0: 'التعقيم يقضي على جميع أشكال الحياة الميكروبية على الأدوات، بما في ذلك الأبواغ البكتيرية.',
           1: 'التعقيم الجراحي والتطهير عالي المستوى للمناظير يقضي على المستودعات الميكروبية والأبواغ على الأجهزة (المستودع).',
           3: 'استخدام أجهزة معقمة ومخصصة لكل مريض يمنع انتقال الميكروبات بين المرضى عبر الأدوات المشتركة (طريقة الانتقال).'
         },
         contextsEn: {
+          0: 'Sterilization destroys all forms of microbial life on the instrument, including bacterial spores.',
+          1: 'Sterilization destroys vegetative bacteria and endospore reservoirs on clinical instruments (Reservoir).',
+          3: 'Dedicated sterilized devices eliminate cross-patient vehicle transmission (Mode of Transmission).'
+        }
+      },
+      sterilization: {
+        id: 'sterilization',
+        name: 'Sterilization (Medical Equipment)',
+        nameAr: 'التعقيم (المعدات الطبية)',
+        shortName: 'Sterilization',
+        icon: '♨️🔬',
+        validLinks: [0, 1, 3], // Infectious Agent (0), Reservoir (1), Transmission (3)
+        contextsAr: {
+          0: 'التعقيم يقضي على جميع أشكال الحياة الميكروبية على الأدوات، بما في ذلك الأبواغ البكتيرية.',
+          1: 'التعقيم الجراحي والتطهير عالي المستوى للمناظير يقضي على المستودعات الميكروبية والأبواغ على الأجهزة (المستودع).',
+          3: 'استخدام أجهزة معقمة ومخصصة لكل مريض يمنع انتقال الميكروبات بين المرضى عبر الأدوات المشتركة (طريقة الانتقال).'
+        },
+        contextsEn: {
+          0: 'Sterilization destroys all forms of microbial life on the instrument, including bacterial spores.',
           1: 'Sterilization destroys vegetative bacteria and endospore reservoirs on clinical instruments (Reservoir).',
           3: 'Dedicated sterilized devices eliminate cross-patient vehicle transmission (Mode of Transmission).'
         }
@@ -4539,6 +4998,317 @@
         }
       }
     };
+
+    // 🎯 15 CLINICAL SCENARIOS & ANSWER KEY (CDC GUIDELINES ALIGNED) 🎯
+    const SCENARIO_BANK = [
+      {
+        id: 1,
+        title: "Touching surroundings / moving between patients",
+        titleAr: "لمس الأسطح المحيطة / الانتقال بين المرضى",
+        situation: "A nurse touches a bed rail and then moves to the next patient.",
+        situationAr: "ممرضة تلمس حاجز السرير ثم تتوجه مباشرة لفحص ورعاية المريض التالي.",
+        precautionId: "hand_hygiene",
+        validCombinations: [
+          {
+            linkId: 3, // Mode of Transmission
+            rationale: "Hand hygiene interrupts the transfer of germs on hands.",
+            rationaleAr: "نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي."
+          }
+        ],
+        distractorRationales: [
+          "Eliminates the patient's natural resident skin flora permanently.",
+          "Sterilizes the ambient air circulating in the hospital room."
+        ],
+        teachingNote: "Hand hygiene interrupts the transfer of germs on hands (Mode of Transmission)."
+      },
+      {
+        id: 2,
+        title: "Before an aseptic task (Catheter Access)",
+        titleAr: "قبل إجراء لاإنتاني معقم (التعامل مع القسطرة)",
+        situation: "A clinician is about to access a catheter.",
+        situationAr: "ممارس صحي على وشك التعامل مع قسطرة وريدية أو بولية للمريض.",
+        precautionId: "hand_hygiene",
+        validCombinations: [
+          {
+            linkId: 4, // Portal of Entry
+            rationale: "Cleaning your hands before accessing the catheter helps prevent germs from entering through it.",
+            rationaleAr: "نظافة اليدين قبل التعامل مع القسطرة تساعد على منع دخول الميكروبات عبرها."
+          }
+        ],
+        distractorRationales: [
+          "Eliminates the patient's need for strict aseptic technique during access.",
+          "Disinfects the intravenous medications inside the IV bag."
+        ],
+        teachingNote: "Hand hygiene before catheter access is an essential part of aseptic technique protecting the Portal of Entry."
+      },
+      {
+        id: 3,
+        title: "Reusable Surgical Instrument Reprocessing",
+        titleAr: "إعادة معالجة وتعقيم الأدوات الجراحية",
+        situation: "A reusable surgical instrument must be reprocessed before it enters sterile tissue. Which action destroys microorganisms, including bacterial spores?",
+        situationAr: "أداة جراحية قابلة لإعادة الاستخدام يجب معالجتها قبل استخدامها في أنسجة معقمة. ما الإجراء الذي يقضي على الكائنات الحية الدقيقة، بما فيها الأبواغ البكتيرية؟",
+        precautionId: "reprocessing_equipment",
+        validCombinations: [
+          {
+            linkId: 0, // Infectious Agent
+            rationale: "Sterilization destroys all forms of microbial life on the instrument, including bacterial spores.",
+            rationaleAr: "التعقيم يقضي على جميع أشكال الحياة الميكروبية على الأدوات، بما في ذلك الأبواغ البكتيرية."
+          }
+        ],
+        distractorRationales: [
+          "Low-level surface disinfection eliminates bacterial endospores permanently.",
+          "Cleaning with soap and water alone destroys all microbial spores."
+        ],
+        teachingNote: "Sterilization destroys all forms of microbial life on the instrument, including bacterial spores (Infectious Agent)."
+      },
+      {
+        id: 4,
+        title: "Moving from a soiled site to a clean site",
+        titleAr: "الانتقال من موضع ملوث إلى موضع نظيف",
+        situation: "After perineal care, a nurse removes their gloves and prepares to insert a peripheral IV in the same patient.",
+        situationAr: "بعد تقديم العناية بموضع ملوث، تنزع الممرضة قفازاتها وتستعد لتركيب قسطرة وريدية لنفس المريض.",
+        precautionId: "hand_hygiene",
+        validCombinations: [
+          {
+            linkId: 3, // Mode of Transmission
+            rationale: "Hand hygiene interrupts the transfer of germs on hands.",
+            rationaleAr: "نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي."
+          },
+          {
+            linkId: 4, // Portal of Entry
+            rationale: "Cleaning your hands before accessing the catheter helps prevent germs from entering through it.",
+            rationaleAr: "نظافة اليدين قبل التعامل مع القسطرة تساعد على منع دخول الميكروبات عبرها."
+          }
+        ],
+        distractorRationales: [
+          "Changing gloves without cleaning hands is sufficient between dirty and clean tasks.",
+          "Destroys resident bacterial skin flora permanently."
+        ],
+        teachingNote: "Both Mode of Transmission (stopping cross-transfer) and Portal of Entry (protecting the insertion site) are clinically justified."
+      },
+      {
+        id: 5,
+        title: "After coughing into a tissue",
+        titleAr: "بعد السعال في منديل ورقي",
+        situation: "A patient coughs into a tissue, discards it, and is about to touch the reception counter.",
+        situationAr: "مريض يسعل في منديل ورقي، ثم يتخلص منه في المهملات، وهمّ بلمس مكتب الاستقبال.",
+        precautionId: "hand_hygiene",
+        validCombinations: [
+          {
+            linkId: 3, // Mode of Transmission
+            rationale: "Hand hygiene interrupts the transfer of germs on hands.",
+            rationaleAr: "نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي."
+          }
+        ],
+        portalOfExitNote: "Hand hygiene helps stop germs from spreading on hands. Which link describes how germs travel to another person?",
+        portalOfExitNoteAr: "نظافة اليدين تساعد على منع انتقال الميكروبات عبر الأيدي. أي حلقة تصف كيف تنتقل الميكروبات إلى شخص آخر؟",
+        distractorRationales: [
+          "Disinfects the counter surface on contact.",
+          "Destroys the viral load inside the patient's respiratory tract."
+        ],
+        teachingNote: "Covering a cough contains secretions at Portal of Exit, but subsequent hand hygiene stops Mode of Transmission to objects."
+      },
+      {
+        id: 6,
+        title: "PPE - Wound drainage contact",
+        titleAr: "معدات الوقاية - إفرازات الجروح الملوثة",
+        situation: "Wound drainage may contaminate a nurse’s hands and uniform during extensive dressing care.",
+        situationAr: "إفرازات جرح غزيرة قد تلوث يدي الممرضة وزيها أثناء تغيير الضماد.",
+        precautionId: "ppe",
+        validCombinations: [
+          {
+            linkId: 3, // Mode of Transmission
+            rationale: "Gloves and gown provide a barrier preventing contact transmission.",
+            rationaleAr: "القفازات ورداء العزل يوفران حاجزاً يمنع انتقال الميكروبات بالتلامس."
+          }
+        ],
+        distractorRationales: [
+          "Gloves replace the need for washing hands after the procedure.",
+          "Prevents airborne fungal spores from circulating in ducts."
+        ],
+        teachingNote: "PPE acts as a physical barrier interrupting contact transmission."
+      },
+      {
+        id: 7,
+        title: "PPE - Facial Splash Protection",
+        titleAr: "معدات الوقاية - حماية الوجه من الرذاذ",
+        situation: "Tracheal suctioning may splash respiratory secretions toward a clinician’s face.",
+        situationAr: "عملية شفط إفرازات القصبة الهوائية قد تؤدي إلى تناثر سوائل نحو وجه الممارس الصحي.",
+        precautionId: "ppe",
+        validCombinations: [
+          {
+            linkId: 4, // Portal of Entry
+            rationale: "Mask and eye protection shield mucous membranes against splash portals of entry.",
+            rationaleAr: "الكمامة والواقي البصري يحميان الأغشية المخاطية للعينين والأنف والفم كمدخل للعدوى."
+          }
+        ],
+        distractorRationales: [
+          "Decontaminates secretions at the moment of suctioning.",
+          "Eliminates ambient humidity in the room."
+        ],
+        teachingNote: "Eye and face protection shield vulnerable mucous membrane Portals of Entry."
+      },
+      {
+        id: 8,
+        title: "Respiratory Hygiene / Masking",
+        titleAr: "آداب السعال وكمامة المريض",
+        situation: "A coughing patient arrives at the outpatient waiting area.",
+        situationAr: "مريض يعاني من سعال مستمر يصل إلى صالة انتظار المراجعين.",
+        precautionId: "respiratory_hygiene",
+        validCombinations: [
+          {
+            linkId: 2, // Portal of Exit
+            rationale: "Covering coughs and masking symptomatic patients contains secretions directly at the portal of exit.",
+            rationaleAr: "تغطية السعال وارتداء الكمامة يحتوي الإفرازات التنفسية عند مخرجها مباشرة."
+          }
+        ],
+        distractorRationales: [
+          "Kills viral particles inside the patient's lower airways.",
+          "Substitutes for room air ventilation."
+        ],
+        teachingNote: "Source control through masking blocks the Portal of Exit."
+      },
+      {
+        id: 9,
+        title: "Environmental Cleaning & Disinfection",
+        titleAr: "تنظيف وتطهير البيئة والأسطح",
+        situation: "A high-touch hospital bed rail is contaminated with pathogens.",
+        situationAr: "حاجز سرير في غرفة المريض ملوث بإفرازات وميكروبات.",
+        precautionId: "environmental_cleaning",
+        validCombinations: [
+          {
+            linkId: 1, // Reservoir
+            rationale: "Cleaning and disinfecting the surface removes the environmental reservoir where organisms persist.",
+            rationaleAr: "تنظيف وتطهير السطح يزيل مستودع العدوى البيئي الذي تتكاثر فيه الميكروبات."
+          }
+        ],
+        distractorRationales: [
+          "Eliminates all pathogens in the building water supply.",
+          "Replaces the need for subsequent hand hygiene."
+        ],
+        teachingNote: "Disinfecting high-touch surfaces eradicates the environmental Reservoir."
+      },
+      {
+        id: 10,
+        title: "Patient Placement & Isolation",
+        titleAr: "عزل وتسكين المرضى",
+        situation: "A patient with uncontrolled draining wound requires placement to avoid exposing others.",
+        situationAr: "مريض لديه جرح ناضح غير محتوى يتطلب التسكين لمنع تعريض المرضى الآخرين للعدوى.",
+        precautionId: "patient_placement",
+        validCombinations: [
+          {
+            linkId: 1, // Reservoir
+            rationale: "Single-room placement confines the infectious human reservoir to a designated space.",
+            rationaleAr: "الغرفة المنفردة تحصر مستودع العدوى البشري في نطاق محدد ومعزول."
+          }
+        ],
+        distractorRationales: [
+          "Eliminates the requirement for daily environmental surface cleaning.",
+          "Accelerates wound granulation directly."
+        ],
+        teachingNote: "Appropriate isolation safely confines the Reservoir."
+      },
+      {
+        id: 11,
+        title: "Safe Injection Practices",
+        titleAr: "ممارسات الحقن الآمن",
+        situation: "A nurse is preparing to draw an intravenous medication dose.",
+        situationAr: "ممرض يستعد لسحب جرعة دواء وريدي للمريض.",
+        precautionId: "safe_injection",
+        validCombinations: [
+          {
+            linkId: 3, // Mode of Transmission
+            rationale: "Using a sterile single-use needle and syringe prevents cross-patient transmission via contaminated injection equipment.",
+            rationaleAr: "استخدام إبرة وسرنجة معقمة ذات استخدام واحد يلغي وسيلة انتقال الميكروبات بين المرضى."
+          }
+        ],
+        distractorRationales: [
+          "Allows reusing syringes if only the needle tip is exchanged.",
+          "Sterilizes the vein lumen automatically upon puncture."
+        ],
+        teachingNote: "One needle, one syringe, only one time stops vehicle transmission."
+      },
+      {
+        id: 12,
+        title: "Sharps Safety",
+        titleAr: "السلامة من الأدوات الحادة",
+        situation: "A clinician has just completed an intramuscular injection and holds the used needle.",
+        situationAr: "طبيب انتهى من إعطاء حقنة ويحمل الإبرة المستعملة للتعامل معها.",
+        precautionId: "sharps_safety",
+        validCombinations: [
+          {
+            linkId: 4, // Portal of Entry
+            rationale: "Immediate disposal in a puncture-resistant sharps box prevents needlestick entry portals into staff.",
+            rationaleAr: "التخلص الفوري في حاوية الأدوات الحادة يمنع وخز الإبر كمدخل للعدوى في جسم الكادر الصحي."
+          }
+        ],
+        distractorRationales: [
+          "Two-handed recapping provides adequate needle safety.",
+          "Eliminates bloodborne viruses on the outside of the needle."
+        ],
+        teachingNote: "Never recap needles; prompt disposal shields staff percutaneous Portals of Entry."
+      },
+      {
+        id: 13,
+        title: "Safe Linen Management",
+        titleAr: "التعامل الآمن مع المفروشات والغسيل",
+        situation: "Bed linen is soiled with patient bodily fluids and needs handling.",
+        situationAr: "مفروشات السرير متسخة بسوائل المريض وتتطلب النقل والتغيير.",
+        precautionId: "linen",
+        validCombinations: [
+          {
+            linkId: 3, // Mode of Transmission
+            rationale: "Bagging soiled linen without shaking prevents aerosolizing and transmitting pathogens to uniforms and surroundings.",
+            rationaleAr: "وضع المفروشات في أكياس مخصصة دون نفضها يمنع انتشار ونقل الميكروبات للزي والبيئة."
+          }
+        ],
+        distractorRationales: [
+          "Disinfects the patient's skin through direct contact with laundry bags.",
+          "Eliminates the hospital's central laundry requirements."
+        ],
+        teachingNote: "Safe linen handling stops vehicle and airborne dispersion."
+      },
+      {
+        id: 14,
+        title: "Medical Waste Management",
+        titleAr: "إدارة النفايات الطبية",
+        situation: "Saturated dressings and biohazardous clinical waste require disposal.",
+        situationAr: "ضمادات مشبعة وإفرازات حيوية تتطلب التخلص السليم من غرفة المريض.",
+        precautionId: "waste_management",
+        validCombinations: [
+          {
+            linkId: 1, // Reservoir
+            rationale: "Placing infectious waste into leak-proof biohazard containers isolates and removes the infectious reservoir.",
+            rationaleAr: "وضع النفايات المعدية في أكياس وحاويات النفايات الطبية غير المنفذة يعزل ويزيل مستودع العدوى."
+          }
+        ],
+        distractorRationales: [
+          "Replaces the need for wearing protective gloves during waste transport.",
+          "Neutralizes chemical toxicity in municipal landfills."
+        ],
+        teachingNote: "Biohazard containment sequesters and removes waste Reservoirs."
+      },
+      {
+        id: 15,
+        title: "Occupational Health & Immunization",
+        titleAr: "صحة الكوادر المهنية والتحصينات",
+        situation: "A newly hired healthcare worker receives required vaccinations and post-exposure instructions.",
+        situationAr: "موظف صحي جديد يتلقى التطعيمات الوقائية المقررة وتعليمات التعامل مع التعرض المهني.",
+        precautionId: "occupational_health",
+        validCombinations: [
+          {
+            linkId: 5, // Susceptible Host
+            rationale: "Vaccination builds protective immunity, shielding the susceptible host against vaccine-preventable infections.",
+            rationaleAr: "اللقاحات الوقائية تبني أجساماً مضادة تحمي العائل المعرض للإصابة من العدوى."
+          }
+        ],
+        distractorRationales: [
+          "Exempts staff from complying with routine hand hygiene.",
+          "Eliminates environmental contamination on hospital ward floors."
+        ],
+        teachingNote: "Staff immunization directly enhances host resistance (Susceptible Host)."
+      }
+    ];
 
     // =========================================================================
     // 2. STATE MANAGEMENT & TEAMS ROSTER
@@ -4788,48 +5558,95 @@
       }
     }
 
+    function showGameplayHint(titleEn, textEn, textAr, badgeText = "CLINICAL HINT • تلميح سريري", icon = "💡") {
+      const panel = document.getElementById('gameplay-hint-panel');
+      if (!panel) return;
+      const iconEl = document.getElementById('gameplay-hint-icon');
+      const badgeEl = document.getElementById('gameplay-hint-badge');
+      const titleEl = document.getElementById('gameplay-hint-tool-name');
+      const enEl = document.getElementById('gameplay-hint-en');
+      const arEl = document.getElementById('gameplay-hint-ar');
+
+      if (iconEl) iconEl.innerText = icon;
+      if (badgeEl) badgeEl.innerText = badgeText;
+      if (titleEl) titleEl.innerText = titleEn || '';
+      if (enEl) enEl.innerText = textEn || '';
+      if (arEl) arEl.innerText = textAr || '';
+
+      panel.classList.remove('hidden');
+      if (sound && sound.playHintChime) sound.playHintChime();
+
+      // On phones/mobile, bring the panel into view
+      if (window.innerWidth < 768) {
+        setTimeout(() => {
+          panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 50);
+      }
+    }
+
+    function hideGameplayHintPanel() {
+      const panel = document.getElementById('gameplay-hint-panel');
+      if (panel) panel.classList.add('hidden');
+    }
+
     function hideStage2HintMessage() {
       const p = document.getElementById('stage2-hint-popup');
       if (p) {
         p.classList.add('hidden', 'opacity-0', '-translate-y-4');
       }
+      hideGameplayHintPanel();
     }
 
     function showStage2HintMessage() {
-      const p = document.getElementById('stage2-hint-popup');
-      if (!p) return;
       const prec = selectedPrecautionId ? (CDC_PRECAUTION_RULES[selectedPrecautionId] || PRECAUTION_CARDS.find(x => x.id === selectedPrecautionId)) : null;
-      const nameEl = document.getElementById('hint-popup-precaution-name');
-      const titleEl = document.getElementById('hint-popup-title');
-      const enEl = document.getElementById('hint-popup-clue-en');
-      const arEl = document.getElementById('hint-popup-clue-ar');
-      if (prec) {
-        if (nameEl) nameEl.innerText = prec.name;
-        if (titleEl) titleEl.innerText = prec.nameAr || prec.name;
-        if (enEl) enEl.innerText = prec.clinicalRationale || prec.desc || "Select a matching link on the chain to interrupt transmission.";
-        if (arEl) arEl.innerText = prec.clinicalRationaleAr || "حدد الحلقة المناسبة على السلسلة لتطبيق هذا الاحتياط وكسر حلقة العدوى.";
+      if (selectedPrecautionId === 'hand_hygiene') {
+        showGameplayHint(
+          "Hand Hygiene (نظافة اليدين)",
+          "Hand hygiene interrupts the transfer of germs on hands (Mode of Transmission) and prevents organisms from entering when performing aseptic catheter procedures (Portal of Entry).",
+          "نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي (طريقة الانتقال) وتساعد على منع دخول الجراثيم أثناء التعامل مع القساطر والإجراءات المعقمة (بوابة الدخول).",
+          "CLINICAL HINT • تلميح سريري",
+          "🧼"
+        );
+      } else if (selectedPrecautionId === 'reprocessing_equipment' || selectedPrecautionId === 'sterilization') {
+        showGameplayHint(
+          "Sterilization & Reprocessing (التعقيم وإعادة المعالجة)",
+          "Sterilization destroys all forms of microbial life on the instrument, including bacterial spores (Infectious Agent). Dedicated sterilized devices eliminate cross-patient vehicle transmission (Mode of Transmission).",
+          "التعقيم يقضي على جميع أشكال الحياة الميكروبية على الأدوات، بما في ذلك الأبواغ البكتيرية (العامل الممرض)، كما يمنع نقل العدوى بين المرضى عبر الأدوات المشتركة (طريقة الانتقال).",
+          "CLINICAL HINT • تلميح سريري",
+          "♨️🔬"
+        );
+      } else if (prec) {
+        const validLinkNames = (prec.validLinks || []).map(idx => CHAIN_LINKS[idx] ? `${CHAIN_LINKS[idx].number}. ${CHAIN_LINKS[idx].name}` : '').filter(Boolean).join(', ');
+        const validLinkNamesAr = (prec.validLinks || []).map(idx => CHAIN_LINKS[idx] ? `${CHAIN_LINKS[idx].number}. ${CHAIN_LINKS[idx].nameAr}` : '').filter(Boolean).join('، ');
+        showGameplayHint(
+          `${prec.name} (${prec.nameAr || ''})`,
+          prec.desc || `Applies to: ${validLinkNames}. Strike one of these links on the circle to interrupt transmission!`,
+          prec.descAr || `يطبق هذا الاحتياط عند: ${validLinkNamesAr}. اضغط على الحلقة المناسبة على السلسلة لقطع مسار العدوى!`,
+          "CLINICAL HINT • تلميح سريري",
+          prec.icon || "💡"
+        );
       } else {
-        if (nameEl) nameEl.innerText = "Standard Precautions";
-        if (titleEl) titleEl.innerText = "كيف تكسر السلسلة؟";
-        if (enEl) enEl.innerText = "Select an equipped Standard Precaution tool, then tap the link on the chain where it interrupts transmission.";
-        if (arEl) arEl.innerText = "اختر أحد الاحتياطات القياسية ثم اضغط على الحلقة التي يقطع عندها انتقال الميكروب.";
+        showGameplayHint(
+          "Break the Chain • كيف تكسر السلسلة؟",
+          "Select an equipped Standard Precaution tool from the deck below, then tap the link on the chain where it interrupts transmission.",
+          "اختر أحد أدوات الاحتياطات القياسية من القائمة بالأسفل، ثم اضغط على الحلقة التي يقطع عندها انتقال الميكروب.",
+          "GAMEPLAY HINT • إرشاد اللعب",
+          "💡"
+        );
       }
-      p.classList.remove('hidden');
-      setTimeout(() => {
-        p.classList.remove('opacity-0', '-translate-y-4');
-      }, 10);
-      if (sound && sound.playHintChime) sound.playHintChime();
     }
 
     function updateStage2Hint(type, data) {
-      const hintEn = document.getElementById('hint-popup-clue-en');
-      const hintAr = document.getElementById('hint-popup-clue-ar');
       if (type === 'link_selected' && data && data.linkObj) {
-        if (hintEn) hintEn.innerText = `Selected ${data.linkObj.name}: ${data.linkObj.desc}`;
-        if (hintAr) hintAr.innerText = `${data.linkObj.nameAr}: ${data.linkObj.descAr || ''}`;
+        showGameplayHint(
+          `Target: ${data.linkObj.name} (${data.linkObj.nameAr})`,
+          data.linkObj.desc || '',
+          data.linkObj.descAr || '',
+          "TARGET LINK SELECTED • تحديد الحلقة",
+          data.linkObj.icon || "🎯"
+        );
       } else if (type === 'correct' && data) {
-        if (hintEn) hintEn.innerText = data.rationale || 'Chain link interrupted successfully!';
-        if (hintAr) hintAr.innerText = data.rationaleAr || 'تم كسر حلقة العدوى بنجاح!';
+        hideGameplayHintPanel();
       }
     }
 
@@ -4960,6 +5777,7 @@
       if (activePill) activePill.innerText = `Round ${currentQueueIndex + 1}/${sessionQueue.length}`;
       if (situationText && s) situationText.innerText = s.situation;
       resetRoundSelections();
+      hideGameplayHintPanel();
       renderRationalesForScenario(s);
     }
 
@@ -5027,26 +5845,26 @@
 
       if (isBroken || appliedList.length > 0) {
         let toolsChipsHTML = appliedList.map(t => 
-          `<span class="applied-tool-chip" title="${t.name} (${t.nameAr})">
+          `<span class="applied-tool-chip text-[8px] sm:text-[9px]" title="${t.name} (${t.nameAr})">
             <span>${t.icon}</span>
-            <span class="truncate max-w-[70px]">${t.name}</span>
+            <span class="truncate max-w-[60px]">${t.name}</span>
           </span>`
         ).join('');
 
         return `
-          <span class="absolute -top-2.5 -left-2.5 sm:-top-3 sm:-left-3 w-6 h-6 sm:w-8 sm:h-8 rounded-full bg-red-600 text-white font-black text-xs sm:text-sm flex items-center justify-center shadow-xl border-2 border-white z-30 animate-pulse">⚡</span>
-          <div class="flex flex-col items-center justify-center p-1 sm:p-1.5 w-full h-full text-center select-none bg-red-50/95 rounded-2xl relative overflow-hidden border-2 border-red-500 shadow-inner">
+          <span class="absolute -top-1.5 -left-1.5 sm:-top-2 sm:-left-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full bg-red-600 text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-xl border-2 border-white z-30 animate-pulse">⚡</span>
+          <button type="button" class="node-info-btn absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white text-red-800 hover:bg-red-50 border border-red-300 shadow flex items-center justify-center text-[10px] font-black z-30 transition active:scale-90 cursor-pointer" onclick="openLinkDetailsModal(${linkId}, event)" title="View Details • التفاصيل">ℹ️</button>
+          <div class="flex flex-col items-center justify-center p-1 sm:p-1.5 w-full h-full text-center select-none bg-red-50/95 rounded-xl sm:rounded-2xl relative overflow-hidden border-2 border-red-500 shadow-inner">
             <div class="flex items-center gap-1 mb-0.5 justify-center">
-              <span class="text-xs sm:text-sm">💥</span>
-              <span class="text-[8px] sm:text-[9.5px] font-black uppercase text-red-900 bg-red-200/90 px-1.5 py-0.5 rounded-full border border-red-300 leading-none">
-                Link ${link.number} Broken (${appliedList.length} Tools)
+              <span class="text-[7.5px] sm:text-[9px] font-black uppercase text-red-900 bg-red-200/90 px-1.5 py-0.2 rounded-full border border-red-300 leading-none">
+                ⚡ Broken (${appliedList.length})
               </span>
             </div>
-            <span class="text-[9.5px] sm:text-[11.5px] font-black text-slate-900 line-through decoration-red-600 decoration-2 leading-tight card-wrap-text w-full">
+            <span class="text-[8.5px] sm:text-[11px] font-black text-slate-900 line-through decoration-red-600 decoration-2 leading-tight truncate w-full">
               ${link.name}
             </span>
-            <div class="text-[8px] sm:text-[9px] text-red-950 font-bold leading-tight" dir="rtl">${link.nameAr}</div>
-            <div class="flex flex-wrap items-center justify-center gap-0.5 mt-1 max-h-[36px] overflow-hidden">
+            <div class="text-[7.5px] sm:text-[9px] text-red-950 font-bold leading-tight truncate w-full" dir="rtl">${link.nameAr}</div>
+            <div class="hidden sm:flex flex-wrap items-center justify-center gap-0.5 mt-0.5 max-h-[22px] overflow-hidden">
               ${toolsChipsHTML}
             </div>
           </div>
@@ -5054,19 +5872,17 @@
       }
 
       return `
-        <span class="absolute -top-2 -left-2 sm:-top-2.5 sm:-left-2.5 w-5 h-5 sm:w-7 sm:h-7 rounded-full ${link.theme.badgeBg} text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-md border-2 border-white z-30">${link.number}</span>
-        <div class="relative w-full h-full p-1 sm:p-2 rounded-2xl flex items-center gap-1.5 sm:gap-2 select-none overflow-hidden">
-          <div class="w-7 h-7 sm:w-9 sm:h-9 md:w-11 md:h-11 rounded-xl bg-white/95 shadow-xs flex items-center justify-center flex-shrink-0 text-sm sm:text-lg md:text-xl border border-slate-200">
+        <span class="absolute -top-1.5 -left-1.5 sm:-top-2 sm:-left-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full ${link.theme.badgeBg} text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-md border-2 border-white z-30">${link.number}</span>
+        <button type="button" class="node-info-btn absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white text-cyan-800 hover:bg-cyan-50 border border-cyan-300 shadow flex items-center justify-center text-[10px] font-black z-30 transition active:scale-90 cursor-pointer" onclick="openLinkDetailsModal(${linkId}, event)" title="View Details • التفاصيل">ℹ️</button>
+        <div class="relative w-full h-full p-1 sm:p-1.5 rounded-xl sm:rounded-2xl flex items-center justify-center text-center gap-1 select-none overflow-hidden">
+          <div class="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-white/95 shadow-xs flex items-center justify-center flex-shrink-0 text-xs sm:text-base border border-slate-200">
             ${link.icon}
           </div>
           <div class="flex-1 min-w-0 text-left">
-            <h4 class="text-[9.5px] sm:text-[11px] md:text-[12px] font-black ${link.theme.text} leading-tight card-wrap-text">
+            <h4 class="text-[8.5px] sm:text-[11px] font-black ${link.theme.text} leading-tight truncate">
               ${link.name}
             </h4>
-            <div class="text-[8px] sm:text-[9.5px] text-slate-700 font-bold leading-tight" dir="rtl">${link.nameAr}</div>
-            <p class="text-[7.5px] sm:text-[8.5px] md:text-[9.5px] text-slate-600 font-medium leading-tight card-wrap-text mt-0.5">
-              ${link.desc}
-            </p>
+            <div class="text-[7.5px] sm:text-[9px] text-slate-700 font-bold leading-tight truncate" dir="rtl">${link.nameAr}</div>
           </div>
         </div>
       `;
@@ -5079,13 +5895,13 @@
       const brokenCounter = document.getElementById('stage2-broken-counter');
       const filledCount = boardSlots.filter(s => s !== null).length;
 
-      if (countPill) countPill.innerText = `${filledCount}/6 Placed • مكتملة`;
-      if (roundPill) roundPill.innerText = `Stage 2: Break the Chain`;
+      if (countPill) countPill.innerText = `${filledCount}/6 Placed`;
+      if (roundPill) roundPill.innerText = `Stage 2: Break`;
 
       if (currentStage === 1) {
         if (centerStatus) {
           centerStatus.innerText = `${filledCount} of 6 Links Placed`;
-          centerStatus.className = "mt-1 text-[7px] sm:text-[8px] md:text-[9px] text-teal-950 font-black px-2.5 py-0.5 rounded-full bg-teal-200/90 border border-teal-300 shadow-xs leading-tight";
+          centerStatus.className = "mt-0.5 text-[6.5px] sm:text-[8px] md:text-[9px] text-teal-950 font-black px-1.5 sm:px-2.5 py-0.2 sm:py-0.5 rounded-full bg-teal-200/90 border border-teal-300 shadow-xs leading-tight";
         }
       } else {
         const brokenCount = Object.keys(brokenLinksMap).length;
@@ -5096,7 +5912,7 @@
 
         if (centerStatus) {
           centerStatus.innerText = `${brokenCount} of 6 Broken (${totalApplied} Applied)`;
-          centerStatus.className = "mt-1 text-[7px] sm:text-[8px] md:text-[9px] text-emerald-950 font-black px-2.5 py-0.5 rounded-full bg-emerald-200/90 border border-emerald-300 shadow-xs leading-tight";
+          centerStatus.className = "mt-0.5 text-[6.5px] sm:text-[8px] md:text-[9px] text-emerald-950 font-black px-1.5 sm:px-2.5 py-0.2 sm:py-0.5 rounded-full bg-emerald-200/90 border border-emerald-300 shadow-xs leading-tight";
         }
         if (brokenCounter) {
           brokenCounter.innerText = `${brokenCount} of 6 Links Broken (${totalApplied} Applied)`;
@@ -5119,15 +5935,16 @@
               ? `circle-slot border-3 border-solid border-amber-400 bg-amber-50 text-amber-950 shadow-2xl animate-pulse cursor-pointer group ring-4 ring-amber-400/60 z-30`
               : `circle-slot border-2 border-dashed border-slate-300 hover:border-cyan-500 bg-white/85 hover:bg-cyan-50/60 shadow-xs hover:scale-105 transition-all cursor-pointer group`;
             node.innerHTML = `
-              <span class="absolute -top-2 -left-2 sm:-top-2.5 sm:-left-2.5 w-5 h-5 sm:w-7 sm:h-7 rounded-full ${isTargeted ? 'bg-amber-500' : 'bg-slate-700'} text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-md border-2 border-white z-30">
+              <span class="absolute -top-1.5 -left-1.5 sm:-top-2 sm:-left-2 w-5 h-5 sm:w-7 sm:h-7 rounded-full ${isTargeted ? 'bg-amber-500' : 'bg-slate-700'} text-white font-black text-[10px] sm:text-xs flex items-center justify-center shadow-md border-2 border-white z-30">
                 ${isTargeted ? '🎯' : link.number}
               </span>
+              <button type="button" class="node-info-btn absolute -top-1.5 -right-1.5 sm:-top-2 sm:-right-2 w-5 h-5 sm:w-6 sm:h-6 rounded-full bg-white text-slate-700 hover:bg-slate-100 border border-slate-300 shadow flex items-center justify-center text-[10px] font-black z-30 transition active:scale-90 cursor-pointer" onclick="openLinkDetailsModal(${i}, event)" title="Link Info">ℹ️</button>
               <div class="flex flex-col items-center justify-center text-center p-1 w-full h-full select-none relative">
-                <span class="text-lg sm:text-2xl ${isTargeted ? 'text-amber-500 animate-bounce' : 'text-slate-300 group-hover:text-cyan-500'} transition-colors mb-0.5">
+                <span class="text-sm sm:text-lg ${isTargeted ? 'text-amber-500 animate-bounce' : 'text-slate-400 group-hover:text-cyan-500'} transition-colors mb-0.5">
                   ${isTargeted ? '🎯' : '❓'}
                 </span>
-                <span class="text-[8px] sm:text-[10px] font-extrabold uppercase tracking-wide ${isTargeted ? 'text-amber-900 font-black' : 'text-slate-500 group-hover:text-cyan-800'} leading-tight card-wrap-text">
-                  ${isTargeted ? 'Target Selected • اضغط البطاقة' : 'Drop Link Here • أسقط المكون هنا'}
+                <span class="text-[7px] sm:text-[9.5px] font-extrabold uppercase tracking-wide ${isTargeted ? 'text-amber-900 font-black' : 'text-slate-500 group-hover:text-cyan-800'} leading-tight card-wrap-text">
+                  ${isTargeted ? 'Target Slot' : 'Drop / Tap Link'}
                 </span>
               </div>
             `;
@@ -5140,12 +5957,14 @@
           // STAGE 2: Chain is fully assembled; ready to be broken by tools!
           const isBroken = (brokenLinksMap && brokenLinksMap[i]);
           const isTargetedLink = (selectedLinkId === i);
+          const activeRule = selectedPrecautionId ? CDC_PRECAUTION_RULES[selectedPrecautionId] : null;
+          const isCandidate = (activeRule && activeRule.validLinks && activeRule.validLinks.includes(i) && (!isBroken || !brokenLinksMap[i].appliedTools.some(t => t.id === selectedPrecautionId)));
 
           if (isBroken) {
-            node.className = `circle-slot border-2 border-solid border-red-500 bg-red-50/95 text-red-950 shadow-lg transition-all cursor-pointer group ring-4 ring-red-400/50`;
+            node.className = `circle-slot border-2 border-solid border-red-500 bg-red-50/95 text-red-950 shadow-lg transition-all cursor-pointer group ${isCandidate ? 'ring-4 ring-cyan-400 animate-pulse' : 'ring-2 ring-red-400/50'}`;
             node.innerHTML = getChainNodeHTML(i, true);
-          } else if (isTargetedLink) {
-            node.className = `circle-slot border-3 border-solid border-cyan-500 ${link.theme.cardBg} text-slate-900 shadow-2xl scale-105 transition-all cursor-pointer group ring-4 ring-cyan-400/70 z-30 animate-pulse`;
+          } else if (isTargetedLink || isCandidate) {
+            node.className = `circle-slot border-3 border-solid border-cyan-500 ${link.theme.cardBg} text-slate-900 shadow-2xl scale-105 transition-all cursor-pointer group ring-4 ring-cyan-400/80 z-30 animate-pulse`;
             node.innerHTML = getChainNodeHTML(i, false);
           } else {
             node.className = `circle-slot border-2 border-solid ${link.theme.border} ${link.theme.cardBg} text-slate-900 shadow-md hover:scale-105 hover:shadow-xl hover:border-cyan-500 transition-all cursor-pointer group`;
@@ -5202,7 +6021,7 @@
         card.draggable = true;
 
         const isSelected = (selectedPieceId === link.id);
-        card.className = `draggable-item px-3 py-2 sm:py-2.5 rounded-2xl border-2 flex items-center justify-between gap-2 text-left transition-all duration-200 select-none cursor-pointer relative shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 ${
+        card.className = `draggable-item px-3 py-2 sm:py-2.5 rounded-2xl border-2 flex items-center justify-between gap-2 text-left transition-all duration-200 select-none cursor-pointer relative shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 min-h-[46px] ${
           isSelected
             ? `border-cyan-500 ${link.theme.cardBg} ring-4 ring-cyan-400/60 shadow-lg`
             : `border-slate-300 ${link.theme.cardBg} hover:border-cyan-500`
@@ -5214,7 +6033,6 @@
             <div class="flex flex-col min-w-0">
               <span class="font-black text-xs sm:text-sm leading-tight ${link.theme.text} card-wrap-text">${link.name}</span>
               <span class="text-[10px] font-bold text-slate-700 leading-tight" dir="rtl">${link.nameAr}</span>
-              <span class="text-[8.5px] text-slate-500 font-semibold card-wrap-text leading-tight mt-0.5">${link.examples}</span>
             </div>
           </div>
           ${isSelected ? '<span class="text-[9px] font-black text-white bg-cyan-700 px-1.5 py-0.5 rounded-md ml-1 shrink-0">Selected ✓</span>' : ''}
@@ -5383,13 +6201,37 @@
       }
     }
 
+    let currentPrecPage = 1;
+
+    function switchPrecPage(pageNum) {
+      currentPrecPage = pageNum;
+      const btn1 = document.getElementById('btn-prec-page-1');
+      const btn2 = document.getElementById('btn-prec-page-2');
+      if (btn1 && btn2) {
+        if (pageNum === 1) {
+          btn1.className = "px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer bg-cyan-700 text-white shadow ring-2 ring-cyan-400/40";
+          btn2.className = "px-2.5 py-1 rounded-xl text-xs font-bold transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200";
+        } else {
+          btn2.className = "px-2.5 py-1 rounded-xl text-xs font-black transition cursor-pointer bg-cyan-700 text-white shadow ring-2 ring-cyan-400/40";
+          btn1.className = "px-2.5 py-1 rounded-xl text-xs font-bold transition cursor-pointer bg-slate-100 text-slate-700 hover:bg-slate-200";
+        }
+      }
+      renderPrecautionsDeck();
+    }
+
     // 💥 RENDER PRECAUTIONS DECK (11 CDC TOOLS - ORIGINAL REMAINS AVAILABLE & REUSABLE)
     function renderPrecautionsDeck() {
       const grid = document.getElementById('precautions-grid');
       if (!grid) return;
       grid.innerHTML = '';
 
-      Object.values(CDC_PRECAUTION_RULES).forEach(rule => {
+      const allRules = Object.values(CDC_PRECAUTION_RULES);
+      const isMobile = window.innerWidth < 1024;
+      const rulesToDisplay = isMobile
+        ? (currentPrecPage === 1 ? allRules.slice(0, 6) : allRules.slice(6))
+        : allRules;
+
+      rulesToDisplay.forEach(rule => {
         const card = document.createElement('div');
         card.id = `prec-card-${rule.id}`;
         card.dataset.precautionId = rule.id;
@@ -5397,23 +6239,24 @@
         card.draggable = true;
 
         const isEquipped = (selectedPrecautionId === rule.id);
-        card.className = `precaution-tool-card p-2.5 rounded-2xl border-2 flex items-center justify-between gap-2 transition cursor-pointer select-none shadow-sm ${
+        card.className = `precaution-tool-card p-2.5 rounded-2xl border-2 flex items-center justify-between gap-2 transition cursor-pointer select-none shadow-sm min-h-[46px] ${
           isEquipped
             ? 'is-active-equipped border-cyan-400 bg-cyan-950 text-white ring-4 ring-cyan-400/50'
             : 'border-slate-300 bg-white hover:border-cyan-500 hover:bg-cyan-50/70 text-slate-900'
         }`;
 
         card.innerHTML = `
-          <div class="flex items-center gap-2 min-w-0 text-left">
-            <span class="text-xl sm:text-2xl flex-shrink-0">${rule.icon}</span>
-            <div class="flex flex-col min-w-0">
-              <span class="text-xs sm:text-sm font-black card-wrap-text leading-tight ${isEquipped ? 'text-cyan-200' : 'text-slate-900'}">${rule.name}</span>
-              <span class="text-[10px] sm:text-[11px] font-bold text-slate-600 card-wrap-text leading-tight mt-0.5" dir="rtl">${rule.nameAr}</span>
+          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 text-left">
+            <span class="text-base sm:text-lg flex-shrink-0">${rule.icon}</span>
+            <div class="flex flex-col min-w-0 flex-1 leading-tight">
+              <span class="prec-tool-title card-wrap-text ${isEquipped ? 'text-cyan-200' : 'text-slate-900'}">${rule.name}</span>
+              <span class="prec-tool-title-ar card-wrap-text text-slate-600 mt-0.5" dir="rtl">${rule.nameAr}</span>
             </div>
           </div>
-          <span class="prec-badge text-[9px] font-black ${isEquipped ? 'bg-cyan-400 text-slate-950' : 'bg-cyan-100 text-cyan-900'} px-2 py-0.5 rounded-lg border border-cyan-300 flex-shrink-0">
-            ${isEquipped ? 'Active ⚡' : 'Equip / Drag'}
-          </span>
+          ${isEquipped 
+            ? '<span class="prec-badge text-[8.5px] font-black bg-cyan-400 text-slate-950 px-1.5 py-0.5 rounded-lg border border-cyan-300 flex-shrink-0 animate-pulse">Active ⚡</span>' 
+            : ''
+          }
         `;
 
         // Desktop HTML5 drag
@@ -5458,6 +6301,89 @@
       });
     }
 
+    // ℹ️ CLINICAL DETAILS MODAL HANDLERS (MOBILE & DESKTOP)
+    function openLinkDetailsModal(linkId, event) {
+      if (event && event.stopPropagation) event.stopPropagation();
+      const link = CHAIN_LINKS[linkId];
+      if (!link) return;
+
+      const modal = document.getElementById('link-details-modal');
+      if (!modal) return;
+
+      const iconEl = document.getElementById('link-modal-icon');
+      const titleEnEl = document.getElementById('link-modal-title-en');
+      const titleArEl = document.getElementById('link-modal-title-ar');
+      const descEl = document.getElementById('link-modal-desc');
+      const exEnEl = document.getElementById('link-modal-examples-en');
+      const exArEl = document.getElementById('link-modal-examples-ar');
+      const actEl = document.getElementById('link-modal-actions');
+      const appliedSection = document.getElementById('link-modal-applied-section');
+      const appliedList = document.getElementById('link-modal-applied-list');
+
+      if (iconEl) iconEl.innerText = link.icon;
+      if (titleEnEl) titleEnEl.innerText = `${link.number}. ${link.name}`;
+      if (titleArEl) titleArEl.innerText = link.nameAr;
+      if (descEl) descEl.innerText = link.desc || '';
+      if (exEnEl) exEnEl.innerText = link.examples || '';
+      if (exArEl) exArEl.innerText = link.examplesAr || '';
+      if (actEl) actEl.innerText = link.clinicAction || '';
+
+      if (appliedSection && appliedList) {
+        const slotData = brokenLinksMap ? brokenLinksMap[linkId] : null;
+        const tools = (slotData && slotData.appliedTools) ? slotData.appliedTools : [];
+        if (tools.length > 0) {
+          appliedList.innerHTML = tools.map(t => `
+            <div class="flex items-center justify-between p-2 rounded-xl bg-white border border-red-200 text-xs shadow-xs">
+              <span class="font-bold text-red-950 flex items-center gap-1.5">
+                <span>${t.icon || '🛡️'}</span>
+                <span>${t.name}</span>
+              </span>
+              <span class="text-[11px] font-semibold text-slate-600" dir="rtl">${t.nameAr}</span>
+            </div>
+          `).join('');
+          appliedSection.classList.remove('hidden');
+        } else {
+          appliedSection.classList.add('hidden');
+          appliedList.innerHTML = '';
+        }
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function closeLinkDetailsModal() {
+      const modal = document.getElementById('link-details-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // 📱 MOBILE GAME MENU HANDLERS
+    function openMobileGameMenu() {
+      const modal = document.getElementById('mobile-game-menu-modal');
+      if (!modal) return;
+      const teamNameEl = document.getElementById('mob-menu-team-name');
+      const teamScoreEl = document.getElementById('mob-menu-team-score');
+      if (teamNameEl && typeof teams !== 'undefined' && teams[currentTeamIndex]) {
+        teamNameEl.innerText = teams[currentTeamIndex].name;
+      }
+      if (teamScoreEl && typeof teams !== 'undefined' && teams[currentTeamIndex]) {
+        teamScoreEl.innerText = `${teams[currentTeamIndex].score || 0} pts`;
+      }
+      const trainerSec = document.getElementById('mob-menu-trainer-section');
+      if (trainerSec) {
+        if (window.isStudentMode) {
+          trainerSec.classList.add('hidden');
+        } else {
+          trainerSec.classList.remove('hidden');
+        }
+      }
+      modal.classList.remove('hidden');
+    }
+
+    function closeMobileGameMenu() {
+      const modal = document.getElementById('mobile-game-menu-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
     // 💥 STRIKE LINK WITH TOOL (MULTI-TOOL, MULTI-POSITION CDC LOGIC)
     function strikeLinkWithTool(toolId, linkIndex) {
       if (!requireTimerToPlay()) return;
@@ -5474,15 +6400,89 @@
         return;
       }
 
-      // 2. Validate if tool breaks this link
+      // 2. Automatic hints for specific pedagogical scenarios (Leave link unbroken, leave score unchanged)
+      if (toolId === 'hand_hygiene') {
+        // Automatic Hint for #3 Portal of Exit (linkIndex === 2)
+        if (linkIndex === 2) {
+          const nodeEl = document.getElementById(`node-2`);
+          if (nodeEl) {
+            nodeEl.classList.add('animate-wiggle', 'ring-4', 'ring-amber-400');
+            setTimeout(() => nodeEl.classList.remove('animate-wiggle', 'ring-4', 'ring-amber-400'), 600);
+          }
+          if (sound && sound.playWrongSoft) sound.playWrongSoft();
+          showGameplayHint(
+            "Hand Hygiene (نظافة اليدين)",
+            "Hand hygiene helps stop germs from spreading on hands. Which link describes how germs travel to another person?",
+            "نظافة اليدين تساعد على منع انتقال الميكروبات عبر الأيدي. أي حلقة تصف كيف تنتقل الميكروبات إلى شخص آخر؟",
+            "HINT • PORTAL OF EXIT VS. TRANSMISSION",
+            "💡"
+          );
+          return;
+        }
+
+        // Automatic Hint for #1 Infectious Agent (linkIndex === 0)
+        if (linkIndex === 0) {
+          const nodeEl = document.getElementById(`node-0`);
+          if (nodeEl) {
+            nodeEl.classList.add('animate-wiggle', 'ring-4', 'ring-amber-400');
+            setTimeout(() => nodeEl.classList.remove('animate-wiggle', 'ring-4', 'ring-amber-400'), 600);
+          }
+          if (sound && sound.playWrongSoft) sound.playWrongSoft();
+          showGameplayHint(
+            "Hand Hygiene (نظافة اليدين)",
+            "Hand hygiene interrupts the transfer of germs on hands. Which link describes how germs travel to another person or surface?",
+            "نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي. أي حلقة تصف كيف تنتقل الميكروبات إلى شخص آخر أو سطح؟",
+            "HINT • INFECTIOUS AGENT VS. TRANSMISSION",
+            "💡"
+          );
+          return;
+        }
+
+        // Automatic Hint for #2 Reservoir (linkIndex === 1)
+        if (linkIndex === 1) {
+          const nodeEl = document.getElementById(`node-1`);
+          if (nodeEl) {
+            nodeEl.classList.add('animate-wiggle', 'ring-4', 'ring-amber-400');
+            setTimeout(() => nodeEl.classList.remove('animate-wiggle', 'ring-4', 'ring-amber-400'), 600);
+          }
+          if (sound && sound.playWrongSoft) sound.playWrongSoft();
+          showGameplayHint(
+            "Hand Hygiene (نظافة اليدين)",
+            "Contaminated hands act as a vector carrying germs between people or surfaces. Which link describes how germs travel to another person?",
+            "تعمل الأيدي الملوثة كوسيط ينقل الجراثيم بين الأشخاص أو الأسطح. أي حلقة تصف طريقة الانتقال هذه؟",
+            "HINT • RESERVOIR VS. TRANSMISSION",
+            "💡"
+          );
+          return;
+        }
+      }
+
+      // 3. Validate if tool breaks this link
       if (rule.validLinks && rule.validLinks.includes(linkIndex)) {
         // SUCCESS: Add tool to appliedTools list
         if (!brokenLinksMap[linkIndex]) {
           brokenLinksMap[linkIndex] = { isBroken: true, appliedTools: [] };
         }
 
-        const expAr = (rule.contextsAr && rule.contextsAr[linkIndex]) ? rule.contextsAr[linkIndex] : "تم قطع مسار العدوى وحماية المريض بنجاح!";
-        const expEn = (rule.contextsEn && rule.contextsEn[linkIndex]) ? rule.contextsEn[linkIndex] : `${rule.name} halts transmission at ${link.name}!`;
+        let expAr = (rule.contextsAr && rule.contextsAr[linkIndex]) ? rule.contextsAr[linkIndex] : "تم قطع مسار العدوى وحماية المريض بنجاح!";
+        let expEn = (rule.contextsEn && rule.contextsEn[linkIndex]) ? rule.contextsEn[linkIndex] : `${rule.name} halts transmission at ${link.name}!`;
+
+        // Strict clinical rationales for Hand Hygiene
+        if (toolId === 'hand_hygiene') {
+          if (linkIndex === 3) {
+            expEn = "Hand hygiene interrupts the transfer of germs on hands.";
+            expAr = "نظافة اليدين تقطع انتقال الميكروبات عبر الأيدي.";
+          } else if (linkIndex === 4) {
+            expEn = "Cleaning your hands before accessing the catheter helps prevent germs from entering through it.";
+            expAr = "نظافة اليدين قبل التعامل مع القسطرة تساعد على منع دخول الميكروبات عبرها.";
+          }
+        }
+
+        // Strict clinical rationales for Sterilization on #1 Infectious Agent
+        if ((toolId === 'reprocessing_equipment' || toolId === 'sterilization') && linkIndex === 0) {
+          expEn = "Sterilization destroys all forms of microbial life on the instrument, including bacterial spores.";
+          expAr = "التعقيم يقضي على جميع أشكال الحياة الميكروبية على الأدوات، بما في ذلك الأبواغ البكتيرية.";
+        }
 
         brokenLinksMap[linkIndex].appliedTools.push({
           id: toolId,
@@ -5492,6 +6492,9 @@
           rationaleAr: expAr,
           rationaleEn: expEn
         });
+
+        // Clear hint panel on correct placement
+        hideGameplayHintPanel();
 
         // 1. Play realistic metallic chain snapping sound
         if (sound && sound.playAttractiveChainBreak) {
@@ -5523,7 +6526,7 @@
 
         // 5. Show strike feedback with 1-line rationale
         showStrikeFeedback(rule, link, expEn, expAr, cheer);
-        showToast(`💥 ${rule.name} breaks link! (+50 pts)`, `${rule.name} halts transmission at ${link.name}!`, "emerald");
+        showToast(`💥 ${rule.name} breaks link! (+50 pts)`, expEn, "emerald");
 
         // 6. Update visuals & arrows
         updateSvgArrowVisuals();
@@ -5533,7 +6536,7 @@
         // 7. Check challenge completion
         checkStage2Completion();
       } else {
-        // MISMATCH: Friendly bounce & educational hint
+        // MISMATCH: Friendly bounce & educational hint (score and link state unchanged!)
         const nodeEl = document.getElementById(`node-${linkIndex}`);
         if (nodeEl) {
           nodeEl.classList.add('animate-wiggle', 'ring-4', 'ring-amber-400');
@@ -5881,6 +6884,7 @@
         counterEl.innerText = "0 of 6 Links Broken";
         counterEl.className = "px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black uppercase shadow-2xs";
       }
+      hideGameplayHintPanel();
       updateSvgArrowVisuals();
       renderBoardSlots();
       renderPrecautionsDeck();
@@ -6250,8 +7254,14 @@
       updateFullscreenButtonUI();
       fitGameToScreen();
     });
-    window.addEventListener('resize', fitGameToScreen);
-    window.addEventListener('orientationchange', fitGameToScreen);
+    window.addEventListener('resize', () => {
+      fitGameToScreen();
+      if (currentStage === 2) renderPrecautionsDeck();
+    });
+    window.addEventListener('orientationchange', () => {
+      fitGameToScreen();
+      if (currentStage === 2) renderPrecautionsDeck();
+    });
 
 
     function selectChainLink(linkId) {
@@ -8936,10 +9946,66 @@ function _legacySwitchMainView(viewName) {
         const targetView = urlParams.get('view');
         if (targetView === 'puzzle') {
           switchMainView('puzzle');
+          if (urlParams.get('stage') === '2') {
+            activateStage2();
+          }
         } else if (targetView === 'icebreaker') {
           switchMainView('icebreaker');
         } else if (targetView === 'portal') {
           switchMainView('portal');
+        }
+
+        const openModal = urlParams.get('modal');
+        if (openModal === 'details') {
+          setTimeout(() => openLinkDetailsModal(0), 100);
+        } else if (openModal === 'menu') {
+          setTimeout(() => openMobileGameMenu(), 100);
+        }
+
+        const equipTool = urlParams.get('equip');
+        if (equipTool && typeof CDC_PRECAUTION_RULES !== 'undefined' && CDC_PRECAUTION_RULES[equipTool]) {
+          setTimeout(() => {
+            selectedPrecautionId = equipTool;
+            updateEquippedToolBanner(CDC_PRECAUTION_RULES[equipTool]);
+            renderPrecautionsDeck();
+            renderBoardSlots();
+          }, 100);
+        }
+
+        const strikeTarget = urlParams.get('strike');
+        if (strikeTarget === 'demo') {
+          setTimeout(() => {
+            isTimerRunning = true;
+            if (typeof strikeLinkWithTool === 'function') {
+              strikeLinkWithTool('hand_hygiene', 3);
+            }
+          }, 150);
+        }
+
+        const runTest = urlParams.get('test');
+        if (runTest) {
+          setTimeout(() => {
+            isTimerRunning = true;
+            if (runTest === 'hh_link4') {
+              strikeLinkWithTool('hand_hygiene', 3);
+            } else if (runTest === 'hh_link5') {
+              strikeLinkWithTool('hand_hygiene', 4);
+            } else if (runTest === 'hh_link3_hint') {
+              strikeLinkWithTool('hand_hygiene', 2);
+            } else if (runTest === 'hh_link1_hint') {
+              strikeLinkWithTool('hand_hygiene', 0);
+            } else if (runTest === 'sterilization_link1') {
+              strikeLinkWithTool('reprocessing_equipment', 0);
+            } else if (runTest === 'hint_button') {
+              selectedPrecautionId = 'hand_hygiene';
+              showStage2HintMessage();
+            } else if (runTest === 'reset_links') {
+              strikeLinkWithTool('hand_hygiene', 3);
+              setTimeout(() => {
+                resetStage2BrokenLinks();
+              }, 100);
+            }
+          }, 200);
         }
 
         // 3. Setup Touch Dragging System for iPad & Phones
