@@ -22,7 +22,23 @@
       --sal: env(safe-area-inset-left, 0px);
     }
 
-    html, body.game-fullscreen-mode {
+    /* 🌐 DEFAULT / MAIN PORTAL SCROLLING (Allows natural smooth scrolling up & down) */
+    html {
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      scroll-behavior: smooth !important;
+      min-height: 100% !important;
+    }
+
+    body {
+      overflow-x: hidden !important;
+      overflow-y: auto !important;
+      min-height: 100% !important;
+    }
+
+    /* 🎮 GAME FULLSCREEN MODE ONLY (Applies zero-scroll locked arena only when playing a game) */
+    html.game-fullscreen-mode,
+    body.game-fullscreen-mode {
       height: 100vh !important;
       height: 100dvh !important;
       width: 100vw !important;
@@ -36,7 +52,8 @@
     }
 
     @media (min-width: 1024px) {
-      html, body.game-fullscreen-mode {
+      html.game-fullscreen-mode,
+      body.game-fullscreen-mode {
         overflow: hidden !important;
         position: fixed !important;
         inset: 0 !important;
@@ -103,17 +120,18 @@
 
     body.game-fullscreen-mode #view-puzzle:not(.hidden),
     body.game-fullscreen-mode #view-icebreaker:not(.hidden),
-    body.game-fullscreen-mode #view-guardians:not(.hidden) {
+    body.game-fullscreen-mode #view-guardians:not(.hidden),
+    body.game-fullscreen-mode #view-safe-injection:not(.hidden) {
       flex: 1 1 0% !important;
       min-height: 0 !important;
       width: 100% !important;
       max-width: 100% !important;
       overflow-x: hidden !important;
-      overflow-y: visible !important;
+      overflow-y: auto !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 0.2rem !important;
-      padding: 0 !important;
+      padding: 0 0 1.5rem 0 !important;
       margin: 0 !important;
       box-sizing: border-box !important;
     }
@@ -130,6 +148,8 @@
     body.game-fullscreen-mode #view-puzzle.hidden,
     body.game-fullscreen-mode #view-icebreaker.hidden,
     body.game-fullscreen-mode #view-guardians.hidden,
+    body.game-fullscreen-mode #view-safe-injection.hidden,
+    #view-safe-injection.hidden,
     body.game-fullscreen-mode #view-portal.hidden,
     #view-puzzle.hidden,
     #view-icebreaker.hidden,
@@ -2438,6 +2458,10 @@
               class="flex-1 min-w-[115px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-emerald-800 hover:bg-emerald-50 border border-emerald-300">
         <span>🛡️</span> <span>درع الوقاية</span>
       </button>
+
+            <button id="mobile-tab-safe-injection" onclick="switchMainView('safe-injection')" class="flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200">
+              <span>💉 4: الحقن الآمن</span>
+            </button>
     </div>
 
     <!-- 🧭 MAIN TWO-COLUMN WORKSPACE: LEFT MENU (SIDEBAR) + ACTIVE MODULE VIEW 🧭 -->
@@ -2537,6 +2561,16 @@
               </div>
             </button>
 
+          <!-- MENU BUTTON: SAFE INJECTION CHALLENGE -->
+          <button id="menu-btn-safe-injection" onclick="switchMainView('safe-injection')" class="w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#03203f] border-slate-700 text-slate-300 hover:text-white">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black uppercase tracking-wider text-violet-400">Puzzle 4</span>
+              <span class="text-lg">💉</span>
+            </div>
+            <div class="text-sm font-extrabold text-white">تحدّي الحقن الآمن</div>
+            <div class="text-[11px] text-slate-400">Safe Injection Challenge</div>
+          </button>
+
           </div>
 
           <!-- Trainer Quick Tools Section in Menu (Collapsible / Collapsed by Default) -->
@@ -2617,12 +2651,24 @@
           <div class="w-full max-w-[1024px] rounded-3xl overflow-hidden bg-[#021329] border-2 border-cyan-500/60 shadow-2xl transition-all cursor-pointer hover:border-cyan-400" onclick="switchMainView('puzzle')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('puzzle');}" tabindex="0" role="button" title="Click to Start Puzzle 1">
             <img src="main-portal-banner.jpg" 
                  alt="IPC Training Puzzles — Developed by Hammam Jubran Rjoup / MSN, CPIC" 
-                 class="w-full h-auto object-contain block select-none"
+                 class="w-full max-h-[220px] object-contain block select-none mx-auto"
                  onerror="this.src='header-banner.jpg'" />
           </div>
 
+          <!-- 🔐 TRAINER / ADMIN LOGIN BAR -->
+          <div class="w-full max-w-[1100px] flex items-center justify-between px-2 pt-2 pb-1">
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-slate-300">مرحباً بك في البوابة الرئيسية لمكافحة العدوى • Welcome to IPC Training Hub</span>
+            </div>
+            <button onclick="promptTrainerUnlock()" title="تسجيل دخول المشرف / Facilitator Admin Login" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 border border-amber-300 cursor-pointer">
+              <span>🔐</span>
+              <span>دخول المشرف | Admin Login</span>
+            </button>
+          </div>
+
           <!-- 🚀 INTERACTIVE DIRECT LAUNCH CARDS ON MAIN PORTAL 🚀 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[1240px] mt-5">
+          <!-- 🚀 2x2 SYMMETRIC GRID: 2 PUZZLES ON RIGHT, 2 PUZZLES ON LEFT 🚀 -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[1100px] mt-3">
             
             <!-- PUZZLE 1 LAUNCH CARD -->
             <div onclick="switchMainView('puzzle')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('puzzle');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#021b35] via-[#03284d] to-[#011425] border-2 border-cyan-400/80 hover:border-cyan-300 shadow-xl hover:shadow-[0_0_25px_rgba(6,182,212,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
@@ -2705,6 +2751,34 @@
               </div>
             </div>
 
+            <!-- PUZZLE 4 LAUNCH CARD: SAFE INJECTION CHALLENGE -->
+            <div onclick="switchMainView('safe-injection')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('safe-injection');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#1a0f37] via-[#2a1758] to-[#120826] border-2 border-violet-400/80 hover:border-violet-300 shadow-xl hover:shadow-[0_0_25px_rgba(167,139,250,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 border border-violet-400/40 text-[11px] font-black uppercase tracking-wider">
+                    MODULE 4 • CLINICAL SAFETY MASTERY
+                  </span>
+                  <span class="text-2xl group-hover:scale-125 transition-transform">💉</span>
+                </div>
+                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-violet-300 transition-colors">
+                  تحدّي الحقن الآمن | Safe Injection Challenge
+                </h3>
+                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
+                  3 Clinical Domains: Safe Injections • Medication Safety • Sharps Safety. Test single domains or mixed challenge!
+                </p>
+                <div class="text-[11px] text-violet-300 font-bold mt-1" dir="rtl">
+                  ممارسات الحقن الآمن • سلامة الأدوية • السلامة من الأدوات الحادة (وضع المحور الواحد والتحدي المختلط)
+                </div>
+              </div>
+              <div class="mt-5 pt-3.5 border-t border-violet-500/30 flex items-center justify-between">
+                <span class="text-xs font-bold text-violet-200">⛶ Full Wide Screen View</span>
+                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 group-hover:from-violet-500 group-hover:to-indigo-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
+                  <span>Start Module 4</span> <span>➡️</span>
+                </span>
+              </div>
+            </div>
+
+
           </div>
         </div>
 
@@ -2730,6 +2804,10 @@
                 </button>
                 <button onclick="switchMainView('guardians')" title="Puzzle 3: درع الوقاية | PPE Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200 transition active:scale-95 cursor-pointer">
                   <span>🛡️ 3</span>
+                </button>
+
+                <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-violet-50 text-slate-700 hover:text-violet-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>💉 4</span>
                 </button>
               </div>
 
@@ -3358,6 +3436,10 @@
                 <button onclick="switchMainView('guardians')" title="Puzzle 3: درع الوقاية | PPE Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200 transition active:scale-95 cursor-pointer">
                   <span>🛡️ 3</span>
                 </button>
+
+                <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-violet-50 text-slate-700 hover:text-violet-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>💉 4</span>
+                </button>
               </div>
 
               <!-- 🏷️ SMALL VIEW NAME BADGE (CLEAN & COMPACT) 🏷️ -->
@@ -3672,6 +3754,10 @@
                 <button onclick="switchMainView('guardians')" title="Puzzle 3: درع الوقاية | PPE Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-emerald-700 text-white shadow ring-2 ring-emerald-400 cursor-pointer">
                   <span>🛡️ 3</span>
                 </button>
+
+                <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-violet-50 text-slate-700 hover:text-violet-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>💉 4</span>
+                </button>
               </div>
 
               <div class="flex items-center gap-2">
@@ -3806,6 +3892,150 @@
           </div>
 
         </div>
+      
+        <!-- =========================================================================
+             MODULE 4: SAFE INJECTION, MEDICATION & SHARPS SAFETY CHALLENGE
+             ========================================================================= -->
+        <div id="view-safe-injection" class="hidden flex flex-col gap-2.5 w-full select-none" dir="rtl" lang="ar">
+          
+          <!-- TOP HEADER BAR (NAVIGATION, TIMER, CONTROLS) -->
+          <div id="si-top-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-3 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
+            <!-- Left: Module Badge & Quick Switcher -->
+            <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
+              <!-- 🏛️ Main Portal Return Button -->
+              <button onclick="switchMainView('portal')" title="العودة إلى البوابة الرئيسية لجميع الألعاب • Return to All Puzzles Hub" class="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-slate-950 via-[#1f103d] to-violet-950 hover:from-violet-900 hover:to-slate-900 text-violet-200 hover:text-white border-2 border-violet-400 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer shrink-0">
+                <span class="text-sm">🏛️</span>
+                <span class="font-extrabold hidden sm:inline" id="lbl-si-portal-btn">الرئيسية</span>
+                <span class="text-[10px] text-violet-300 hidden md:inline">| All Puzzles</span>
+              </button>
+
+              <!-- 🎮 QUICK PUZZLE SWITCHER PILLS -->
+              <div class="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-300 gap-0.5 sm:gap-1 shadow-inner shrink-0" title="تبديل الألعاب السريع">
+                <button onclick="switchMainView('puzzle')" title="Puzzle 1: كسر سلسلة العدوى" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-cyan-50 text-slate-700 hover:text-cyan-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🧩 1</span>
+                </button>
+                <button onclick="switchMainView('icebreaker')" title="Puzzle 2: مطابقة المفاهيم" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🧊 2</span>
+                </button>
+                <button onclick="switchMainView('guardians')" title="Puzzle 3: درع الوقاية | PPE Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🛡️ 3</span>
+                </button>
+                <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-violet-700 text-white shadow ring-2 ring-violet-400 cursor-pointer">
+                  <span>💉 4</span>
+                </button>
+              </div>
+
+              <!-- Module Title Badge -->
+              <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-violet-50 border border-violet-200">
+                <span class="text-base">💉</span>
+                <div class="flex flex-col">
+                  <span class="text-xs font-black text-violet-950 leading-tight" id="lbl-si-title">تحدّي الحقن الآمن</span>
+                  <span class="text-[10px] text-violet-700 font-bold leading-none hidden sm:inline" id="lbl-si-subtitle">Safe Injection & Medication Safety</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: Score, Timer, Language & References -->
+            <div class="flex items-center gap-2 flex-wrap">
+              <!-- Live Score Pill -->
+              <div class="flex items-center gap-1 px-3 py-1 rounded-xl bg-emerald-50 border border-emerald-300 text-emerald-900 text-xs font-black shadow-inner">
+                <span>⭐</span>
+                <span id="si-live-score">0</span>
+                <span class="text-[10px] text-emerald-700" id="lbl-si-score-pts">نقطة</span>
+              </div>
+
+              <!-- Timer Display -->
+              <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 border border-slate-300 text-slate-800 text-xs font-black font-mono">
+                <span class="text-xs">⏱️</span>
+                <span id="si-timer-display">00:00</span>
+              </div>
+
+              <!-- Language Toggle Button -->
+              <button onclick="toggleSafeInjectionLanguage()" title="تبديل اللغة • Switch Language (AR / EN)" class="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-100 text-slate-700 hover:text-violet-900 border border-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer flex items-center gap-1">
+                <span>🌐</span>
+                <span id="lbl-si-lang-btn">English</span>
+              </button>
+
+              <!-- Sound Toggle Button -->
+              <button onclick="toggleSafeInjectionSound()" title="كتم / تفعيل الصوت • Toggle Audio" class="p-1.5 rounded-xl bg-white hover:bg-slate-100 text-slate-700 hover:text-violet-900 border border-slate-300 text-xs font-bold transition active:scale-95 cursor-pointer" id="btn-si-sound">
+                🔊
+              </button>
+
+              <!-- References Modal Button -->
+              <button onclick="openSafeInjectionReferencesModal()" title="دليل المراجع السريرية • CDC & Joint Commission Guidelines" class="px-2.5 py-1 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-900 border border-indigo-200 text-xs font-black transition active:scale-95 cursor-pointer flex items-center gap-1">
+                <span>📚</span>
+                <span id="lbl-si-ref-btn">المراجع</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- DYNAMIC WORKSPACE (START SCREEN, GAMEPLAY SCREEN, RESULTS SCREEN) -->
+          <div id="si-workspace" class="w-full flex flex-col gap-3 min-h-[480px]">
+            <!-- Injected dynamically by JavaScript -->
+          </div>
+
+          <!-- REFERENCES MODAL -->
+          <div id="si-references-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3 sm:p-5" onclick="if(event.target===this)closeSafeInjectionReferencesModal()">
+            <div class="bg-white border-2 border-violet-500 rounded-3xl max-w-2xl w-full p-5 sm:p-7 shadow-2xl flex flex-col gap-4 max-h-[90vh] overflow-y-auto">
+              <div class="flex items-center justify-between pb-3 border-b border-slate-200">
+                <div class="flex items-center gap-2.5">
+                  <span class="text-2xl">📚</span>
+                  <div>
+                    <h3 class="text-base sm:text-lg font-black text-slate-900">المراجع السريرية المعتمدة | Clinical References</h3>
+                    <p class="text-xs text-slate-500">CDC, The Joint Commission, NIOSH & OSHA Guidelines</p>
+                  </div>
+                </div>
+                <button onclick="closeSafeInjectionReferencesModal()" class="w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-black flex items-center justify-center text-sm transition cursor-pointer">✕</button>
+              </div>
+
+              <div class="space-y-3 text-xs sm:text-sm text-slate-700">
+                <div class="p-3.5 rounded-2xl bg-cyan-50/70 border border-cyan-200">
+                  <h4 class="font-black text-cyan-950 flex items-center gap-1.5 text-xs sm:text-sm">
+                    <span>💉</span> 1. ممارسات الحقن الآمن | CDC Safe Injection Practices
+                  </h4>
+                  <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                    حملة إبرة واحدة، محقنة واحدة، لمريض واحد مرة واحدة (One Needle, One Syringe, Only One Time). حظر إعادة استخدام المحاقن حتى مع تغيير الإبرة، وحظر الدخول المتكرر للقوارير بمحاقن مستعملة.
+                  </p>
+                  <a href="https://www.cdc.gov/injection-safety/" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-cyan-700 hover:text-cyan-900 underline mt-1.5 inline-block">
+                    CDC Injection Safety Guidelines ↗
+                  </a>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-amber-50/70 border border-amber-200">
+                  <h4 class="font-black text-amber-950 flex items-center gap-1.5 text-xs sm:text-sm">
+                    <span>🧴</span> 2. سلامة الأدوية | The Joint Commission NPSG
+                  </h4>
+                  <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                    معايير الأهداف الوطنية لسلامة المرضى (NPSG.01.01.01) للتحقق من الهوية باستخدام مُعرّفين معتمدين ومستقلين (الاسم ورقم الملف)، والمعيار (NPSG.03.04.01) لوضع الملصقات فوراً على المحاقن وحظر استخدام المحاقن غير الموسومة.
+                  </p>
+                  <a href="https://www.jointcommission.org/standards/national-patient-safety-goals/" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-amber-700 hover:text-amber-900 underline mt-1.5 inline-block">
+                    The Joint Commission National Patient Safety Goals ↗
+                  </a>
+                </div>
+
+                <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200">
+                  <h4 class="font-black text-rose-950 flex items-center gap-1.5 text-xs sm:text-sm">
+                    <span>☣️</span> 3. السلامة من الأدوات الحادة | CDC / NIOSH & OSHA
+                  </h4>
+                  <p class="text-xs text-slate-600 mt-1 leading-relaxed">
+                    التخلص الفوري من الإبر عند نقطة الرعاية دون إعادة تغطية باليدين، استبدال الحاويات عند خط التعبئة (3/4)، واستخدام تقنية المنطقة المحايدة (Hands-Free Technique) لتفادي إصابات الوخز.
+                  </p>
+                  <a href="https://www.cdc.gov/sharpssafety/" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-rose-700 hover:text-rose-900 underline mt-1.5 inline-block">
+                    CDC / NIOSH Sharps Safety Workbook ↗
+                  </a>
+                </div>
+              </div>
+
+              <div class="pt-3 border-t border-slate-200 flex justify-end">
+                <button onclick="closeSafeInjectionReferencesModal()" class="px-5 py-2 rounded-xl bg-violet-700 hover:bg-violet-800 text-white font-black text-xs transition cursor-pointer">
+                  إغلاق • Close
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
       </main>
 
     </div>
@@ -4440,6 +4670,13 @@
             <span class="text-lg">🛡️</span>
             <span class="leading-tight text-center">Module 3: PPE Challenge</span>
             <span class="text-[9px] font-bold opacity-80" dir="rtl">درع الوقاية</span>
+          </button>
+
+          <button id="tab-share-safe-injection" onclick="switchShareTarget('safe-injection')" 
+                  class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-slate-50 border-slate-200 text-slate-600 hover:border-violet-400">
+            <span class="text-lg">💉</span>
+            <span class="leading-tight text-center">Module 4: Safe Injection</span>
+            <span class="text-[9px] font-bold opacity-80" dir="rtl">الحقن الآمن</span>
           </button>
           <button id="tab-share-portal" onclick="switchShareTarget('portal')" 
                   class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-slate-50 border-slate-200 text-slate-600 hover:border-cyan-400">
@@ -6762,11 +6999,10 @@
       const link = CHAIN_LINKS[linkIndex];
       if (!rule || !link) return;
 
-      // 1. Check if tool is already applied to this specific link
+      // 1. Check if the exact same tool is already applied to this specific link
       const currentSlotData = brokenLinksMap[linkIndex];
       if (currentSlotData && currentSlotData.appliedTools && currentSlotData.appliedTools.some(t => t.id === toolId)) {
-        showToast("⚠️ Tool Already Applied Here!", `"${rule.name}" (${rule.nameAr}) is already protecting "${link.name}". No duplicate points!`, "amber");
-        if (sound && sound.playWrongSoft) sound.playWrongSoft();
+        showToast("🛡️ أداة مطبقة مسبقاً", `أداة "${rule.nameAr}" (${rule.name}) تحمي هذه الحلقة بالفعل. اختر أداة حماية أخرى لكسر معزز!`, "cyan");
         return;
       }
 
@@ -6819,26 +7055,35 @@
         // Clear hint panel on correct placement
         hideGameplayHintPanel();
 
-        // 1. Play realistic metallic chain snapping sound ONLY when link is broken for the first time
-        if (isFirstBreak) {
-          if (sound && sound.playAttractiveChainBreak) {
-            sound.playAttractiveChainBreak();
-          } else if (sound && sound.playMetalChainBreak) {
-            sound.playMetalChainBreak();
-          }
+        const totalToolsOnLink = brokenLinksMap[linkIndex].appliedTools.length;
+
+        // 1. Play realistic metallic chain snapping sound on EVERY valid strike (1st, 2nd, 3rd, etc.)!
+        if (sound && sound.playAttractiveChainBreak) {
+          sound.playAttractiveChainBreak();
+        } else if (sound && sound.playMetalChainBreak) {
+          sound.playMetalChainBreak();
         }
 
-        // 2. Node metallic fracture animation
+        // 2. Node metallic fracture animation & electric burst on EVERY valid strike!
         const nodeEl = document.getElementById(`node-${linkIndex}`);
         if (nodeEl) {
           nodeEl.classList.remove('metallic-fracture-active');
           void nodeEl.offsetWidth; // force reflow
           nodeEl.classList.add('metallic-fracture-active');
+
+          // Visual electric fracture burst overlay
+          const sparkOverlay = document.createElement('div');
+          sparkOverlay.className = 'absolute inset-0 pointer-events-none rounded-xl sm:rounded-2xl z-40 flex items-center justify-center font-black text-2xl sm:text-3xl text-red-600 animate-ping opacity-90';
+          sparkOverlay.innerText = '⚡';
+          nodeEl.appendChild(sparkOverlay);
+          setTimeout(() => { if (sparkOverlay.parentElement) sparkOverlay.remove(); }, 650);
         }
 
-        // 3. Award points ONLY when link is broken for the first time (+50 pts)
+        // 3. Award points (+50 pts on first break, +25 pts on each additional protective tool barrier!)
         if (isFirstBreak) {
           addScore(50);
+        } else {
+          addScore(25);
         }
 
         // 4. Random encouraging cheers
@@ -6852,8 +7097,10 @@
         const cheer = cheers[Math.floor(Math.random() * cheers.length)];
 
         // 5. Show strike feedback with 1-line rationale and clinical note
-        showStrikeFeedback(rule, link, expEn, expAr, cheer, isFirstBreak, clinicalNoteEn, clinicalNoteAr);
-        const toastTitle = isFirstBreak ? `💥 تم كسر الحلقة! (${link.nameAr}) (+50 pts)` : `🛡️ ${rule.nameAr}`;
+        showStrikeFeedback(rule, link, expEn, expAr, cheer, isFirstBreak, clinicalNoteEn, clinicalNoteAr, totalToolsOnLink);
+        const toastTitle = isFirstBreak 
+          ? `💥 تم كسر الحلقة! (${link.nameAr}) (+50 pts)` 
+          : `⚡ كسر إضافي معزز (#${totalToolsOnLink}): ${rule.nameAr} (+25 pts)`;
         showToast(toastTitle, expAr || expEn, "emerald");
 
         // 6. Update visuals & arrows
@@ -7158,15 +7405,16 @@
       if (modal) modal.remove();
     }
 
-    function showStrikeFeedback(rule, link, expEn, expAr, cheer = '', isFirstBreak = true, clinicalNoteEn = '', clinicalNoteAr = '') {
+    function showStrikeFeedback(rule, link, expEn, expAr, cheer = '', isFirstBreak = true, clinicalNoteEn = '', clinicalNoteAr = '', totalToolsOnLink = 1) {
       const card = document.getElementById('stage2-strike-feedback');
       const title = document.getElementById('strike-feedback-title');
       const textEn = document.getElementById('strike-feedback-text-en');
       const textAr = document.getElementById('strike-feedback-text-ar');
       if (!card) return;
 
-      const ptsBadge = isFirstBreak ? '(+50 pts)' : '(تم كسرها سابقاً)';
-      if (title) title.innerText = `💥 تم كسر الحلقة • LINK BROKEN! ${ptsBadge} ${cheer ? '• ' + cheer : ''}`;
+      const ptsBadge = isFirstBreak ? '(+50 pts)' : `(+25 pts • حاجز إضافي #${totalToolsOnLink})`;
+      const breakHeader = isFirstBreak ? '💥 تم كسر الحلقة • LINK BROKEN!' : `⚡ كسر إضافي معزز • REINFORCED BREAK! (${totalToolsOnLink} أدوات)`;
+      if (title) title.innerText = `${breakHeader} ${ptsBadge} ${cheer ? '• ' + cheer : ''}`;
       if (textEn) textEn.innerText = expEn;
       if (textAr) textAr.innerText = expAr;
 
@@ -8925,6 +9173,9 @@
       const puzzleView = document.getElementById('view-puzzle');
       const icebreakerView = document.getElementById('view-icebreaker');
       const guardiansView = document.getElementById('view-guardians');
+      const safeInjectionView = document.getElementById('view-safe-injection');
+      const btnSafeInjection = document.getElementById('menu-btn-safe-injection');
+      const mobSafeInjection = document.getElementById('mobile-tab-safe-injection');
       
       const btnPortal = document.getElementById('menu-btn-portal');
       const btnPuzzle = document.getElementById('menu-btn-puzzle');
@@ -8941,37 +9192,46 @@
       const squadsBar = document.getElementById('squads-bar');
       const leftTeamCard = document.getElementById('left-menu-team-card');
 
+      // Reset class definitions
+      const inactiveBtnClass = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#03203f] border-slate-700 text-slate-300 hover:text-white";
+      const inactiveMobClass = "flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200";
+
       // Hide all views
       if (portalView) { portalView.classList.add('hidden'); portalView.style.display = 'none'; }
       if (puzzleView) { puzzleView.classList.add('hidden'); puzzleView.style.display = 'none'; }
       if (icebreakerView) { icebreakerView.classList.add('hidden'); icebreakerView.style.display = 'none'; }
       if (guardiansView) { guardiansView.classList.add('hidden'); guardiansView.style.display = 'none'; }
+      if (safeInjectionView) { safeInjectionView.classList.add('hidden'); safeInjectionView.style.display = 'none'; }
 
       // Reset sidebar buttons style
-      const inactiveBtnClass = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#03203f] border-slate-700 text-slate-300 hover:text-white";
       if (btnPortal) btnPortal.className = inactiveBtnClass;
       if (btnPuzzle) btnPuzzle.className = inactiveBtnClass;
       if (btnIcebreaker) btnIcebreaker.className = inactiveBtnClass;
       if (btnGuardians) btnGuardians.className = inactiveBtnClass;
+      if (btnSafeInjection) btnSafeInjection.className = inactiveBtnClass;
 
       // Reset mobile tab buttons style
-      const inactiveMobClass = "flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200";
       if (mobPortal) mobPortal.className = inactiveMobClass;
       if (mobPuzzle) mobPuzzle.className = inactiveMobClass;
       if (mobIcebreaker) mobIcebreaker.className = inactiveMobClass;
       if (mobGuardians) mobGuardians.className = inactiveMobClass;
+      if (mobSafeInjection) mobSafeInjection.className = inactiveMobClass;
 
       const badgeText = document.getElementById('header-badge-text');
       if (badgeText) {
         if (viewName === 'puzzle') badgeText.textContent = '🧩 PUZZLE 1';
         else if (viewName === 'icebreaker') badgeText.textContent = '🧊 PUZZLE 2: ICE BREAKER';
         else if (viewName === 'guardians') badgeText.textContent = '🛡️ درع الوقاية | PPE CHALLENGE';
+        else if (viewName === 'safe-injection') badgeText.textContent = '💉 تحدّي الحقن الآمن | SAFE INJECTION CHALLENGE';
         else if (viewName === 'portal') badgeText.textContent = '🏛️ MAIN PORTAL';
       }
 
       if (viewName === 'portal') {
-        // Restore normal portal mode
+        // Restore normal portal mode with full smooth scrolling
+        document.documentElement.classList.remove('game-fullscreen-mode');
         document.body.classList.remove('game-fullscreen-mode');
+        document.documentElement.style.overflowY = 'auto';
+        document.body.style.overflowY = 'auto';
         setWidescreenMode(false);
         updateFullscreenButtonUI();
         if (isStudentMode) {
@@ -9048,7 +9308,27 @@
         } else {
           showToast("🧊 Puzzle 2 Active", "Connect terms to clinical definitions!", "emerald");
         }
-      } else if (viewName === 'guardians') {
+      } else if (viewName === 'safe-injection') {
+        // 💉 ZERO-SCROLL FULL SCREEN VIEW FOR SAFE INJECTION CHALLENGE
+        setWidescreenMode(true);
+        requestGameFullScreen();
+
+        if (topHeaderRow) topHeaderRow.classList.add('hidden');
+        if (mainHeader) mainHeader.classList.add('hidden');
+        if (squadsBar) squadsBar.classList.add('hidden');
+        if (leftTeamCard) leftTeamCard.classList.add('hidden');
+
+        if (safeInjectionView) { safeInjectionView.classList.remove('hidden'); safeInjectionView.style.display = ''; }
+        if (btnSafeInjection) btnSafeInjection.className = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-gradient-to-r from-violet-950 via-[#2a1758] to-indigo-900 border-violet-400 text-white shadow-violet-500/30 ring-2 ring-violet-400/30";
+        if (mobSafeInjection) mobSafeInjection.className = "flex-1 min-w-[115px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-violet-700 text-white shadow";
+
+        if (typeof initSafeInjectionUI === 'function') {
+          initSafeInjectionUI();
+        }
+        fitGameToScreen();
+        showToast("💉 تحدّي الحقن الآمن نشط", "ممارسات الحقن • سلامة الأدوية • السلامة من الأدوات الحادة!", "violet");
+      }
+      else if (viewName === 'guardians') {
         // 🛡️ ZERO-SCROLL FULL SCREEN VIEW FOR GUARDIANS OF STERILIZATION
         setWidescreenMode(true);
         requestGameFullScreen();
@@ -9504,6 +9784,7 @@ function _legacySwitchMainView(viewName) {
         puzzle: document.getElementById('tab-share-puzzle'),
         icebreaker: document.getElementById('tab-share-icebreaker'),
         guardians: document.getElementById('tab-share-guardians'),
+        'safe-injection': document.getElementById('tab-share-safe-injection'),
         portal: document.getElementById('tab-share-portal')
       };
 
@@ -9535,6 +9816,7 @@ function _legacySwitchMainView(viewName) {
         puzzle: "Puzzle 1: Break the Chain",
         icebreaker: "Puzzle 2: Definitions",
         guardians: "درع الوقاية | PPE Challenge",
+        'safe-injection': "تحدّي الحقن الآمن | Safe Injection Challenge",
         portal: "Main Portal Hub"
       };
       if (badge) {
@@ -11989,6 +12271,1148 @@ function _legacySwitchMainView(viewName) {
     }
 
 
+    
+    // =========================================================================
+    // 💉 MODULE 4: SAFE INJECTION, MEDICATION & SHARPS SAFETY ENGINE
+    // =========================================================================
+    const INJECTION_DOMAINS = {
+      safe_injection: {
+        id: 'safe_injection',
+        name: 'Safe Injection Practices',
+        nameAr: 'ممارسات الحقن الآمن',
+        icon: '💉',
+        badgeColor: 'cyan',
+        borderClass: 'border-cyan-400',
+        bgClass: 'bg-cyan-950/80',
+        textClass: 'text-cyan-300',
+        descAr: 'قاعدة إبرة واحدة ومحقنة واحدة لمريض واحد، منع إعادة الدخول بالقوارير بمحاقن مستعملة، وتطهير السدادات المطاطية.',
+        descEn: 'One needle, one syringe, only one time; sterile prep and multi-dose vial protection.',
+        defaultRef: {
+          title: 'CDC Safe Injection Practices: One & Only Campaign',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      medication_safety: {
+        id: 'medication_safety',
+        name: 'Medication Safety',
+        nameAr: 'سلامة الأدوية',
+        icon: '🧴',
+        badgeColor: 'amber',
+        borderClass: 'border-amber-400',
+        bgClass: 'bg-amber-950/80',
+        textClass: 'text-amber-300',
+        descAr: 'التحقق من هوية المريض بمُعرّفين مستقلين، وسم المحاقن فور التحضير، ومنع استخدام الأدوية غير الموسومة أو منتهية الصلاحية.',
+        descEn: 'Two patient identifiers, immediate syringe labeling, expiration verification, and error prevention.',
+        defaultRef: {
+          title: 'The Joint Commission: National Patient Safety Goals',
+          url: 'https://www.jointcommission.org/standards/national-patient-safety-goals/'
+        }
+      },
+      sharps_safety: {
+        id: 'sharps_safety',
+        name: 'Sharps Safety',
+        nameAr: 'السلامة من الأدوات الحادة',
+        icon: '☣️',
+        badgeColor: 'rose',
+        borderClass: 'border-rose-400',
+        bgClass: 'bg-rose-950/80',
+        textClass: 'text-rose-300',
+        descAr: 'التخلص الفوري عند نقطة الرعاية، حظر إعادة التغطية باليدين، استبدال الحاوية عند خط الامتلاء، واستخدام تقنية المنطقة المحايدة.',
+        descEn: 'Immediate point-of-care disposal, prohibiting two-hand recapping, replacing containers at fill line.',
+        defaultRef: {
+          title: 'CDC / NIOSH / OSHA Sharps Safety Guidelines',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      }
+    };
+
+    const INJECTION_SCENARIO_BANK = [
+      // -----------------------------------------------------------------------
+      // 💉 DOMAIN 1: SAFE INJECTION PRACTICES (10 Scenarios: 5 Safe, 5 Unsafe)
+      // -----------------------------------------------------------------------
+      {
+        id: 'si_1',
+        domainId: 'safe_injection',
+        situationAr: 'قام الممرض بتغيير الإبرة لمريض جديد لكنه أعاد استخدام نفس المحقنة لسحب الدواء وإعطائه.',
+        situationEn: 'The nurse changed the needle for a new patient but reused the same syringe to draw and administer medication.',
+        isSafe: false,
+        explanationAr: 'إعادة استخدام المحقنة حتى مع تغيير الإبرة ينقل فيروسات الدم الممرضة؛ فالمحقنة تتلوث داخلياً بالدم وسوائل الجسم فور الاستخدام الأول.',
+        explanationEn: 'Reusing a syringe even with a new needle transmits bloodborne pathogens; the syringe barrel is contaminated internally upon first use.',
+        safeAlternativeAr: 'استخدم دائماً إبرة ومحقنة جديدة معقمة لكل مريض ولكل عملية حقن (إبرة واحدة، محقنة واحدة، لمريض واحد مرة واحدة).',
+        safeAlternativeEn: 'Always use a brand-new sterile needle and syringe for every patient and injection (One Needle, One Syringe, Only One Time).',
+        reference: {
+          title: 'CDC Safe Injection Practices: One & Only Campaign',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_2',
+        domainId: 'safe_injection',
+        situationAr: 'استخدم الممرض قارورة دواء أحادية الجرعة (Single-Dose Vial) لسحب جرعات إضافية لمريض آخر لتوفير الدواء.',
+        situationEn: 'The nurse used a single-dose vial to draw additional doses for another patient to avoid medication waste.',
+        isSafe: false,
+        explanationAr: 'القوارير أحادية الجرعة لا تحتوي على مواد حافظة مضادة للجراثيم، وإعادة الدخول فيها لمريض ثانٍ يسبب تفشياً خطيراً لعدوى مجرى الدم.',
+        explanationEn: 'Single-dose vials lack antimicrobial preservatives; entering them for a second patient causes serious bloodstream infection outbreaks.',
+        safeAlternativeAr: 'خصص القوارير أحادية الجرعة لمريض واحد فقط، وتخلص من أي كمية متبقية فوراً بعد الاستخدام.',
+        safeAlternativeEn: 'Dedicate single-dose vials to a single patient only, and discard any residual volume immediately after use.',
+        reference: {
+          title: 'CDC Injection Safety Guidelines',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_3',
+        domainId: 'safe_injection',
+        situationAr: 'قام الممارس الصحي بتحضير الحقن والأدوية الوريدية في منطقة نظيفة مخصصة ومفصولة بعيداً عن مصادر التلوث وسوائل المرضى.',
+        situationEn: 'The healthcare provider prepared injections in a dedicated clean medication prep area away from contamination sources and patient fluids.',
+        isSafe: true,
+        explanationAr: 'تحضير الحقن في منطقة نظيفة مخصصة يحمي الأدوية والمحاقن من التلوث بالرذاذ أو التلامس البيئي.',
+        explanationEn: 'Preparing injections in a dedicated clean medication area protects medications and syringes from droplet or contact contamination.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC Safe Injection Practices',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_4',
+        domainId: 'safe_injection',
+        situationAr: 'أعاد الممرض إدخال إبرة ومحقنة مستعملة في قارورة متعددة الجرعات لسحب جرعة إضافية لنفس المريض.',
+        situationEn: 'The nurse re-entered a multi-dose vial using a used syringe and needle to draw additional medication for the same patient.',
+        isSafe: false,
+        explanationAr: 'إعادة الدخول في القارورة بمحقنة مستعملة يلوث محتويات القارورة بالكامل، مما ينقل العدوى إلى جميع المرضى اللاحقين.',
+        explanationEn: 'Re-entering a vial with a used syringe or needle contaminates the entire medication volume, transmitting pathogens to future patients.',
+        safeAlternativeAr: 'استخدم دائماً إبرة ومحقنة معقمة جديدة تماماً في كل مرة تدخل فيها إلى قارورة متعددة الجرعات.',
+        safeAlternativeEn: 'Always access a multi-dose vial with a brand-new, sterile needle and syringe every single time.',
+        reference: {
+          title: 'CDC Safe Injection Guidelines',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_5',
+        domainId: 'safe_injection',
+        situationAr: 'قبل سحب الدواء من القارورة، فرك الممرض السدادة المطاطية بكحول 70% بحركة احتكاكية لمدة 15 ثانية وتركها تجف تماماً.',
+        situationEn: 'Before withdrawing medication, the nurse scrubbed the vial rubber septum with 70% alcohol for 15 seconds and allowed it to air-dry.',
+        isSafe: true,
+        explanationAr: 'التطهير الاحتكاكي لسدادة القارورة وتركه يجف يقضي على الميكروبات المستعمرة على السطح ويمنع اختراقها مع الإبرة إلى داخل الدواء.',
+        explanationEn: 'Friction scrubbing of the rubber diaphragm and allowing it to air-dry eliminates surface microbes and prevents contaminating the vial during puncture.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC Core Infection Control Practices',
+          url: 'https://www.cdc.gov/infection-control/hcp/core-practices/'
+        }
+      },
+      {
+        id: 'si_6',
+        domainId: 'safe_injection',
+        situationAr: 'ترك الممارس إبرة مغروزة في سدادة القارورة متعددة الجرعات طوال الوردية لتسهيل وسرعة سحب الجرعات المتكررة.',
+        situationEn: 'The clinician left a needle inserted in the multi-dose vial stopper throughout the shift to expedite repeated withdrawals.',
+        isSafe: false,
+        explanationAr: 'ترك الإبرة في السدادة يخلق ممراً مفتوحاً لدخول الجراثيم والملوثات المحمولة جواً إلى داخل المحلول الدوائي.',
+        explanationEn: 'Leaving a spiked needle in the septum creates an open portal for airborne and contact pathogens to contaminate the medication.',
+        safeAlternativeAr: 'لا تترك إبرة مغروزة في سدادة القارورة أبداً؛ طهّر السدادة واستخدم إبرة معقمة جديدة لكل عملية سحب.',
+        safeAlternativeEn: 'Never leave a needle inserted in a vial septum; disinfect the diaphragm and access with a new sterile needle each time.',
+        reference: {
+          title: 'CDC Safe Injection Practices',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_7',
+        domainId: 'safe_injection',
+        situationAr: 'استخدم الممرض أمبولة محلول ملحي مغلفة مسبقاً (Saline Flush) مخصصة لمريض واحد، وتخلص منها مباشرة بعد شطف القسطرة.',
+        situationEn: 'The nurse used a single-use prefilled normal saline flush syringe for one patient and disposed of it immediately after flushing.',
+        isSafe: true,
+        explanationAr: 'محاقن الشطف أحادية الاستخدام المخصصة لمريض واحد تقطع مسار انتقال العدوى وتمنع التهابات مجرى الدم المرتبطة بالقساطر (CLABSI).',
+        explanationEn: 'Single-patient prefilled flush syringes eliminate cross-contamination risk and prevent catheter-related bloodstream infections.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC Injection Safety Guidelines',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_8',
+        domainId: 'safe_injection',
+        situationAr: 'استخدم الممرض كيس محاليل وريدية كبير كمصدر مشترك لسحب محاليل الغسيل لعدة مرضى باستخدام محاقن مختلفة.',
+        situationEn: 'The nurse used a large IV fluid bag as a common source to draw saline flushes for multiple patients using separate syringes.',
+        isSafe: false,
+        explanationAr: 'أكياس المحاليل الوريدية لا يجوز استخدامها كحاويات شطف مشتركة لأنها تصبح بؤرة لتفشي التسمم الجرثومي التبادلي بين المرضى.',
+        explanationEn: 'IV bags must never be used as common flush reservoirs as they become epicenters for cross-patient bacteremia outbreaks.',
+        safeAlternativeAr: 'لا تستخدم أكياس المحاليل الوريدية كمصدر مشترك لعدة مرضى؛ خصص لكل مريض محقنة شطف جاهزة أو أمبولة مفردة.',
+        safeAlternativeEn: 'Never use IV solution containers as a common supply for multiple patients; use dedicated single-use flush syringes.',
+        reference: {
+          title: 'CDC Injection Safety Guidelines',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_9',
+        domainId: 'safe_injection',
+        situationAr: 'التزم الممرض بفتح غلاف محقنة الأنسولين المعقمة فوراً عند سرير المريض، وتأكد من سلامة التغليف وتاريخ الصلاحية.',
+        situationEn: 'The nurse opened the sterile insulin syringe package directly at the bedside after verifying packaging integrity and expiration date.',
+        isSafe: true,
+        explanationAr: 'فتح الأدوات المعقمة عند نقطة الرعاية مباشرة يضمن عدم تعرضها للتلوث البيئي المسبق ويحافظ على العقامة.',
+        explanationEn: 'Opening sterile supplies immediately before use at the point of care minimizes environmental exposure and ensures sterility.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC Safe Injection Practices',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_10',
+        domainId: 'safe_injection',
+        situationAr: 'استخدم الممرض جهاز وخز الإصبع (قلم فحص السكر) لعدة مرضى في القسم بعد مسحه بمنديل مبلل وتغيير الإبرة الدقيقة فقط.',
+        situationEn: 'The nurse reused a fingerstick lancing device on multiple patients after wiping the tip and changing only the disposable lancet.',
+        isSafe: false,
+        explanationAr: 'أجهزة وخز الإصبع تتلوث بقطرات الدم الدقيقة داخل الآلية الميكانيكية، ويحظر قطعياً مشاركتها بين المرضى لتجنب نقل فيروس الكبد B.',
+        explanationEn: 'Fingerstick lancing devices become contaminated with microscopic blood in internal mechanisms; sharing them is strictly prohibited.',
+        safeAlternativeAr: 'استخدم حصراً أجهزة وخز الأصابع أحادية الاستخدام ذاتية التلف (Single-use auto-disabling lancets) المخصصة لكل مريض.',
+        safeAlternativeEn: 'Use only single-use, auto-disabling lancing devices that are disposed of immediately after each patient.',
+        reference: {
+          title: 'CDC Clinical Reminder: Insulin Pens & Lancing Devices',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+      {
+        id: 'si_11',
+        domainId: 'safe_injection',
+        situationAr: 'خصص الممرض قارورة متعددة الجرعات لمريض واحد داخل غرفة العزل، ودوّن تاريخ ووقت الفتح عليها للتخلص منها بعد 28 يوماً.',
+        situationEn: 'The nurse dedicated a multi-dose vial to a single patient in the isolation room and recorded the date/time opened to discard it within 28 days.',
+        isSafe: true,
+        explanationAr: 'تخصيص القارورة لمريض واحد وتأريخ فتحها بدقة يمنع التلوث التبادلي ويلتزم بالحد الأقصى المسموح به للصلاحية بعد الفتح.',
+        explanationEn: 'Dedicating multi-dose vials to individual patients and dating them prevents cross-contamination and complies with 28-day beyond-use limits.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC Safe Injection Practices',
+          url: 'https://www.cdc.gov/injection-safety/'
+        }
+      },
+
+      // -----------------------------------------------------------------------
+      // 🧴 DOMAIN 2: MEDICATION SAFETY (6 Scenarios: 3 Safe, 3 Unsafe)
+      // -----------------------------------------------------------------------
+      {
+        id: 'med_1',
+        domainId: 'medication_safety',
+        situationAr: 'طابق الممرض اسم المريض ورقم ملفه مع سجل الدواء قبل إعطاء الحقنة.',
+        situationEn: 'The nurse matched the patient full name and medical record number against the medication record before administering the injection.',
+        isSafe: true,
+        explanationAr: 'استخدم مُعرّفين مستقلين للتحقق من هوية المريض لضمان إعطاء الدواء الصحيح للمريض الصحيح.',
+        explanationEn: 'Used two independent patient identifiers to confirm identity, ensuring the correct drug is given to the right patient.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'The Joint Commission: NPSG.01.01.01 (Patient Identification)',
+          url: 'https://www.jointcommission.org/standards/national-patient-safety-goals/'
+        }
+      },
+      {
+        id: 'med_2',
+        domainId: 'medication_safety',
+        situationAr: 'اعتمد الممرض على رقم السرير وحده لتحديد المريض قبل إعطاء الدواء.',
+        situationEn: 'The nurse relied solely on the bed number to identify the patient before administering the medication.',
+        isSafe: false,
+        explanationAr: 'الاعتماد على رقم السرير وحده ممارسة خاطئة وغير معتمدة، فالمرضى قد يغيرون أماكنهم، مما يؤدي لأخطاء دوائية جسيمة.',
+        explanationEn: 'Relying solely on bed or room number is an unsafe violation; patients can swap beds, causing severe medication administration errors.',
+        safeAlternativeAr: 'تحقّق دائماً من الهوية باستخدام مُعرّفين معتمدين ومستقلين، مثل الاسم ورقم الملف الطبي (أو تاريخ الميلاد) بمطابقة السوار وسجل الدواء.',
+        safeAlternativeEn: 'Always verify identity using two approved independent identifiers, such as full name and medical record number (or DOB).',
+        reference: {
+          title: 'The Joint Commission: NPSG.01.01.01 (Patient Identification)',
+          url: 'https://www.jointcommission.org/standards/national-patient-safety-goals/'
+        }
+      },
+      {
+        id: 'med_3',
+        domainId: 'medication_safety',
+        situationAr: 'في غرفة الإجراءات، نقل الممرض الدواء إلى محقنة لاستخدامها لاحقًا ووضع الملصق عليها فور التحضير حسب سياسة المنشأة.',
+        situationEn: 'In the procedure room, the nurse drew medication into a syringe for later use and immediately placed a label on it upon preparation per facility policy.',
+        isSafe: true,
+        explanationAr: 'وضع الملصق عند التحضير يحافظ على إمكانية التحقق من محتوى المحقنة واسم الدواء وقوته وتاريخ التحضير.',
+        explanationEn: 'Immediate labeling upon preparation preserves traceability and verifiability of syringe contents, drug name, strength, and prep time.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'The Joint Commission: NPSG.03.04.01 (Medication Labeling)',
+          url: 'https://www.jointcommission.org/standards/national-patient-safety-goals/'
+        }
+      },
+      {
+        id: 'med_4',
+        domainId: 'medication_safety',
+        situationAr: 'وجد الممرض محقنة غير موسومة في غرفة الإجراءات، فقرّر استخدامها بناءً على لون السائل.',
+        situationEn: 'The nurse found an unlabeled syringe in the procedure room and decided to administer it based on fluid color.',
+        isSafe: false,
+        explanationAr: 'استخدام محقنة غير موسومة بناءً على اللون أو التخمين ممارسة بالغة الخطورة، وتعتبر من أكثر أسباب الوفيات الناتجة عن أخطاء الأدوية.',
+        explanationEn: 'Using an unlabeled syringe based on fluid color or assumption is extremely hazardous and a top cause of fatal medication errors.',
+        safeAlternativeAr: 'تخلّص من المحقنة غير الموسومة فوراً حسب سياسة المنشأة، وحضّر جرعة جديدة قابلة للتحقق وموسومة بدقة من العبوة الأصلية.',
+        safeAlternativeEn: 'Immediately discard the unlabeled syringe per facility policy and prepare a fresh, verifiable, accurately labeled dose.',
+        reference: {
+          title: 'The Joint Commission: NPSG.03.04.01 (Medication Labeling)',
+          url: 'https://www.jointcommission.org/standards/national-patient-safety-goals/'
+        }
+      },
+      {
+        id: 'med_5',
+        domainId: 'medication_safety',
+        situationAr: 'أجرى ممرضان فحصاً مزدوجاً مستقلاً (Independent Double-Check) لحساب جرعة ومعدل تدفق مضخة الإنسولين الوريدي عالي الخطورة.',
+        situationEn: 'Two nurses performed an independent double-check to verify the dosage and infusion rate for a high-alert intravenous insulin infusion.',
+        isSafe: true,
+        explanationAr: 'الفحص المزدوج المستقل للأدوية عالية الخطورة يحمي المرضى ويكتشف أخطاء الحساب والبرمجة قبل إعطاء الدواء.',
+        explanationEn: 'Independent double-checking of high-alert medications protects patients and catches calculation and programming errors prior to infusion.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'The Joint Commission: High-Alert Medications Safety',
+          url: 'https://www.jointcommission.org/'
+        }
+      },
+      {
+        id: 'med_6',
+        domainId: 'medication_safety',
+        situationAr: 'تجاهل الممرض فحص تاريخ انتهاء الصلاحية على قارورة المضاد الحيوي قبل حلّه وإعطائه بسبب انشغاله الشديد.',
+        situationEn: 'The nurse skipped checking the expiration date on the antibiotic vial prior to reconstitution due to being extremely busy.',
+        isSafe: false,
+        explanationAr: 'إعطاء أدوية منتهية الصلاحية يعرض المريض لفشل العلاج أو التسمم بالمركبات الناتجة عن التحلل الكيميائي.',
+        explanationEn: 'Administering expired medications exposes patients to therapeutic failure or toxicity from chemical breakdown products.',
+        safeAlternativeAr: 'افحص دائماً تاريخ الصلاحية وسلامة المحلول قبل التحضير، وتخلص من أي دواء منتهي الصلاحية فوراً.',
+        safeAlternativeEn: 'Always inspect expiration date and solution appearance before prep; immediately quarantine and discard expired drugs.',
+        reference: {
+          title: 'The Joint Commission Medication Management Standards',
+          url: 'https://www.jointcommission.org/'
+        }
+      },
+
+      // -----------------------------------------------------------------------
+      // ☣️ DOMAIN 3: SHARPS SAFETY (6 Scenarios: 3 Safe, 3 Unsafe)
+      // -----------------------------------------------------------------------
+      {
+        id: 'ss_1',
+        domainId: 'sharps_safety',
+        situationAr: 'تخلّص الممرض من الإبرة والمحقنة فور الاستخدام في حاوية الأدوات الحادة عند نقطة الرعاية.',
+        situationEn: 'The nurse immediately discarded the needle and syringe into the sharps container at the point of care after use.',
+        isSafe: true,
+        explanationAr: 'التخلّص الفوري عند نقطة الرعاية يقلّل فرص الوخز أثناء المناولة وتداول الأدوات الحادة المكشوفة.',
+        explanationEn: 'Immediate disposal at point of care reduces handling time and eliminates accidental needlestick hazards.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC / NIOSH Sharps Safety Workbook',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      },
+      {
+        id: 'ss_2',
+        domainId: 'sharps_safety',
+        situationAr: 'أعاد الممرض تغطية الإبرة المستعملة بكلتا يديه قبل التخلص منها.',
+        situationEn: 'The nurse recapped the used needle using both hands before disposal.',
+        isSafe: false,
+        explanationAr: 'إعادة تغطية الإبر باليدين هي السبب الأكثر شيوعاً لإصابات وخز الإبر وانتقال الفيروسات المنقولة بالدم بين الكوادر الصحية.',
+        explanationEn: 'Two-handed recapping is the leading cause of accidental needlestick injuries and occupational bloodborne viral transmission.',
+        safeAlternativeAr: 'ضع الإبرة المستعملة مباشرة في حاوية الأدوات الحادة دون إعادة تغطية، أو استخدم تقنية المغرفة بيد واحدة عند الضرورة القصوى.',
+        safeAlternativeEn: 'Discard the used needle directly into the sharps box without recapping, or use a one-handed scoop technique if recapping is mandatory.',
+        reference: {
+          title: 'OSHA Bloodborne Pathogens Standard & CDC Sharps Safety',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      },
+      {
+        id: 'ss_3',
+        domainId: 'sharps_safety',
+        situationAr: 'استبدل الموظف حاوية الأدوات الحادة عند وصولها إلى خط التعبئة المحدد (3/4 الحاوية).',
+        situationEn: 'The staff replaced the sharps container when it reached the designated fill line (3/4 full).',
+        isSafe: true,
+        explanationAr: 'استبدال الحاوية عند خط التعبئة يمنع امتلاءها الزائد ويضمن عدم خروج الإبر والمشارط من فتحة الإلقاء.',
+        explanationEn: 'Replacing the container at the designated fill line prevents overfilling and prevents sharp items from protruding out of the opening.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC Sharps Safety Guidelines',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      },
+      {
+        id: 'ss_4',
+        domainId: 'sharps_safety',
+        situationAr: 'دفع الموظف المحاقن بيده داخل حاوية ممتلئة لإفساح المجال.',
+        situationEn: 'The worker forced syringes down into an overfilled sharps container with their hand to make room.',
+        isSafe: false,
+        explanationAr: 'الضغط باليد داخل حاوية الأدوات الحادة يسبب اختراق الإبر للقفازات والجلد، مما يؤدي لإصابات وخز عميقة وخطيرة.',
+        explanationEn: 'Pressing down with hands into a sharps container forces needles through gloves and skin, resulting in deep, dangerous punctures.',
+        safeAlternativeAr: 'أغلق الحاوية الممتلئة بإحكام واستبدلها حسب سياسة المنشأة؛ لا تضغط أبداً على الأدوات الحادة باليد أو القدم.',
+        safeAlternativeEn: 'Close and seal the full container immediately and replace it per facility policy; never press or force sharps downward.',
+        reference: {
+          title: 'OSHA / CDC Needle Disposal Safety Standards',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      },
+      {
+        id: 'ss_5',
+        domainId: 'sharps_safety',
+        situationAr: 'قام الفريق الجراحي بتمرير المشرط والأدوات الحادة عبر صينية المنطقة المحايدة (Hands-Free Neutral Zone) دون تسليم يدوي مباشر.',
+        situationEn: 'The surgical team passed scalpels and sharp instruments via a hands-free neutral zone tray without direct hand-to-hand transfer.',
+        isSafe: true,
+        explanationAr: 'تقنية المنطقة المحايدة تلغي التمرير اليدوي المباشر للأدوات الحادة وتقلل إصابات القطع والوخز الجراحية بأكثر من 70%.',
+        explanationEn: 'Hands-free neutral zone passing eliminates direct hand-to-hand transfers and cuts perioperative sharp injuries by over 70%.',
+        safeAlternativeAr: '',
+        safeAlternativeEn: '',
+        reference: {
+          title: 'CDC / AORN Sharps Safety in Surgery',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      },
+      {
+        id: 'ss_6',
+        domainId: 'sharps_safety',
+        situationAr: 'قام الممرض بفصل الإبرة يدوياً عن المحقنة وثني رأسها بيده قبل إلقائها في سلة المهملات العامة.',
+        situationEn: 'The nurse manually detached the needle from the syringe and bent it with fingers before tossing it into regular trash.',
+        isSafe: false,
+        explanationAr: 'ثني أو كسر أو فك الإبر يدوياً يزيد خطر انغراس الإبرة في اليد، كما أن رميها في المهملات العامة يعرض عمال النظافة لخطر وخز قاتل.',
+        explanationEn: 'Bending, shearing, or manually handling needles causes immediate punctures; regular trash disposal endangers waste handlers.',
+        safeAlternativeAr: 'تخلص من الإبرة والمحقنة معاً كوحدة واحدة متكاملة مباشرة في حاوية الأدوات الحادة المعتمدة دون فك يدوي أو ثني.',
+        safeAlternativeEn: 'Discard the needle and syringe as a single intact unit directly into an approved sharps container without manual manipulation.',
+        reference: {
+          title: 'OSHA Bloodborne Pathogens Standard (1910.1030)',
+          url: 'https://www.cdc.gov/sharpssafety/'
+        }
+      }
+    ];
+
+    // Module State
+    let siActiveLanguage = 'ar';
+    let siIsSoundMuted = false;
+    let siTimerSeconds = 0;
+    let siTimerInterval = null;
+    let siCurrentMode = null; // 'safe_injection' | 'medication_safety' | 'sharps_safety' | 'mixed'
+    let siCurrentCases = [];
+    let siCurrentIdx = 0;
+    let siUserAnswers = []; // { caseId, userSafe, isCorrect, domainId }
+    let siMistakes = [];
+    let siScore = 0;
+    let siAnswerLocked = false;
+
+    // Translations Dictionary for Module 4
+    const SI_I18N = {
+      ar: {
+        title: 'تحدّي الحقن الآمن',
+        subtitle: 'ممارسات الحقن • سلامة الأدوية • سلامة الأدوات الحادة',
+        allPuzzles: 'الرئيسية',
+        scorePts: 'نقطة',
+        references: 'المراجع',
+        langBtn: 'English',
+        heroTitle: 'تحدّي الحقن الآمن، سلامة الأدوية، وسلامة الأدوات الحادة',
+        heroSubtitle: 'اختر محوراً محدداً للتدريب المركز (4 حالات: 2 آمنة و2 خاطئة)، أو انطلق في التحدي المختلط الشامل (12 حالة متوازنة).',
+        mixedCardTitle: 'تحدٍّ مختلط | Mixed Challenge',
+        mixedCardBadge: '12 حالة شاملة (4 من كل محور)',
+        mixedCardDesc: '12 موقفاً سريرياً متنوعاً: 4 حالات من كل محور (حالتان آمنتان وحالتان خاطئتان)، بترتيب عشوائي تماماً ودون تكرار.',
+        mixedLaunchBtn: '🚀 ابدأ التحدي المختلط (12 حالة)',
+        startDomainBtn: 'بدء هذا المحور ➡️',
+        domainBadgeBalanced: '4 حالات متوازنة (2 آمنة + 2 خاطئة)',
+        caseProgress: 'حالة',
+        of: 'من',
+        safeBtn: '🟢 ممارسة آمنة | Safe Practice',
+        unsafeBtn: '🔴 ممارسة خاطئة | Unsafe Practice',
+        correctHeading: '✅ إجابة صحيحة! أحسنت.',
+        incorrectHeading: '❌ إجابة غير دقيقة!',
+        rationaleLabel: 'تفسير القرار السريري:',
+        safeAltLabel: '🛡️ الإجراء الآمن البديل المعتمد:',
+        nextCaseBtn: 'الحالة التالية ➡️',
+        viewResultsBtn: '🏆 عرض النتيجة النهائية',
+        resultsHeading: 'تقرير التحدي السريري',
+        resultsSubtitle: 'تقييم قرارات السلامة لممارسات الحقن والأدوية والأدوات الحادة',
+        finalScore: 'النتيجة الإجمالية',
+        pts: 'نقطة',
+        timeSpent: 'الوقت المستغرق',
+        domainBreakdown: 'النتائج التفصيلية لكل محور',
+        reviewMistakesBtn: '🔍 راجع أخطائي',
+        noMistakesMsg: '🌟 مذهل! أداء سريري مثالي بنسبة 100% دون ارتكاب أي أخطاء!',
+        playAgainBtn: '🔄 إعادة التحدي',
+        returnPortalBtn: '🏛️ البوابة الرئيسية لجميع الألعاب',
+        yourChoice: 'إجابتك:',
+        correctChoice: 'القرار الصحيح:'
+      },
+      en: {
+        title: 'Safe Injection Challenge',
+        subtitle: 'Injection Safety • Medication Safety • Sharps Safety',
+        allPuzzles: 'Main Hub',
+        scorePts: 'pts',
+        references: 'References',
+        langBtn: 'العربية',
+        heroTitle: 'Safe Injections, Medication Safety & Sharps Safety Challenge',
+        heroSubtitle: 'Select a focused domain (4 cases: 2 Safe & 2 Unsafe), or test yourself in the comprehensive Mixed Challenge (12 cases).',
+        mixedCardTitle: 'Mixed Challenge | تحدٍّ مختلط',
+        mixedCardBadge: '12 Comprehensive Cases (4 per domain)',
+        mixedCardDesc: '12 diverse clinical scenarios: 4 cases from each domain (2 safe + 2 unsafe), in complete random order without repetition.',
+        mixedLaunchBtn: '🚀 Launch Mixed Challenge (12 Cases)',
+        startDomainBtn: 'Start Domain ➡️',
+        domainBadgeBalanced: '4 balanced cases (2 Safe + 2 Unsafe)',
+        caseProgress: 'Case',
+        of: 'of',
+        safeBtn: '🟢 Safe Practice | ممارسة آمنة',
+        unsafeBtn: '🔴 Unsafe Practice | ممارسة خاطئة',
+        correctHeading: '✅ Correct Decision! Well done.',
+        incorrectHeading: '❌ Inaccurate Decision!',
+        rationaleLabel: 'Clinical Rationale:',
+        safeAltLabel: '🛡️ Approved Safe Alternative Procedure:',
+        nextCaseBtn: 'Next Case ➡️',
+        viewResultsBtn: '🏆 View Final Results',
+        resultsHeading: 'Clinical Challenge Report',
+        resultsSubtitle: 'Performance assessment on injection, medication, and sharps safety',
+        finalScore: 'Overall Score',
+        pts: 'pts',
+        timeSpent: 'Time Spent',
+        domainBreakdown: 'Detailed Domain Breakdown',
+        reviewMistakesBtn: '🔍 Review My Mistakes',
+        noMistakesMsg: '🌟 Flawless! 100% perfect clinical decision-making with zero errors!',
+        playAgainBtn: '🔄 Play Again',
+        returnPortalBtn: '🏛️ Return to Main Portal',
+        yourChoice: 'Your Decision:',
+        correctChoice: 'Correct Decision:'
+      }
+    };
+
+    function initSafeInjectionUI() {
+      renderSafeInjectionTopBar();
+      if (!siCurrentMode) {
+        renderSafeInjectionStartScreen();
+      } else if (siCurrentIdx < siCurrentCases.length) {
+        renderSafeInjectionQuestion();
+      } else {
+        renderSafeInjectionResults();
+      }
+    }
+
+    function renderSafeInjectionTopBar() {
+      const t = SI_I18N[siActiveLanguage];
+      const lblPortal = document.getElementById('lbl-si-portal-btn');
+      const lblTitle = document.getElementById('lbl-si-title');
+      const lblSubtitle = document.getElementById('lbl-si-subtitle');
+      const lblScorePts = document.getElementById('lbl-si-score-pts');
+      const lblLangBtn = document.getElementById('lbl-si-lang-btn');
+      const lblRefBtn = document.getElementById('lbl-si-ref-btn');
+      const liveScoreEl = document.getElementById('si-live-score');
+
+      if (lblPortal) lblPortal.textContent = t.allPuzzles;
+      if (lblTitle) lblTitle.textContent = t.title;
+      if (lblSubtitle) lblSubtitle.textContent = t.subtitle;
+      if (lblScorePts) lblScorePts.textContent = t.scorePts;
+      if (lblLangBtn) lblLangBtn.textContent = t.langBtn;
+      if (lblRefBtn) lblRefBtn.textContent = t.references;
+      if (liveScoreEl) liveScoreEl.textContent = siScore;
+
+      const viewEl = document.getElementById('view-safe-injection');
+      if (viewEl) {
+        viewEl.dir = siActiveLanguage === 'ar' ? 'rtl' : 'ltr';
+        viewEl.lang = siActiveLanguage;
+      }
+    }
+
+    function toggleSafeInjectionLanguage() {
+      siActiveLanguage = (siActiveLanguage === 'ar') ? 'en' : 'ar';
+      renderSafeInjectionTopBar();
+      if (!siCurrentMode) {
+        renderSafeInjectionStartScreen();
+      } else if (siCurrentIdx < siCurrentCases.length) {
+        renderSafeInjectionQuestion();
+      } else {
+        renderSafeInjectionResults();
+      }
+    }
+
+    function toggleSafeInjectionSound() {
+      siIsSoundMuted = !siIsSoundMuted;
+      const btn = document.getElementById('btn-si-sound');
+      if (btn) btn.textContent = siIsSoundMuted ? '🔇' : '🔊';
+      showToast(siIsSoundMuted ? '🔇 الصوت مكتوم' : '🔊 الصوت مفعّل', '', 'slate');
+    }
+
+    function playSiAudio(type) {
+      if (siIsSoundMuted) return;
+      if (typeof sound !== 'undefined') {
+        if (type === 'success' && sound.playSuccessSoft) sound.playSuccessSoft();
+        else if (type === 'wrong' && sound.playWrongSoft) sound.playWrongSoft();
+        else if (type === 'cheer' && sound.playStageWin) sound.playStageWin();
+      }
+    }
+
+    function startSiTimer() {
+      if (siTimerInterval) clearInterval(siTimerInterval);
+      siTimerInterval = setInterval(() => {
+        siTimerSeconds++;
+        const m = Math.floor(siTimerSeconds / 60);
+        const s = siTimerSeconds % 60;
+        const disp = document.getElementById('si-timer-display');
+        if (disp) {
+          disp.textContent = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+        }
+      }, 1000);
+    }
+
+    function stopSiTimer() {
+      if (siTimerInterval) {
+        clearInterval(siTimerInterval);
+        siTimerInterval = null;
+      }
+    }
+
+    function openSafeInjectionReferencesModal() {
+      const modal = document.getElementById('si-references-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeSafeInjectionReferencesModal() {
+      const modal = document.getElementById('si-references-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // =========================================================================
+    // START SCREEN: 3 DOMAINS + MIXED CHALLENGE
+    // =========================================================================
+    function renderSafeInjectionStartScreen() {
+      const workspace = document.getElementById('si-workspace');
+      if (!workspace) return;
+      const t = SI_I18N[siActiveLanguage];
+
+      const domainKeys = ['safe_injection', 'medication_safety', 'sharps_safety'];
+
+      workspace.innerHTML = `
+        <div class="bg-white border-2 border-violet-400 rounded-3xl p-4 sm:p-7 shadow-xl flex flex-col gap-6">
+          
+          <!-- Hero Banner -->
+          <div class="text-center flex flex-col items-center max-w-3xl mx-auto">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-violet-100 border border-violet-300 text-violet-900 text-xs font-black uppercase tracking-wider mb-2">
+              <span>💉 CLINICAL EXCELLENCE MODULE</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 leading-tight">
+              ${t.heroTitle}
+            </h2>
+            <p class="text-xs sm:text-sm text-slate-600 font-medium mt-2 leading-relaxed">
+              ${t.heroSubtitle}
+            </p>
+          </div>
+
+          <!-- 3 DOMAIN CARDS GRID -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            ${domainKeys.map(key => {
+              const dom = INJECTION_DOMAINS[key];
+              const desc = siActiveLanguage === 'ar' ? dom.descAr : dom.descEn;
+              const name = siActiveLanguage === 'ar' ? dom.nameAr : dom.name;
+
+              return `
+                <div onclick="startSafeInjectionSession('${key}')" class="group cursor-pointer p-5 rounded-3xl border-2 ${dom.borderClass} bg-gradient-to-b from-white to-slate-50 hover:to-slate-100 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
+                  <div>
+                    <div class="flex items-center justify-between mb-3">
+                      <span class="text-3xl group-hover:scale-125 transition-transform">${dom.icon}</span>
+                      <span class="px-2.5 py-0.5 rounded-full text-[10.5px] font-black ${dom.bgClass} ${dom.textClass} border border-slate-700">
+                        ${t.domainBadgeBalanced}
+                      </span>
+                    </div>
+                    <h3 class="text-base sm:text-lg font-black text-slate-900 group-hover:text-violet-700 transition-colors">
+                      ${name}
+                    </h3>
+                    <p class="text-xs text-slate-600 font-medium mt-2 leading-relaxed">
+                      ${desc}
+                    </p>
+                  </div>
+                  <div class="mt-5 pt-3 border-t border-slate-200 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-500">4 Cases</span>
+                    <button class="px-3.5 py-1.5 rounded-xl bg-slate-900 hover:bg-violet-700 text-white font-black text-xs shadow flex items-center gap-1 transition">
+                      ${t.startDomainBtn}
+                    </button>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <!-- MIXED CHALLENGE LARGE CARD -->
+          <div onclick="startSafeInjectionSession('mixed')" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-[#170c2f] via-[#2c1459] to-[#120726] border-2 border-violet-400 hover:border-violet-300 shadow-xl hover:shadow-[0_0_30px_rgba(167,139,250,0.5)] transition-all duration-300 hover:scale-[1.01] flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+              <div class="w-14 h-14 rounded-2xl bg-violet-500/20 border-2 border-violet-400 flex items-center justify-center text-3xl shrink-0 group-hover:rotate-12 transition-transform">
+                🔀
+              </div>
+              <div class="flex flex-col">
+                <div class="flex items-center gap-2">
+                  <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-violet-300 transition-colors">
+                    ${t.mixedCardTitle}
+                  </h3>
+                  <span class="px-2.5 py-0.5 rounded-full bg-violet-400/20 text-violet-300 border border-violet-400/40 text-[10.5px] font-black">
+                    ${t.mixedCardBadge}
+                  </span>
+                </div>
+                <p class="text-xs text-violet-200 mt-1 max-w-2xl leading-relaxed">
+                  ${t.mixedCardDesc}
+                </p>
+              </div>
+            </div>
+            <button class="px-6 py-3 rounded-2xl bg-gradient-to-r from-violet-500 to-indigo-600 group-hover:from-violet-400 group-hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-lg shrink-0 transition active:scale-95">
+              ${t.mixedLaunchBtn}
+            </button>
+          </div>
+
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // SESSION INITIALIZATION & CASE SAMPLING
+    // =========================================================================
+    function sampleDomainCases(domainId) {
+      const cases = INJECTION_SCENARIO_BANK.filter(c => c.domainId === domainId);
+      const safe = cases.filter(c => c.isSafe).sort(() => Math.random() - 0.5);
+      const unsafe = cases.filter(c => !c.isSafe).sort(() => Math.random() - 0.5);
+
+      const sampled = [...safe.slice(0, 2), ...unsafe.slice(0, 2)].sort(() => Math.random() - 0.5);
+      return sampled;
+    }
+
+    function startSafeInjectionSession(mode) {
+      siCurrentMode = mode;
+      siCurrentIdx = 0;
+      siUserAnswers = [];
+      siMistakes = [];
+      siScore = 0;
+      siTimerSeconds = 0;
+      siAnswerLocked = false;
+
+      if (mode === 'mixed') {
+        const dom1 = sampleDomainCases('safe_injection');
+        const dom2 = sampleDomainCases('medication_safety');
+        const dom3 = sampleDomainCases('sharps_safety');
+        siCurrentCases = [...dom1, ...dom2, ...dom3].sort(() => Math.random() - 0.5);
+      } else {
+        siCurrentCases = sampleDomainCases(mode);
+      }
+
+      startSiTimer();
+      renderSafeInjectionTopBar();
+      renderSafeInjectionQuestion();
+    }
+
+    // =========================================================================
+    // GAMEPLAY: QUESTION PRESENTATION
+    // =========================================================================
+    function renderSafeInjectionQuestion() {
+      const workspace = document.getElementById('si-workspace');
+      if (!workspace) return;
+      const t = SI_I18N[siActiveLanguage];
+
+      const c = siCurrentCases[siCurrentIdx];
+      const dom = INJECTION_DOMAINS[c.domainId];
+      const domName = siActiveLanguage === 'ar' ? dom.nameAr : dom.name;
+      const situation = siActiveLanguage === 'ar' ? c.situationAr : c.situationEn;
+      const altSituation = siActiveLanguage === 'ar' ? c.situationEn : c.situationAr;
+
+      siAnswerLocked = false;
+
+      workspace.innerHTML = `
+        <div class="bg-white border-2 border-violet-400/90 rounded-3xl p-4 sm:p-6 shadow-2xl flex flex-col gap-5 max-w-4xl mx-auto w-full transition-all duration-300">
+          
+          <!-- Case Header & Domain Badge -->
+          <div class="flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-slate-200">
+            <div class="flex items-center gap-2">
+              <span class="px-3.5 py-1.5 rounded-full text-xs font-black ${dom.bgClass} ${dom.textClass} border border-slate-700 flex items-center gap-2 shadow-xs">
+                <span class="text-base">${dom.icon}</span>
+                <span>${domName}</span>
+              </span>
+              <span class="px-3 py-1 rounded-full bg-violet-100 text-violet-900 border border-violet-200 text-xs font-black shadow-2xs">
+                ${t.caseProgress} ${siCurrentIdx + 1} ${t.of} ${siCurrentCases.length}
+              </span>
+            </div>
+            <!-- Progress Bar with Percentage -->
+            <div class="flex items-center gap-2.5">
+              <div class="w-28 sm:w-44 bg-slate-100 rounded-full h-3 border border-slate-300 overflow-hidden shadow-inner p-0.5">
+                <div class="bg-gradient-to-r from-violet-600 via-indigo-600 to-purple-600 h-full rounded-full transition-all duration-500 shadow" style="width: ${((siCurrentIdx + 1) / siCurrentCases.length) * 100}%;"></div>
+              </div>
+              <span class="text-[11px] font-black text-violet-950 font-mono">${Math.round(((siCurrentIdx + 1) / siCurrentCases.length) * 100)}%</span>
+            </div>
+          </div>
+
+          <!-- Situation Vignette Card -->
+          <div class="p-5 sm:p-6 rounded-2xl bg-gradient-to-br from-slate-50 via-white to-violet-50/50 border-2 border-violet-300/80 shadow-sm flex flex-col gap-2.5 relative overflow-hidden">
+            <div class="flex items-center gap-2 text-[11px] font-extrabold text-violet-900 uppercase tracking-wider">
+              <span>🏥</span>
+              <span>موقف سريري واقعي • Clinical Case Scenario</span>
+            </div>
+            <div class="text-base sm:text-lg lg:text-xl font-black text-slate-900 leading-relaxed">
+              ${situation}
+            </div>
+            <div class="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed italic pt-2 border-t border-violet-100" dir="${siActiveLanguage === 'ar' ? 'ltr' : 'rtl'}">
+              ${altSituation}
+            </div>
+          </div>
+
+          <!-- ACTION BUTTONS: ATTRACTIVE SAFE VS UNSAFE DECISION CARDS -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1" id="si-action-buttons">
+            <!-- SAFE BUTTON -->
+            <button id="btn-choice-safe" onclick="handleSafeInjectionChoice(true)" class="group p-4 sm:p-5 rounded-2xl border-2 border-emerald-500 bg-gradient-to-b from-emerald-50/60 to-white hover:from-emerald-100 hover:to-emerald-50/90 text-emerald-950 font-black text-sm sm:text-base shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all duration-200 flex items-center justify-between cursor-pointer min-h-[64px]">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-emerald-100 border border-emerald-300 flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">🟢</span>
+                <span class="text-base sm:text-lg font-black tracking-tight">${t.safeBtn}</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-xl bg-emerald-600 text-white text-[11px] font-black uppercase shadow-xs group-hover:bg-emerald-700 transition">اختر 👆</span>
+            </button>
+
+            <!-- UNSAFE BUTTON -->
+            <button id="btn-choice-unsafe" onclick="handleSafeInjectionChoice(false)" class="group p-4 sm:p-5 rounded-2xl border-2 border-rose-500 bg-gradient-to-b from-rose-50/60 to-white hover:from-rose-100 hover:to-rose-50/90 text-rose-950 font-black text-sm sm:text-base shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-98 transition-all duration-200 flex items-center justify-between cursor-pointer min-h-[64px]">
+              <div class="flex items-center gap-3">
+                <span class="w-10 h-10 rounded-xl bg-rose-100 border border-rose-300 flex items-center justify-center text-xl shadow-2xs group-hover:scale-110 transition-transform">🔴</span>
+                <span class="text-base sm:text-lg font-black tracking-tight">${t.unsafeBtn}</span>
+              </div>
+              <span class="px-2.5 py-1 rounded-xl bg-rose-600 text-white text-[11px] font-black uppercase shadow-xs group-hover:bg-rose-700 transition">اختر 👆</span>
+            </button>
+          </div>
+
+          <!-- INLINE FEEDBACK DOCK (VIBRANT & ATTRACTIVE ON CLICK) -->
+          <div id="si-feedback-dock" class="hidden flex flex-col gap-4 p-5 sm:p-6 rounded-2xl border-2 transition-all duration-300 shadow-xl">
+            <!-- Dynamically populated on answer -->
+          </div>
+
+        </div>
+      `;
+    }
+
+    // =========================================================================
+    // CHOICE EVALUATION & FEEDBACK
+    // =========================================================================
+    function handleSafeInjectionChoice(userChoice) {
+      if (siAnswerLocked) return;
+      siAnswerLocked = true; // Lock answer for this case
+
+      const c = siCurrentCases[siCurrentIdx];
+      const isCorrect = (userChoice === c.isSafe);
+      const t = SI_I18N[siActiveLanguage];
+
+      // Update score and answers log
+      if (isCorrect) {
+        siScore += 25;
+        playSiAudio('success');
+        if (typeof launchVictoryConfetti === 'function') {
+          launchVictoryConfetti(1200);
+        }
+      } else {
+        playSiAudio('wrong');
+        siMistakes.push({
+          caseObj: c,
+          userChoice: userChoice,
+          correctChoice: c.isSafe
+        });
+      }
+
+      siUserAnswers.push({
+        caseId: c.id,
+        userSafe: userChoice,
+        isCorrect: isCorrect,
+        domainId: c.domainId
+      });
+
+      renderSafeInjectionTopBar();
+
+      // Freeze buttons and highlight choices with rich styling
+      const btnSafe = document.getElementById('btn-choice-safe');
+      const btnUnsafe = document.getElementById('btn-choice-unsafe');
+      if (btnSafe) btnSafe.style.pointerEvents = 'none';
+      if (btnUnsafe) btnUnsafe.style.pointerEvents = 'none';
+
+      if (userChoice === true) {
+        if (btnSafe) {
+          if (isCorrect) {
+            btnSafe.className = "p-4 sm:p-5 rounded-2xl border-3 border-emerald-500 bg-emerald-100 text-emerald-950 font-black text-sm sm:text-base shadow-xl ring-4 ring-emerald-400/80 scale-[1.02] flex items-center justify-between cursor-default transition-all";
+            btnSafe.innerHTML = `<div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-md animate-bounce">✅</span><span class="text-base sm:text-lg">${t.safeBtn}</span></div><span class="px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs">إجابة صحيحة +25 ⭐</span>`;
+            if (btnUnsafe) {
+              btnUnsafe.className = "p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-slate-50 text-slate-400 font-bold text-sm sm:text-base opacity-40 flex items-center justify-between cursor-not-allowed";
+            }
+          } else {
+            btnSafe.className = "p-4 sm:p-5 rounded-2xl border-3 border-rose-500 bg-rose-100 text-rose-950 font-black text-sm sm:text-base shadow-lg ring-4 ring-rose-400/80 animate-wiggle flex items-center justify-between cursor-default transition-all";
+            btnSafe.innerHTML = `<div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center text-xl shadow-md">❌</span><span class="text-base sm:text-lg">${t.safeBtn}</span></div><span class="px-3 py-1 rounded-xl bg-rose-600 text-white text-xs font-black shadow-xs">خيار غير دقيق</span>`;
+            if (btnUnsafe) {
+              btnUnsafe.className = "p-4 sm:p-5 rounded-2xl border-3 border-emerald-500 bg-emerald-50 text-emerald-950 font-black text-sm sm:text-base ring-2 ring-emerald-400 flex items-center justify-between cursor-default";
+              btnUnsafe.innerHTML = `<div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shadow-md">🛡️</span><span class="text-base sm:text-lg">${t.unsafeBtn}</span></div><span class="px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs">(القرار الصحيح)</span>`;
+            }
+          }
+        }
+      } else {
+        if (btnUnsafe) {
+          if (isCorrect) {
+            btnUnsafe.className = "p-4 sm:p-5 rounded-2xl border-3 border-emerald-500 bg-emerald-100 text-emerald-950 font-black text-sm sm:text-base shadow-xl ring-4 ring-emerald-400/80 scale-[1.02] flex items-center justify-between cursor-default transition-all";
+            btnUnsafe.innerHTML = `<div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-md animate-bounce">✅</span><span class="text-base sm:text-lg">${t.unsafeBtn}</span></div><span class="px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs">إجابة صحيحة +25 ⭐</span>`;
+            if (btnSafe) {
+              btnSafe.className = "p-4 sm:p-5 rounded-2xl border-2 border-slate-200 bg-slate-50 text-slate-400 font-bold text-sm sm:text-base opacity-40 flex items-center justify-between cursor-not-allowed";
+            }
+          } else {
+            btnUnsafe.className = "p-4 sm:p-5 rounded-2xl border-3 border-rose-500 bg-rose-100 text-rose-950 font-black text-sm sm:text-base shadow-lg ring-4 ring-rose-400/80 animate-wiggle flex items-center justify-between cursor-default transition-all";
+            btnUnsafe.innerHTML = `<div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-rose-500 text-white flex items-center justify-center text-xl shadow-md">❌</span><span class="text-base sm:text-lg">${t.unsafeBtn}</span></div><span class="px-3 py-1 rounded-xl bg-rose-600 text-white text-xs font-black shadow-xs">خيار غير دقيق</span>`;
+            if (btnSafe) {
+              btnSafe.className = "p-4 sm:p-5 rounded-2xl border-3 border-emerald-500 bg-emerald-50 text-emerald-950 font-black text-sm sm:text-base ring-2 ring-emerald-400 flex items-center justify-between cursor-default";
+              btnSafe.innerHTML = `<div class="flex items-center gap-3"><span class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shadow-md">🛡️</span><span class="text-base sm:text-lg">${t.safeBtn}</span></div><span class="px-3 py-1 rounded-xl bg-emerald-600 text-white text-xs font-black shadow-xs">(القرار الصحيح)</span>`;
+            }
+          }
+        }
+      }
+
+      // Display feedback dock with rich visual details
+      const dock = document.getElementById('si-feedback-dock');
+      if (!dock) return;
+
+      dock.className = `flex flex-col gap-4 p-5 sm:p-6 rounded-2xl border-2 transition-all duration-300 shadow-2xl ${
+        isCorrect 
+          ? 'bg-gradient-to-br from-emerald-50 via-white to-teal-50 border-emerald-400 text-emerald-950' 
+          : 'bg-gradient-to-br from-rose-50 via-white to-amber-50 border-rose-400 text-rose-950'
+      }`;
+
+      const expl = siActiveLanguage === 'ar' ? c.explanationAr : c.explanationEn;
+      const safeAlt = siActiveLanguage === 'ar' ? c.safeAlternativeAr : c.safeAlternativeEn;
+      const isLast = (siCurrentIdx + 1 === siCurrentCases.length);
+
+      dock.innerHTML = `
+        <!-- Header Banner -->
+        <div class="flex flex-wrap items-center justify-between pb-3 border-b ${isCorrect ? 'border-emerald-200' : 'border-rose-200'} gap-2">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl sm:text-3xl">${isCorrect ? '🎉' : '⚠️'}</span>
+            <div>
+              <h4 class="text-base sm:text-lg font-black leading-tight">${isCorrect ? t.correctHeading : t.incorrectHeading}</h4>
+              <p class="text-xs ${isCorrect ? 'text-emerald-700' : 'text-rose-700'} font-bold mt-0.5">
+                ${isCorrect ? 'تم تطبيق المعيار السريري بنجاح!' : 'انتبه إلى المخاطر المترتبة على هذه الممارسة.'}
+              </p>
+            </div>
+          </div>
+          <span class="text-xs sm:text-sm font-black px-3 py-1 rounded-full shadow-xs ${isCorrect ? 'bg-emerald-600 text-white' : 'bg-rose-600 text-white'}">
+            ${isCorrect ? '+25 ' + t.scorePts : '0 ' + t.scorePts}
+          </span>
+        </div>
+
+        <!-- Clinical Explanation Rationale -->
+        <div class="p-3.5 sm:p-4 rounded-xl bg-white/90 border border-slate-200 text-slate-800 text-xs sm:text-sm leading-relaxed space-y-1 shadow-2xs">
+          <p class="font-black text-slate-900 flex items-center gap-1.5 text-xs sm:text-sm">
+            <span>🩺</span>
+            <span>${t.rationaleLabel}</span>
+          </p>
+          <p class="text-slate-700 font-medium leading-relaxed">${expl}</p>
+        </div>
+
+        <!-- If Unsafe: Display Approved Safe Alternative Procedure -->
+        ${!c.isSafe && safeAlt ? `
+          <div class="p-4 rounded-xl bg-amber-50/95 border-2 border-amber-300 text-amber-950 text-xs sm:text-sm space-y-1.5 shadow-xs">
+            <p class="font-black flex items-center gap-2 text-amber-900 text-xs sm:text-sm">
+              <span class="text-base">🛡️</span>
+              <span>${t.safeAltLabel}</span>
+            </p>
+            <p class="font-bold leading-relaxed text-amber-950 bg-white/80 p-2.5 rounded-lg border border-amber-200">${safeAlt}</p>
+          </div>
+        ` : ''}
+
+        <!-- Next Action & Reference Footer -->
+        <div class="flex flex-wrap items-center justify-between gap-3 pt-2">
+          <div>
+            ${c.reference ? `
+              <a href="${c.reference.url}" target="_blank" rel="noopener noreferrer" class="text-xs font-black text-violet-700 hover:text-violet-900 underline flex items-center gap-1.5 transition">
+                <span>📖</span>
+                <span>${c.reference.title} ↗</span>
+              </a>
+            ` : '<span class="text-[11px] text-slate-400 font-bold">معايير مكافحة العدوى المعتمدة CDC</span>'}
+          </div>
+          <button id="btn-next-si-case" onclick="advanceSafeInjectionQuestion()" class="px-7 py-3 rounded-2xl bg-gradient-to-r from-violet-600 via-purple-600 to-indigo-700 hover:from-violet-500 hover:to-indigo-600 text-white font-black text-xs sm:text-sm shadow-xl hover:shadow-2xl transition-all duration-200 flex items-center gap-2 cursor-pointer active:scale-95 animate-pulse">
+            <span class="font-extrabold">${isLast ? t.viewResultsBtn : t.nextCaseBtn}</span>
+            <span class="text-base">➡️</span>
+          </button>
+        </div>
+      `;
+
+      dock.classList.remove('hidden');
+      dock.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function advanceSafeInjectionQuestion() {
+      siCurrentIdx++;
+      if (siCurrentIdx < siCurrentCases.length) {
+        renderSafeInjectionQuestion();
+        const workspace = document.getElementById('si-workspace');
+        if (workspace) workspace.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        renderSafeInjectionResults();
+      }
+    }
+
+    // =========================================================================
+    // RESULTS & DEBRIEF SCREEN
+    // =========================================================================
+    function renderSafeInjectionResults() {
+      stopSiTimer();
+      const workspace = document.getElementById('si-workspace');
+      if (!workspace) return;
+      const t = SI_I18N[siActiveLanguage];
+
+      const maxScore = siCurrentCases.length * 25;
+      const pct = Math.round((siScore / maxScore) * 100);
+
+      if (pct >= 75) {
+        playSiAudio('cheer');
+      }
+
+      const m = Math.floor(siTimerSeconds / 60);
+      const s = siTimerSeconds % 60;
+      const timeStr = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+
+      // Calculate Domain breakdown
+      const domainKeys = ['safe_injection', 'medication_safety', 'sharps_safety'];
+      const stats = {};
+      domainKeys.forEach(k => {
+        const domCases = siUserAnswers.filter(a => a.domainId === k);
+        const domCorrect = domCases.filter(a => a.isCorrect).length;
+        stats[k] = { total: domCases.length, correct: domCorrect };
+      });
+
+      workspace.innerHTML = `
+        <div class="bg-white border-2 border-violet-400 rounded-3xl p-5 sm:p-7 shadow-xl flex flex-col gap-6 max-w-4xl mx-auto w-full">
+          
+          <!-- Header Banner -->
+          <div class="text-center flex flex-col items-center">
+            <span class="text-4xl sm:text-5xl mb-2 animate-bounce">${pct >= 75 ? '🏆' : '🩺'}</span>
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900">${t.resultsHeading}</h2>
+            <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">${t.resultsSubtitle}</p>
+          </div>
+
+          <!-- Score & Time Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-violet-50 to-indigo-50 border border-violet-200 text-center flex flex-col items-center justify-center">
+              <span class="text-xs font-black text-violet-800 uppercase tracking-wider">${t.finalScore}</span>
+              <div class="text-3xl sm:text-4xl font-black text-violet-950 mt-1">
+                ${siScore} <span class="text-base font-bold text-violet-700">/ ${maxScore} ${t.pts}</span>
+              </div>
+              <span class="text-xs font-black px-3 py-0.5 rounded-full mt-2 ${pct >= 85 ? 'bg-emerald-100 text-emerald-800' : pct >= 70 ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800'}">
+                ${pct}% ${pct >= 85 ? 'ممتاز • Excellent' : pct >= 70 ? 'جيد جداً • Very Good' : 'يحتاج مراجعة • Review Needed'}
+              </span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center flex flex-col items-center justify-center">
+              <span class="text-xs font-black text-slate-500 uppercase tracking-wider">${t.timeSpent}</span>
+              <div class="text-3xl sm:text-4xl font-black text-slate-800 font-mono mt-1">
+                ⏱️ ${timeStr}
+              </div>
+              <span class="text-xs text-slate-500 font-bold mt-2">
+                ${siCurrentCases.length} حالات سريرية منجزة
+              </span>
+            </div>
+          </div>
+
+          <!-- DOMAIN BREAKDOWN -->
+          <div class="flex flex-col gap-2.5">
+            <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>📊</span>
+              <span>${t.domainBreakdown}</span>
+            </h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              ${domainKeys.map(k => {
+                const dom = INJECTION_DOMAINS[k];
+                const st = stats[k];
+                if (!st || st.total === 0) return '';
+                const domPct = Math.round((st.correct / st.total) * 100);
+                const name = siActiveLanguage === 'ar' ? dom.nameAr : dom.name;
+
+                return `
+                  <div class="p-3.5 rounded-2xl border-2 ${dom.borderClass} bg-white shadow-sm flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-black text-slate-900 flex items-center gap-1">
+                        <span>${dom.icon}</span>
+                        <span>${name}</span>
+                      </span>
+                      <span class="text-xs font-black px-2 py-0.5 rounded-md ${domPct >= 75 ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                        ${st.correct} / ${st.total}
+                      </span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200">
+                      <div class="bg-violet-600 h-full rounded-full transition-all" style="width: ${domPct}%;"></div>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- REVIEW MISTAKES SECTION -->
+          <div class="flex flex-col gap-3 pt-2">
+            <button onclick="toggleSafeInjectionReview()" class="w-full py-3 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100 border-2 border-amber-300 text-amber-950 font-black text-xs sm:text-sm flex items-center justify-center gap-2 transition active:scale-98 cursor-pointer shadow-sm">
+              <span>🔍</span>
+              <span>${t.reviewMistakesBtn} (${siMistakes.length})</span>
+            </button>
+
+            <div id="si-review-container" class="hidden flex flex-col gap-3 pt-2">
+              ${siMistakes.length === 0 ? `
+                <div class="p-4 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-950 text-xs sm:text-sm font-bold text-center">
+                  ${t.noMistakesMsg}
+                </div>
+              ` : `
+                <div class="space-y-3">
+                  ${siMistakes.map((m, idx) => {
+                    const c = m.caseObj;
+                    const dom = INJECTION_DOMAINS[c.domainId];
+                    const situation = siActiveLanguage === 'ar' ? c.situationAr : c.situationEn;
+                    const expl = siActiveLanguage === 'ar' ? c.explanationAr : c.explanationEn;
+                    const safeAlt = siActiveLanguage === 'ar' ? c.safeAlternativeAr : c.safeAlternativeEn;
+
+                    return `
+                      <div class="p-4 rounded-2xl border-2 border-amber-300 bg-amber-50/40 flex flex-col gap-2">
+                        <div class="flex items-center justify-between pb-1.5 border-b border-amber-200 text-xs font-black">
+                          <span class="text-slate-900">#${idx + 1} ${dom.icon} ${siActiveLanguage === 'ar' ? dom.nameAr : dom.name}</span>
+                          <span class="text-rose-700 font-bold">${t.yourChoice} ${m.userChoice ? (siActiveLanguage === 'ar' ? 'ممارسة آمنة' : 'Safe') : (siActiveLanguage === 'ar' ? 'ممارسة خاطئة' : 'Unsafe')}</span>
+                        </div>
+                        <div class="text-xs sm:text-sm font-black text-slate-900 leading-relaxed">
+                          ${situation}
+                        </div>
+                        <div class="text-xs text-slate-700 space-y-1">
+                          <p><strong>${t.correctChoice}</strong> ${c.isSafe ? (siActiveLanguage === 'ar' ? 'ممارسة آمنة ✅' : 'Safe ✅') : (siActiveLanguage === 'ar' ? 'ممارسة خاطئة ❌' : 'Unsafe ❌')}</p>
+                          <p><strong>${t.rationaleLabel}</strong> ${expl}</p>
+                        </div>
+                        ${!c.isSafe && safeAlt ? `
+                          <div class="p-2.5 rounded-xl bg-amber-100/70 border border-amber-300 text-[11.5px] text-amber-950 font-medium">
+                            <strong>${t.safeAltLabel}</strong> ${safeAlt}
+                          </div>
+                        ` : ''}
+                        ${c.reference ? `
+                          <div class="flex justify-end pt-1">
+                            <a href="${c.reference.url}" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-violet-700 hover:text-violet-900 underline">
+                              ${c.reference.title} ↗
+                            </a>
+                          </div>
+                        ` : ''}
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+            </div>
+          </div>
+
+          <!-- ACTIONS: PLAY AGAIN & PORTAL -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
+            <button onclick="switchMainView('portal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-sm transition active:scale-95 border border-slate-300 cursor-pointer">
+              ${t.returnPortalBtn}
+            </button>
+            <button onclick="renderSafeInjectionStartScreen()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-black text-xs sm:text-sm shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>${t.playAgainBtn}</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+    }
+
+    function toggleSafeInjectionReview() {
+      const rev = document.getElementById('si-review-container');
+      if (rev) {
+        rev.classList.toggle('hidden');
+      }
+    }
+
+
     // =========================================================================
     // 📅 DATE-LOCKED QR PROTECTION ENGINE (صلاحية الباركود لتاريخ اليوم فقط)
     // =========================================================================
@@ -12109,19 +13533,25 @@ function _legacySwitchMainView(viewName) {
           return; // Halt further game execution if session link has expired!
         }
 
-        // 2. Detect target view (?view=puzzle, ?view=icebreaker, ?view=guardians, ?view=portal)
+        // 2. Detect target view (?view=puzzle, ?view=icebreaker, ?view=guardians, ?view=safe-injection, ?view=portal)
         const targetView = urlParams.get('view');
         if (targetView === 'puzzle') {
+          // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Puzzle 1
           switchMainView('puzzle');
           if (urlParams.get('stage') === '2') {
             activateStage2();
           }
         } else if (targetView === 'icebreaker') {
+          // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Puzzle 2
           switchMainView('icebreaker');
         } else if (targetView === 'guardians' || targetView === 'puzzle3') {
+          // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Module 3 (PPE Challenge)
           switchMainView('guardians');
+        } else if (targetView === 'safe-injection' || targetView === 'puzzle4') {
+          // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Module 4 (Safe Injection Challenge)
+          switchMainView('safe-injection');
         } else {
-          // Default: Open Main Portal Hub so user can easily choose any puzzle on wall touch screen
+          // 🏠 MAIN FIRST PAGE: Open Main Portal Hub so user can choose any puzzle from portal
           switchMainView('portal');
         }
 
