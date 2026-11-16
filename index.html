@@ -102,7 +102,8 @@
     }
 
     body.game-fullscreen-mode #view-puzzle:not(.hidden),
-    body.game-fullscreen-mode #view-icebreaker:not(.hidden) {
+    body.game-fullscreen-mode #view-icebreaker:not(.hidden),
+    body.game-fullscreen-mode #view-guardians:not(.hidden) {
       flex: 1 1 0% !important;
       min-height: 0 !important;
       width: 100% !important;
@@ -128,9 +129,11 @@
 
     body.game-fullscreen-mode #view-puzzle.hidden,
     body.game-fullscreen-mode #view-icebreaker.hidden,
+    body.game-fullscreen-mode #view-guardians.hidden,
     body.game-fullscreen-mode #view-portal.hidden,
     #view-puzzle.hidden,
     #view-icebreaker.hidden,
+    #view-guardians.hidden,
     #view-portal.hidden,
     .hidden {
       display: none !important;
@@ -1360,6 +1363,43 @@
       transform: scale(1.03);
     }
 
+  
+    /* =========================================================================
+       MODULE 3: PPE CHALLENGE (درع الوقاية) STYLES
+       ========================================================================= */
+    #view-guardians {
+      font-family: inherit;
+    }
+    .guardians-card {
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+    }
+    .guardians-card:hover {
+      transform: translateY(-2px);
+    }
+    .guardians-card.selected {
+      border-color: #10b981 !important;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(6, 182, 212, 0.12)) !important;
+      box-shadow: 0 0 0 2px #10b981, 0 8px 16px -2px rgba(16, 185, 129, 0.3) !important;
+    }
+    .guardians-drop-zone {
+      min-height: 120px;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .guardians-drop-zone.drag-over {
+      background-color: rgba(16, 185, 129, 0.15) !important;
+      border-color: #10b981 !important;
+    }
+    .guardians-seq-item {
+      animation: fadeInScale 0.2s ease-out;
+    }
+    @keyframes fadeInScale {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
   </style>
 </head>
 <body id="body-root" class="bg-[#e5ebf1] text-slate-800 min-h-screen antialiased select-none font-sans overflow-x-hidden">
@@ -2267,7 +2307,7 @@
       
       <!-- 🔍 LEFT SIDE: STANDALONE FIXED LOGO CARD (ALONE ON L.T SIDE) 🔍 -->
       <div id="header-logo-card" class="flex-shrink-0 bg-white p-3 sm:p-4 rounded-3xl shadow-xl border-4 border-cyan-400 flex flex-col items-center justify-center w-full md:w-48 lg:w-52 transition-all">
-        <img id="header-logo-img" src="ipc-logo.jpg" 
+        <img id="header-logo-img" onclick="handleSecretLogoGesture()" style="cursor: pointer;" src="ipc-logo.jpg" 
              alt="Infection Prevention & Control Training Center Logo" 
              class="w-28 sm:w-32 md:w-36 h-auto object-contain rounded-2xl"
              style="image-rendering: -webkit-optimize-contrast;"
@@ -2319,13 +2359,10 @@
           </div>
 
           <!-- 🎓 STUDENT MODE BADGE (SHOWN WHEN OPENED WITH ?role=student) -->
-          <div id="student-mode-badge" class="hidden ml-auto flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-black shadow-md border border-emerald-300">
+          <div id="student-mode-badge" class="hidden ml-auto flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-black shadow-md border border-emerald-300 select-none">
             <span>🎓</span>
             <span>STUDENT MODE</span>
             <span class="text-[10px] bg-white/20 px-1.5 py-0.5 rounded font-bold" dir="rtl">وضع الطالب</span>
-            <button onclick="promptTrainerUnlock()" title="Trainer PIN Unlock (1234)" class="ml-1.5 text-[10px] text-emerald-200 hover:text-white underline cursor-pointer">
-              🔒 Facilitator Exit
-            </button>
           </div>
         </div>
 
@@ -2384,14 +2421,22 @@
     </div>
 
     <!-- 🧭 TOP MOBILE TAB NAVIGATION (VISIBLE ON SMALL/MEDIUM SCREENS) 🧭 -->
-    <div id="mobile-nav-tabs" class="flex lg:hidden items-center gap-2 p-1.5 rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-300 w-full shadow-md sticky top-2 z-40">
+    <div id="mobile-nav-tabs" class="flex lg:hidden items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-300 w-full shadow-md sticky top-2 z-40 overflow-x-auto">
+      <button onclick="switchMainView('portal')" id="mobile-tab-portal" 
+              class="flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200">
+        <span>🏛️</span> <span>الرئيسية</span>
+      </button>
       <button onclick="switchMainView('puzzle')" id="mobile-tab-puzzle" 
-              class="flex-1 py-2 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-cyan-700 text-white shadow">
-        <span>1️⃣</span> <span>Puzzle 1: Chain Breaker</span>
+              class="flex-1 min-w-[105px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-cyan-700 text-white shadow">
+        <span>1️⃣</span> <span>Puzzle 1</span>
       </button>
       <button onclick="switchMainView('icebreaker')" id="mobile-tab-icebreaker" 
-              class="flex-1 py-2 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200">
-        <span>2️⃣</span> <span>Puzzle 2: Ice Breaker</span>
+              class="flex-1 min-w-[105px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200">
+        <span>2️⃣</span> <span>Puzzle 2</span>
+      </button>
+      <button onclick="switchMainView('guardians')" id="mobile-tab-guardians" 
+              class="flex-1 min-w-[115px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-emerald-800 hover:bg-emerald-50 border border-emerald-300">
+        <span>🛡️</span> <span>درع الوقاية</span>
       </button>
     </div>
 
@@ -2409,14 +2454,25 @@
               <span class="text-xl">🧭</span>
               <span class="text-xs font-black uppercase tracking-wider text-cyan-300">Training Menu</span>
             </div>
-            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#03203f] text-cyan-200 border border-cyan-400/40">
-              2 Modules
+            <span class="text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#03203f] text-emerald-300 border border-emerald-400/40">
+              3 Modules
             </span>
           </div>
 
-          <!-- The 3 Main Navigation Items (Portal + 2 Puzzles) -->
+          <!-- The Main Navigation Items (Portal + 3 Puzzles) -->
           <div class="flex flex-col gap-2.5">
-            <!-- Main Portal Hub menu button removed -->
+            <!-- 0- Main Portal Hub Button -->
+            <button id="menu-btn-portal" onclick="switchMainView('portal')" 
+                    class="w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#03203f] border-slate-700 text-slate-300 hover:text-white">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 font-black text-xs sm:text-sm text-white">
+                  <span class="text-sm">🏛️</span>
+                  <span>بوابة الألعاب | All Puzzles Hub</span>
+                </div>
+                <span class="text-xs text-cyan-300">Hub ↗</span>
+              </div>
+              <span class="text-[10px] text-slate-400">اختر وتصفح جميع الألعاب التعليمية</span>
+            </button>
             
             <!-- 1- Chain of Infection, Break the Chain Puzzle -->
             <button id="menu-btn-puzzle" onclick="switchMainView('puzzle')" 
@@ -2457,6 +2513,27 @@
                   Team Warm-Up
                 </span>
                 <span class="text-[9px] font-bold text-slate-400">14 Definitions</span>
+              </div>
+            </button>
+
+            <!-- 3- PPE Challenge | درع الوقاية -->
+            <button id="menu-btn-guardians" onclick="switchMainView('guardians')" 
+                    class="w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#022c24] border-slate-700 hover:border-emerald-400 text-slate-300 hover:text-white">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2 font-black text-xs sm:text-sm text-white">
+                  <span class="text-sm">3️⃣</span>
+                  <span>درع الوقاية | PPE Challenge</span>
+                </div>
+                <span class="text-sm">🛡️</span>
+              </div>
+              <p class="text-[10px] text-slate-400 font-medium leading-tight pl-6" dir="rtl">
+                اختر الاحتياطات، جهّز معدات الوقاية، واخلعها بأمان
+              </p>
+              <div class="flex items-center gap-1.5 pl-6 mt-1">
+                <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                  Clinical Master
+                </span>
+                <span class="text-[9px] font-bold text-slate-400">4 Cases Session</span>
               </div>
             </button>
 
@@ -2545,7 +2622,7 @@
           </div>
 
           <!-- 🚀 INTERACTIVE DIRECT LAUNCH CARDS ON MAIN PORTAL 🚀 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[1024px] mt-5">
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-[1240px] mt-5">
             
             <!-- PUZZLE 1 LAUNCH CARD -->
             <div onclick="switchMainView('puzzle')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('puzzle');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#021b35] via-[#03284d] to-[#011425] border-2 border-cyan-400/80 hover:border-cyan-300 shadow-xl hover:shadow-[0_0_25px_rgba(6,182,212,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
@@ -2601,6 +2678,33 @@
               </div>
             </div>
 
+            <!-- PUZZLE 3 LAUNCH CARD: GUARDIANS OF STERILIZATION -->
+            <div onclick="switchMainView('guardians')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('guardians');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#01251f] via-[#023b32] to-[#011714] border-2 border-emerald-400/80 hover:border-emerald-300 shadow-xl hover:shadow-[0_0_25px_rgba(16,185,129,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[11px] font-black uppercase tracking-wider">
+                    MODULE 3 • PPE & ISOLATION MASTER
+                  </span>
+                  <span class="text-2xl group-hover:scale-125 transition-transform">🛡️</span>
+                </div>
+                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-emerald-300 transition-colors">
+                  درع الوقاية | PPE Challenge
+                </h3>
+                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
+                  Select additional precautions, equip task-tailored PPE, and sequence donning & doffing safely.
+                </p>
+                <div class="text-[11px] text-emerald-300 font-bold mt-1" dir="rtl">
+                  اختر الاحتياطات، جهّز معدات الوقاية، واخلعها بأمان (جلسة سريرية من 4 حالات)
+                </div>
+              </div>
+              <div class="mt-5 pt-3.5 border-t border-emerald-500/30 flex items-center justify-between">
+                <span class="text-xs font-bold text-emerald-200">⛶ Full Wide Screen View</span>
+                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:from-emerald-500 group-hover:to-teal-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
+                  <span>Start Module 3</span> <span>➡️</span>
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -2609,18 +2713,32 @@
           <!-- 🧭 TOP NAVIGATION BAR (PORTAL & STAGES) 🧭 -->
           <div id="stage-nav-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-1.5 sm:p-2.5 shadow-sm flex items-center justify-between gap-1.5 flex-nowrap">
             <div class="flex items-center gap-1 sm:gap-2 shrink-0">
-              <!-- 🏠 Main Portal return button -->
-              <button onclick="switchMainView('portal')" title="Return to Main Portal Hub" class="px-2 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-[#02182c] text-cyan-200 hover:text-white border border-cyan-500/50 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow-xs cursor-pointer">
-                <span>🏛️</span>
-                <span class="hidden sm:inline">Portal</span>
+              <!-- 🏛️ Main Portal Return Button (High-Visibility Touch Button) -->
+              <button onclick="switchMainView('portal')" title="العودة إلى البوابة الرئيسية لجميع الألعاب • Return to All Puzzles Hub" class="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-slate-950 via-[#032347] to-cyan-950 hover:from-cyan-900 hover:to-slate-900 text-cyan-200 hover:text-white border-2 border-cyan-400 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer shrink-0">
+                <span class="text-sm">🏛️</span>
+                <span class="font-extrabold hidden sm:inline">الرئيسية</span>
+                <span class="text-[10px] text-cyan-300 hidden md:inline">| All Puzzles</span>
               </button>
 
+              <!-- 🎮 QUICK PUZZLE SWITCHER PILLS (Touch-Friendly Wall Screen Jumper) -->
+              <div class="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-300 gap-0.5 sm:gap-1 shadow-inner shrink-0" title="تبديل الألعاب السريع">
+                <button onclick="switchMainView('puzzle')" title="Puzzle 1: كسر سلسلة العدوى" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-cyan-700 text-white shadow ring-2 ring-cyan-400 cursor-pointer">
+                  <span>🧩 1</span>
+                </button>
+                <button onclick="switchMainView('icebreaker')" title="Puzzle 2: مطابقة المفاهيم" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-teal-50 text-slate-700 hover:text-teal-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🧊 2</span>
+                </button>
+                <button onclick="switchMainView('guardians')" title="Puzzle 3: درع الوقاية | PPE Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🛡️ 3</span>
+                </button>
+              </div>
+
               <!-- 🏷️ SMALL VIEW NAME BADGE (CLEAN & COMPACT) 🏷️ -->
-              <div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#021b35] to-[#03284d] border border-cyan-400/70 text-white shadow-xs">
+              <div class="hidden xl:flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-gradient-to-r from-[#021b35] to-[#03284d] border border-cyan-400/70 text-white shadow-xs">
                 <span class="text-sm">🛡️</span>
                 <div class="flex flex-col leading-tight">
                   <span class="text-xs font-black tracking-tight text-cyan-300">IPC CHAIN BREAKER</span>
-                  <span class="text-[9px] text-slate-300 font-semibold hidden lg:inline">Hammam Jubran Rjoup / MSN, CPIC</span>
+                  <span class="text-[9px] text-slate-300 font-semibold hidden 2xl:inline">Hammam Jubran Rjoup / MSN, CPIC</span>
                 </div>
               </div>
 
@@ -2673,11 +2791,6 @@
                 <!-- 📲 SHARE BARCODE -->
                 <button onclick="openShareModal('puzzle')" title="Share Puzzle 1 Barcode & Link" class="px-2.5 py-1.5 rounded-xl bg-teal-800 hover:bg-teal-700 text-teal-100 border border-teal-500/50 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
                   <span>📲</span> <span class="hidden sm:inline">Share</span>
-                </button>
-
-                <!-- 🧊 CHOOSE PUZZLE 2 IN NEW PAGE -->
-                <button onclick="openPuzzle2InNewPage()" title="Choose Puzzle 2 in New Page" class="px-2.5 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-teal-300 border border-teal-500/40 text-xs font-black flex items-center gap-1 transition active:scale-95 shadow cursor-pointer">
-                  <span>🧊</span> <span>Puzzle 2 ↗</span>
                 </button>
 
                 <!-- ⛶ FULL SCREEN -->
@@ -2784,11 +2897,8 @@
               </div>
 
               <!-- Student mode badge & facilitator exit -->
-              <div class="student-only hidden items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-black shadow-md border border-emerald-300">
+              <div class="student-only hidden items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-black shadow-md border border-emerald-300 select-none">
                 <span>🎓 Student</span>
-                <button onclick="promptTrainerUnlock()" title="Facilitator PIN Unlock (1234)" class="text-[10px] text-emerald-200 hover:text-white underline ml-1 cursor-pointer">
-                  🔒 Trainer
-                </button>
               </div>
 
             </div>
@@ -3228,16 +3338,30 @@
         <div id="view-icebreaker" class="hidden flex flex-col gap-3 w-full">
           
           <!-- 🧭 TOP NAVIGATION BAR (PORTAL & STAGES) FOR PUZZLE 2 🧭 -->
-          <div id="match-stages-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-2.5 shadow-sm flex items-center justify-between gap-2 flex-wrap">
-            <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap">
-              <!-- 🏠 Main Portal return button -->
-              <button onclick="switchMainView('portal')" title="Return to Main Portal Hub" class="px-2.5 sm:px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-[#02182c] text-teal-200 hover:text-white border border-teal-500/50 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-xs cursor-pointer">
-                <span>🏛️</span>
-                <span>Main Portal</span>
+          <div id="match-stages-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-1.5 sm:p-2.5 shadow-sm flex items-center justify-between gap-1.5 flex-nowrap">
+            <div class="flex items-center gap-1 sm:gap-2 shrink-0">
+              <!-- 🏛️ Main Portal Return Button -->
+              <button onclick="switchMainView('portal')" title="العودة إلى البوابة الرئيسية لجميع الألعاب • Return to All Puzzles Hub" class="px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-slate-950 via-[#032347] to-teal-950 hover:from-teal-900 hover:to-slate-900 text-teal-200 hover:text-white border-2 border-teal-400 text-xs font-black flex items-center gap-1.5 transition active:scale-95 shadow-md cursor-pointer shrink-0">
+                <span class="text-sm">🏛️</span>
+                <span class="font-extrabold hidden sm:inline">الرئيسية</span>
+                <span class="text-[10px] text-teal-300 hidden md:inline">| All Puzzles</span>
               </button>
 
+              <!-- 🎮 QUICK PUZZLE SWITCHER PILLS -->
+              <div class="flex items-center bg-slate-100 p-0.5 sm:p-1 rounded-xl border border-slate-300 gap-0.5 sm:gap-1 shadow-inner shrink-0" title="تبديل الألعاب السريع">
+                <button onclick="switchMainView('puzzle')" title="Puzzle 1: كسر سلسلة العدوى" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-cyan-50 text-slate-700 hover:text-cyan-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🧩 1</span>
+                </button>
+                <button onclick="switchMainView('icebreaker')" title="Puzzle 2: مطابقة المفاهيم" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-teal-700 text-white shadow ring-2 ring-teal-400 cursor-pointer">
+                  <span>🧊 2</span>
+                </button>
+                <button onclick="switchMainView('guardians')" title="Puzzle 3: درع الوقاية | PPE Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>🛡️ 3</span>
+                </button>
+              </div>
+
               <!-- 🏷️ SMALL VIEW NAME BADGE (CLEAN & COMPACT) 🏷️ -->
-              <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#021b35] to-[#03284d] border border-teal-400/70 text-white shadow-xs">
+              <div class="hidden xl:flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gradient-to-r from-[#021b35] to-[#03284d] border border-teal-400/70 text-white shadow-xs">
                 <span class="text-sm">🧊</span>
                 <div class="flex flex-col leading-tight">
                   <span class="text-xs font-black tracking-tight text-teal-300">IPC MATCH DEFINITIONS</span>
@@ -3318,11 +3442,8 @@
               </div>
 
               <!-- Student mode unlock -->
-              <div class="student-only hidden items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-black shadow-md border border-emerald-300">
+              <div class="student-only hidden items-center gap-1 px-2.5 py-1 rounded-xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-700 text-white text-xs font-black shadow-md border border-emerald-300 select-none">
                 <span>🎓 Student</span>
-                <button onclick="promptTrainerUnlock()" title="Facilitator PIN Unlock (1234)" class="text-[10px] text-emerald-200 hover:text-white underline ml-1 cursor-pointer">
-                  🔒 Trainer
-                </button>
               </div>
 
             </div>
@@ -3524,12 +3645,157 @@
 
         </div>
 
+        <!-- ================================================================= -->
+        <!-- 🛡️ MODULE 3: PPE CHALLENGE (درع الوقاية) 🛡️ -->
+        <!-- ================================================================= -->
+        <div id="view-guardians" class="hidden flex flex-col gap-2.5 w-full select-none" dir="rtl" lang="ar">
+          
+          <!-- TOP HEADER BAR (NAVIGATION, TIMER, CONTROLS) -->
+          <div id="guardians-top-bar" class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-3 shadow-sm flex flex-wrap items-center justify-between gap-2.5">
+            <!-- Left: Module Badge & Case Indicator -->
+            <div class="flex items-center gap-2 sm:gap-3">
+              <button onclick="switchMainView('portal')" title="العودة إلى البوابة الرئيسية" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-black flex items-center gap-1 transition active:scale-95 border border-slate-300 cursor-pointer">
+                <span>🏛️</span> <span id="lbl-guardians-portal-btn">البوابة</span>
+              </button>
+
+              <div class="flex items-center gap-2">
+                <span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 text-white flex items-center justify-center text-base shadow shadow-emerald-500/20">
+                  🛡️
+                </span>
+                <div class="flex flex-col leading-tight">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs sm:text-sm font-black text-slate-900" id="lbl-guardians-title">درع الوقاية</span>
+                    <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300" id="guardians-case-pill">
+                      الحالة 1 من 4
+                    </span>
+                  </div>
+                  <span class="text-[10px] text-slate-500 font-medium" id="lbl-guardians-subtitle">اختر الاحتياطات، جهّز معدات الوقاية، واخلعها بأمان</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Center: Score & Challenge Timer -->
+            <div class="flex items-center gap-2 sm:gap-3">
+              <!-- Score Badge -->
+              <div class="flex items-center gap-1.5 px-3 py-1 rounded-xl bg-slate-900 text-emerald-300 text-xs font-black border border-emerald-500/40 shadow-sm">
+                <span>🎯</span>
+                <span id="lbl-guardians-score-title">القرارات الأولى:</span>
+                <span id="guardians-score-display" class="font-mono text-sm text-white">0/0</span>
+              </div>
+
+              <!-- Challenge Timer Readout -->
+              <div class="flex items-center gap-2 bg-[#021815] text-white border-2 border-emerald-500/70 px-3 py-1 rounded-xl shadow-[0_0_12px_rgba(16,185,129,0.25)]">
+                <span class="text-sm">⏱️</span>
+                <span id="guardians-timer-display" class="font-mono text-sm sm:text-base font-black tracking-wider text-emerald-400 tabular-nums">10:00</span>
+                <button id="guardians-timer-toggle-btn" onclick="toggleGuardiansTimer()" title="إيقاف / استئناف المؤقت" class="px-1.5 py-0.5 text-[10px] font-bold rounded bg-emerald-700 hover:bg-emerald-600 text-white transition active:scale-95">
+                  ▶
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: Action Buttons (Policy Modal, Audio, Lang, Fullscreen) -->
+            <div class="flex items-center gap-1.5">
+              <!-- Facility Policies Reference Button -->
+              <button onclick="openGuardiansPolicyModal()" title="دليل سياسات المنشأة ومراجع CDC" class="px-2.5 py-1.5 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-800 border border-teal-300 text-xs font-black flex items-center gap-1 transition active:scale-95 cursor-pointer">
+                <span>📖</span> <span class="hidden sm:inline" id="lbl-guardians-policy-btn">المراجع والسياسات</span>
+              </button>
+
+              <!-- Language Toggle Button -->
+              <button onclick="toggleGuardiansLanguage()" id="guardians-lang-btn" title="تبديل اللغة (English / العربية)" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-black flex items-center gap-1 transition active:scale-95 cursor-pointer">
+                <span>🌐</span> <span>English</span>
+              </button>
+
+              <!-- Audio Mute/Unmute Toggle -->
+              <button onclick="toggleGuardiansSound()" id="guardians-sound-btn" title="كتم / تشغيل المؤثرات الصوتية" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 text-xs font-black flex items-center justify-center transition active:scale-95 cursor-pointer">
+                🔊
+              </button>
+
+              <!-- Fullscreen Button -->
+              <button onclick="toggleFullScreen()" title="ملء الشاشة" class="w-8 h-8 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-300 border border-slate-700 text-xs font-bold flex items-center justify-center transition active:scale-95 cursor-pointer">
+                ⛶
+              </button>
+            </div>
+          </div>
+
+          <!-- ACTIVE CASE PRESENTATION CARD -->
+          <div id="guardians-case-card" class="w-full bg-gradient-to-br from-[#021915] via-[#032924] to-[#011612] text-white border-2 border-emerald-500/70 rounded-2xl p-3.5 sm:p-4 shadow-lg transition-all">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-2 pb-2 border-b border-emerald-500/30">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-black uppercase" id="guardians-case-num-badge">
+                  حالة سريرية #1
+                </span>
+                <h3 class="text-sm sm:text-base font-black text-white" id="guardians-case-title">
+                  --
+                </h3>
+              </div>
+              <span class="text-xs text-emerald-300 font-bold flex items-center gap-1" id="guardians-target-time-hint">
+                <span>🎯 المدة المستهدفة: 8–10 دقائق للجلسة</span>
+              </span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-xs">
+              <!-- Diagnosis Block -->
+              <div class="p-2.5 rounded-xl bg-black/30 border border-emerald-500/30">
+                <div class="text-[10px] font-black text-emerald-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <span>🩺</span> <span id="lbl-case-diag-head">التشخيص أو الاشتباه:</span>
+                </div>
+                <p class="text-slate-200 leading-relaxed font-medium text-[11.5px]" id="guardians-case-diagnosis">
+                  --
+                </p>
+              </div>
+
+              <!-- Task Block -->
+              <div class="p-2.5 rounded-xl bg-black/30 border border-cyan-500/30">
+                <div class="text-[10px] font-black text-cyan-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <span>📋</span> <span id="lbl-case-task-head">المهمة المطلوبة:</span>
+                </div>
+                <p class="text-slate-200 leading-relaxed font-medium text-[11.5px]" id="guardians-case-task">
+                  --
+                </p>
+              </div>
+
+              <!-- Exposure Risk Block -->
+              <div class="p-2.5 rounded-xl bg-black/30 border border-amber-500/30">
+                <div class="text-[10px] font-black text-amber-300 uppercase tracking-wider mb-1 flex items-center gap-1">
+                  <span>⚠️</span> <span id="lbl-case-risk-head">احتمال التلامس أو الرذاذ:</span>
+                </div>
+                <p class="text-slate-200 leading-relaxed font-medium text-[11.5px]" id="guardians-case-risk">
+                  --
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE PROGRESSION NAVIGATION STEPPER -->
+          <div id="guardians-stage-stepper" class="w-full flex items-center gap-1.5 p-1 rounded-xl bg-slate-100 border border-slate-300">
+            <button id="guardians-step-btn-1" onclick="setGuardiansStage(1)" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1 bg-emerald-700 text-white shadow">
+              <span>1️⃣</span> <span id="lbl-step-1">الاحتياطات الإضافية</span>
+            </button>
+            <button id="guardians-step-btn-2" onclick="setGuardiansStage(2)" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1 bg-white text-slate-600 hover:bg-slate-50">
+              <span>2️⃣</span> <span id="lbl-step-2">معدات الوقاية المناسبة</span>
+            </button>
+            <button id="guardians-step-btn-3" onclick="setGuardiansStage(3)" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1 bg-white text-slate-600 hover:bg-slate-50">
+              <span>3️⃣</span> <span id="lbl-step-3">ترتيب الارتداء والخلع</span>
+            </button>
+          </div>
+
+          <!-- DYNAMIC STAGE CONTAINER -->
+          <div id="guardians-stage-workspace" class="w-full flex flex-col gap-2.5">
+            <!-- Content will be dynamically populated and updated by JavaScript -->
+          </div>
+
+          <!-- FEEDBACK & NEXT ACTION DOCK -->
+          <div id="guardians-feedback-dock" class="w-full hidden">
+            <!-- Injected dynamically on check -->
+          </div>
+
+        </div>
       </main>
 
     </div>
 
     <!-- FOOTER WITH ACCREDITATION & CONTROLS -->
-    <footer class="mt-auto py-3 text-center text-xs text-slate-500 flex items-center justify-center border-t border-slate-300">
+    <footer ondblclick="promptTrainerUnlock()" class="mt-auto cursor-pointer py-3 text-center text-xs text-slate-500 flex items-center justify-center border-t border-slate-300">
       <span>Standards: <strong>WHO Infection Prevention & Control</strong> & <strong>CDC Standard Precautions</strong></span>
     </footer>
 
@@ -3663,6 +3929,45 @@
           </div>
         </div>
 
+        <!-- MODULE: GUARDIANS OF STERILIZATION CONFIG -->
+        <div class="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-300 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 font-bold text-emerald-950 mb-1">
+              <span>🛡️</span>
+              <span>درع الوقاية | PPE Challenge (Module 3)</span>
+            </div>
+            <p class="text-xs text-emerald-800 mb-3">Target challenge countdown and module launch:</p>
+            <div class="grid grid-cols-2 gap-2 mb-3">
+              <button onclick="resetGuardiansTimer(480); showToast('Timer Set', 'PPE Challenge timer set to 8 mins', 'emerald');" class="py-1.5 rounded-lg bg-white border border-emerald-400 font-bold text-xs hover:bg-emerald-100 text-emerald-900">8 Mins Target</button>
+              <button onclick="resetGuardiansTimer(600); showToast('Timer Set', 'PPE Challenge timer set to 10 mins', 'emerald');" class="py-1.5 rounded-lg bg-white border border-emerald-400 font-bold text-xs hover:bg-emerald-100 text-emerald-900">10 Mins Target</button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-emerald-900 pt-2 border-t border-emerald-200">
+            <span>Pool: <strong>6 Cases (4 Drawn)</strong></span>
+            <button onclick="closeModal('pm-modal'); switchMainView('guardians');" class="text-emerald-700 font-bold hover:underline">Launch Module 3 ↗</button>
+          </div>
+        </div>
+
+        <!-- MODULE: DAILY QR DATE-LOCK SETTINGS -->
+        <div class="p-4 rounded-2xl bg-cyan-950/70 border border-cyan-400/50 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center gap-2 font-bold text-cyan-200 mb-1">
+              <span>📅</span>
+              <span>Daily QR Date-Lock Protection</span>
+            </div>
+            <p class="text-xs text-slate-300 mb-3">Enforce that shared QR barcodes work only on the day of the session:</p>
+            <div class="flex items-center gap-2 mb-2">
+              <button id="btn-toggle-datelock" onclick="toggleDateLockSetting()" class="flex-1 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs transition">
+                Status: Active (Protected)
+              </button>
+            </div>
+          </div>
+          <div class="flex items-center justify-between text-xs text-slate-300 pt-2 border-t border-cyan-500/30">
+            <span>Today's Date: <strong id="pm-today-date-str">--</strong></span>
+            <span class="text-teal-300 font-bold">Auto-Renews Daily</span>
+          </div>
+        </div>
+
         <!-- MODULE 4: PRESENTATION DISPLAY -->
         <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200">
           <div class="flex items-center gap-2 font-bold text-slate-900 mb-1">
@@ -3684,9 +3989,14 @@
 
       <!-- PM Modal Footer -->
       <div class="mt-6 pt-4 border-t border-slate-200 flex items-center justify-between">
-        <button onclick="restartFullGame(); closeModal('pm-modal');" class="text-xs font-bold text-red-600 hover:text-red-700 underline">
-          ⚠️ Reset Entire Round
-        </button>
+        <div class="flex items-center gap-3">
+          <button onclick="restartFullGame(); closeModal('pm-modal');" class="text-xs font-bold text-red-600 hover:text-red-700 underline">
+            ⚠️ Reset Entire Round
+          </button>
+          <button onclick="lockToStudentMode(); closeModal('pm-modal');" class="text-xs font-bold text-amber-700 hover:text-amber-800 underline flex items-center gap-1">
+            🔒 Lock to Student Mode
+          </button>
+        </div>
         <button onclick="closeModal('pm-modal')" class="px-5 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs transition">
           Close Console
         </button>
@@ -4093,7 +4403,7 @@
         <label class="text-[11px] font-black uppercase tracking-wider text-slate-500 block mb-1.5">
           1. Select Puzzle to Share • اختر النشاط المراد مشاركته:
         </label>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
           <button id="tab-share-puzzle" onclick="switchShareTarget('puzzle')" 
                   class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-cyan-50 border-cyan-500 text-cyan-900 shadow-sm ring-2 ring-cyan-400/20">
             <span class="text-lg">🧩</span>
@@ -4108,6 +4418,13 @@
             <span class="text-[9px] font-bold opacity-80" dir="rtl">مطابقة المفاهيم</span>
           </button>
 
+          
+          <button id="tab-share-guardians" onclick="switchShareTarget('guardians')" 
+                  class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-slate-50 border-slate-200 text-slate-600 hover:border-emerald-400">
+            <span class="text-lg">🛡️</span>
+            <span class="leading-tight text-center">Module 3: PPE Challenge</span>
+            <span class="text-[9px] font-bold opacity-80" dir="rtl">درع الوقاية</span>
+          </button>
           <button id="tab-share-portal" onclick="switchShareTarget('portal')" 
                   class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-slate-50 border-slate-200 text-slate-600 hover:border-cyan-400">
             <span class="text-lg">🏛️</span>
@@ -8609,41 +8926,48 @@
       const portalView = document.getElementById('view-portal');
       const puzzleView = document.getElementById('view-puzzle');
       const icebreakerView = document.getElementById('view-icebreaker');
+      const guardiansView = document.getElementById('view-guardians');
       
       const btnPortal = document.getElementById('menu-btn-portal');
       const btnPuzzle = document.getElementById('menu-btn-puzzle');
       const btnIcebreaker = document.getElementById('menu-btn-icebreaker');
+      const btnGuardians = document.getElementById('menu-btn-guardians');
       
       const mobPortal = document.getElementById('mobile-tab-portal');
       const mobPuzzle = document.getElementById('mobile-tab-puzzle');
       const mobIcebreaker = document.getElementById('mobile-tab-icebreaker');
+      const mobGuardians = document.getElementById('mobile-tab-guardians');
 
       const mainHeader = document.getElementById('main-header');
       const topHeaderRow = document.getElementById('top-header-row');
       const squadsBar = document.getElementById('squads-bar');
       const leftTeamCard = document.getElementById('left-menu-team-card');
 
-      // Hide all three views
+      // Hide all views
       if (portalView) { portalView.classList.add('hidden'); portalView.style.display = 'none'; }
       if (puzzleView) { puzzleView.classList.add('hidden'); puzzleView.style.display = 'none'; }
       if (icebreakerView) { icebreakerView.classList.add('hidden'); icebreakerView.style.display = 'none'; }
+      if (guardiansView) { guardiansView.classList.add('hidden'); guardiansView.style.display = 'none'; }
 
       // Reset sidebar buttons style
       const inactiveBtnClass = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#03203f] border-slate-700 text-slate-300 hover:text-white";
       if (btnPortal) btnPortal.className = inactiveBtnClass;
       if (btnPuzzle) btnPuzzle.className = inactiveBtnClass;
       if (btnIcebreaker) btnIcebreaker.className = inactiveBtnClass;
+      if (btnGuardians) btnGuardians.className = inactiveBtnClass;
 
       // Reset mobile tab buttons style
-      const inactiveMobClass = "flex-1 py-2 px-3 rounded-xl text-xs font-black transition flex items-center justify-center gap-1.5 bg-slate-100 text-slate-700 hover:bg-slate-200";
+      const inactiveMobClass = "flex-1 min-w-[105px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200";
       if (mobPortal) mobPortal.className = inactiveMobClass;
       if (mobPuzzle) mobPuzzle.className = inactiveMobClass;
       if (mobIcebreaker) mobIcebreaker.className = inactiveMobClass;
+      if (mobGuardians) mobGuardians.className = inactiveMobClass;
 
       const badgeText = document.getElementById('header-badge-text');
       if (badgeText) {
         if (viewName === 'puzzle') badgeText.textContent = '🧩 PUZZLE 1';
         else if (viewName === 'icebreaker') badgeText.textContent = '🧊 PUZZLE 2: ICE BREAKER';
+        else if (viewName === 'guardians') badgeText.textContent = '🛡️ درع الوقاية | PPE CHALLENGE';
         else if (viewName === 'portal') badgeText.textContent = '🏛️ MAIN PORTAL';
       }
 
@@ -8726,6 +9050,25 @@
         } else {
           showToast("🧊 Puzzle 2 Active", "Connect terms to clinical definitions!", "emerald");
         }
+      } else if (viewName === 'guardians') {
+        // 🛡️ ZERO-SCROLL FULL SCREEN VIEW FOR GUARDIANS OF STERILIZATION
+        setWidescreenMode(true);
+        requestGameFullScreen();
+
+        if (topHeaderRow) topHeaderRow.classList.add('hidden');
+        if (mainHeader) mainHeader.classList.add('hidden');
+        if (squadsBar) squadsBar.classList.add('hidden');
+        if (leftTeamCard) leftTeamCard.classList.add('hidden');
+
+        if (guardiansView) { guardiansView.classList.remove('hidden'); guardiansView.style.display = ''; }
+        if (btnGuardians) btnGuardians.className = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-gradient-to-r from-emerald-950 via-[#023b32] to-teal-900 border-emerald-400 text-white shadow-emerald-500/30 ring-2 ring-emerald-400/30";
+        if (mobGuardians) mobGuardians.className = "flex-1 min-w-[115px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-emerald-700 text-white shadow";
+
+        if (typeof initGuardiansGame === 'function') {
+          initGuardiansGame();
+        }
+        fitGameToScreen();
+        showToast("🛡️ درع الوقاية نشط", "اختر الاحتياطات، جهّز معدات الوقاية، واخلعها بأمان!", "emerald");
       }
       updateLeftMenuUI();
       return;
@@ -8811,6 +9154,7 @@ function _legacySwitchMainView(viewName) {
     }
 
     function updatePMUI() {
+      if (typeof updateDateLockUI === "function") updateDateLockUI();
       const soundBtn = document.getElementById('pm-sound-btn');
       if (soundBtn) soundBtn.innerText = sound.enabled ? '🔊' : '🔇';
       const hdrSoundBtn = document.getElementById('hdr-sound-btn');
@@ -8914,9 +9258,11 @@ function _legacySwitchMainView(viewName) {
     // toggleFullScreen handled by primary fullscreen suite above
 
     function openModal(id) {
-      if (isStudentMode && (id === 'pm-modal' || id === 'archive-modal')) {
-        promptTrainerUnlock();
-        return;
+      if (id === 'pm-modal' || id === 'archive-modal' || id === 'debrief-modal') {
+        if (sessionStorage.getItem('ipc_trainer_authed') !== 'true') {
+          const ok = promptTrainerUnlock();
+          if (!ok) return;
+        }
       }
       const m = document.getElementById(id);
       if (m) m.classList.remove('hidden');
@@ -8977,47 +9323,119 @@ function _legacySwitchMainView(viewName) {
       showToast("🎓 وضع الطالب نشط", "مرحباً بكم في لغز مكافحة العدوى! أظهر مهاراتك لحماية المرضى.", "emerald");
     }
 
+    const TRAINER_SECURITY_KEY = "Jubrannajah@2025";
+
     function promptTrainerUnlock() {
-      const pin = prompt("Enter Facilitator PIN to unlock Trainer Controls (Default: 1234):");
-      if (pin === "1234" || pin === "ipc" || pin === "admin") {
-        isStudentMode = false;
-        document.body.classList.remove('student-mode');
+      // Check if already authenticated in this session
+      if (sessionStorage.getItem('ipc_trainer_authed') === 'true') {
+        unlockTrainerUI();
+        showToast("👨‍🏫 وضع المدرب نشط", "صلاحيات المشرف مفعلة مسبقًا في هذه الجلسة.", "emerald");
+        return true;
+      }
 
-        const studentBadge = document.getElementById('student-mode-badge');
-        if (studentBadge) studentBadge.classList.add('hidden');
+      const enteredPass = prompt("🔐 يرجى إدخال كلمة مرور المشرف / Enter Facilitator Password:");
+      if (enteredPass === null) return false;
 
-        const trainerShortcuts = document.getElementById('trainer-shortcuts-menu');
-        if (trainerShortcuts) trainerShortcuts.classList.remove('hidden');
-
-        const btnReveal = document.getElementById('btn-icebreaker-reveal');
-        if (btnReveal) btnReveal.classList.remove('hidden');
-
-        // Restore reference table for Facilitator review
-        const refTable = document.getElementById('match-reference-table-container');
-        if (refTable) {
-          refTable.classList.remove('hidden');
-          refTable.style.removeProperty('display');
-        }
-
-        const addGroupBtn = document.getElementById('btn-add-group');
-        if (addGroupBtn) addGroupBtn.classList.remove('hidden');
-        const saveArchiveBtn = document.getElementById('btn-save-archive');
-        if (saveArchiveBtn) saveArchiveBtn.classList.remove('hidden');
-        const viewArchiveBtn = document.getElementById('btn-view-archive');
-        if (viewArchiveBtn) viewArchiveBtn.classList.remove('hidden');
-
-        const footerPmLink = document.getElementById('footer-pm-link');
-        if (footerPmLink) footerPmLink.classList.remove('hidden');
-        const footerDebriefLink = document.getElementById('footer-debrief-link');
-        if (footerDebriefLink) footerDebriefLink.classList.remove('hidden');
-        const footerArchiveLink = document.getElementById('footer-archive-link');
-        if (footerArchiveLink) footerArchiveLink.classList.remove('hidden');
-
-        showToast("👨‍🏫 Facilitator Mode", "Trainer management controls unlocked.", "cyan");
-      } else if (pin !== null) {
-        alert("Incorrect PIN. Please ask your trainer.");
+      if (enteredPass === TRAINER_SECURITY_KEY) {
+        sessionStorage.setItem('ipc_trainer_authed', 'true');
+        unlockTrainerUI();
+        if (typeof sound !== 'undefined') sound.playVictory();
+        showToast("✅ تم التحقق بنجاح", "تم تفعيل صلاحيات المشرف الكاملة ولوحة التحكم.", "emerald");
+        return true;
+      } else {
+        if (typeof sound !== 'undefined') sound.playBigAlarm();
+        alert("⛔ كلمة المرور غير صحيحة! تم رفض الوصول إلى لوحة المشرف.");
+        showToast("⛔ تم رفض الوصول", "كلمة المرور غير صحيحة.", "red");
+        return false;
       }
     }
+
+    function unlockTrainerUI() {
+      isStudentMode = false;
+      document.body.classList.remove('student-mode');
+
+      const studentBadge = document.getElementById('student-mode-badge');
+      if (studentBadge) studentBadge.classList.add('hidden');
+
+      const trainerShortcuts = document.getElementById('trainer-shortcuts-menu');
+      if (trainerShortcuts) trainerShortcuts.classList.remove('hidden');
+
+      const btnReveal = document.getElementById('btn-icebreaker-reveal');
+      if (btnReveal) btnReveal.classList.remove('hidden');
+
+      const refTable = document.getElementById('match-reference-table-container');
+      if (refTable) {
+        refTable.classList.remove('hidden');
+        refTable.style.removeProperty('display');
+      }
+
+      const addGroupBtn = document.getElementById('btn-add-group');
+      if (addGroupBtn) addGroupBtn.classList.remove('hidden');
+      const saveArchiveBtn = document.getElementById('btn-save-archive');
+      if (saveArchiveBtn) saveArchiveBtn.classList.remove('hidden');
+      const viewArchiveBtn = document.getElementById('btn-view-archive');
+      if (viewArchiveBtn) viewArchiveBtn.classList.remove('hidden');
+
+      const footerPmLink = document.getElementById('footer-pm-link');
+      if (footerPmLink) footerPmLink.classList.remove('hidden');
+      const footerDebriefLink = document.getElementById('footer-debrief-link');
+      if (footerDebriefLink) footerDebriefLink.classList.remove('hidden');
+      const footerArchiveLink = document.getElementById('footer-archive-link');
+      if (footerArchiveLink) footerArchiveLink.classList.remove('hidden');
+
+      const trainerControls = document.querySelectorAll('.trainer-only');
+      trainerControls.forEach(el => el.style.removeProperty('display'));
+    }
+
+    function lockToStudentMode() {
+      sessionStorage.removeItem('ipc_trainer_authed');
+      applyStudentMode();
+      showToast("🔒 وضع الطالب نشط", "تم قفل لوحة المشرف بنجاح.", "slate");
+    }
+
+    // Secret gestures: Triple click on logo & double click on footer
+    let secretLogoClicks = 0;
+    let secretLogoTimer = null;
+    function handleSecretLogoGesture() {
+      secretLogoClicks++;
+      if (secretLogoTimer) clearTimeout(secretLogoTimer);
+      secretLogoTimer = setTimeout(() => { secretLogoClicks = 0; }, 1200);
+      if (secretLogoClicks >= 3) {
+        secretLogoClicks = 0;
+        promptTrainerUnlock();
+      }
+    }
+
+    // Anti-Cheat & Inspection Protection + Secret Keyboard Shortcut (Ctrl+Shift+P)
+    document.addEventListener('contextmenu', (e) => {
+      if (sessionStorage.getItem('ipc_trainer_authed') === 'true') return true;
+      e.preventDefault();
+      showToast("🛡️ وضع الحماية نشط", "تم تعطيل القائمة لحماية محتوى التدريب السريري.", "slate");
+      return false;
+    });
+
+    document.addEventListener('keydown', (e) => {
+      // Secret Trainer Shortcut: Ctrl + Shift + P or Alt + Shift + P
+      if ((e.ctrlKey && e.shiftKey && (e.key === 'P' || e.key === 'p')) ||
+          (e.altKey && e.shiftKey && (e.key === 'P' || e.key === 'p'))) {
+        e.preventDefault();
+        promptTrainerUnlock();
+        return false;
+      }
+
+      // Block inspection shortcuts for students
+      if (sessionStorage.getItem('ipc_trainer_authed') !== 'true') {
+        if (
+          e.key === 'F12' ||
+          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
+          (e.ctrlKey && (e.key === 'U' || e.key === 'u'))
+        ) {
+          e.preventDefault();
+          showToast("🛡️ حماية التدريب", "أدوات فحص الصفحة معطلة أثناء جلسة التدريب السريري.", "slate");
+          return false;
+        }
+      }
+    });
 
     // --- Share Modal Controller ---
     function openShareModal(targetView = 'puzzle') {
@@ -9070,6 +9488,11 @@ function _legacySwitchMainView(viewName) {
       params.set('mode', 'student');
       params.set('role', 'student');
 
+      // 📅 DATE-LOCK: Automatically stamp barcode with today's date and cryptographic signature
+      const todayStr = getTodayDateString();
+      params.set('date', todayStr);
+      params.set('sig', generateDateSignature(todayStr));
+
       if (!base.endsWith('.html') && !base.endsWith('/')) {
         base += '/';
       }
@@ -9082,6 +9505,7 @@ function _legacySwitchMainView(viewName) {
       const tabs = {
         puzzle: document.getElementById('tab-share-puzzle'),
         icebreaker: document.getElementById('tab-share-icebreaker'),
+        guardians: document.getElementById('tab-share-guardians'),
         portal: document.getElementById('tab-share-portal')
       };
 
@@ -9286,6 +9710,139 @@ function _legacySwitchMainView(viewName) {
     </div>
     <div class="footer">
       Developed by <strong>Hammam Jubran Rjoup / MSN, CPIC</strong> • Hospital IPC Training
+    </div>
+  </div>
+  <!-- 📖 FACILITY POLICIES & CDC GUIDANCE MODAL FOR GUARDIANS 📖 -->
+  <div id="guardians-policy-modal" class="fixed inset-0 z-[150] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden select-none" dir="rtl" lang="ar">
+    <div class="bg-white border-2 border-emerald-500 rounded-3xl max-w-3xl w-full p-5 sm:p-7 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+      
+      <div class="flex items-center justify-between pb-3.5 border-b border-slate-200 mb-4">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-xl text-white shadow-md shadow-emerald-500/20">
+            📖
+          </div>
+          <div>
+            <h2 class="text-base sm:text-lg font-black text-slate-900" id="lbl-pol-modal-title">دليل سياسات المنشأة ومراجع مكافحة العدوى</h2>
+            <p class="text-xs text-slate-500 font-medium">CDC Isolation & Transmission-Based Precautions Guidelines</p>
+          </div>
+        </div>
+        <button onclick="closeGuardiansPolicyModal()" class="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold flex items-center justify-center transition">
+          ✕
+        </button>
+      </div>
+
+      <div class="space-y-4 text-xs text-slate-700 leading-relaxed">
+        
+        <!-- Section 1: Standard vs Transmission -->
+        <div class="p-3.5 rounded-2xl bg-slate-50 border border-slate-200">
+          <h4 class="font-black text-slate-900 mb-1.5 flex items-center gap-1.5 text-xs sm:text-sm">
+            <span>🛡️</span> <span>الاحتياطات القياسية (Standard Precautions):</span>
+          </h4>
+          <p>تُطبق على رعاية جميع المرضى في جميع الأوقات بصرف النظر عن التشخيص. تشمل نظافة اليدين في اللحظات الخمس، وارتداء معدات الوقاية الشخصية المناسبة بحسب تقييم خطر التعرض للدم أو سوائل الجسم أو رذاذ الإفرازات أو الجلد غير السليم.</p>
+        </div>
+
+        <!-- Section 2: Transmission Based Categories -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+          <div class="p-3 rounded-xl bg-amber-50/80 border border-amber-300">
+            <div class="font-black text-amber-900 mb-1 flex items-center gap-1">
+              <span>🚪</span> <span>احتياطات التلامس (Contact)</span>
+            </div>
+            <p class="text-[11px] text-amber-950">تُستخدم لمسببات الأمراض المنقولة بالتلامس المباشر أو غير المباشر (مثل C. difficile و MDRO). تتطلب رداءً واقيًا وقفازات عند دخول الغرفة.</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-cyan-50/80 border border-cyan-300">
+            <div class="font-black text-cyan-900 mb-1 flex items-center gap-1">
+              <span>😷</span> <span>احتياطات الرذاذ (Droplet)</span>
+            </div>
+            <p class="text-[11px] text-cyan-950">تُستخدم للأمراض المنقولة بقطيرات تنفسية كبيرة الحجم (مثل الإنفلونزا). تتطلب كمامة طبية عند دخول الغرفة.</p>
+          </div>
+
+          <div class="p-3 rounded-xl bg-purple-50/80 border border-purple-300">
+            <div class="font-black text-purple-900 mb-1 flex items-center gap-1">
+              <span>💨</span> <span>احتياطات الهواء (Airborne)</span>
+            </div>
+            <p class="text-[11px] text-purple-950">للأمراض المنقولة بنوى الرذاذ المعلقة بالهواء (مثل السل الرئوي والجدري). تتطلب غرفة ضغط سالب (AIIR) وجهاز تنفس N95 بعد فحص الملاءمة.</p>
+          </div>
+        </div>
+
+        <!-- Section 3: Sequence Rules -->
+        <div class="p-3.5 rounded-2xl bg-emerald-50/80 border border-emerald-300">
+          <h4 class="font-black text-emerald-950 mb-1.5 flex items-center gap-1.5 text-xs sm:text-sm">
+            <span>🔄</span> <span>تسلسل الارتداء والخلع المعتمد من CDC:</span>
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-[11px] text-emerald-900 font-medium">
+            <li><strong>تسلسل الارتداء:</strong> نظافة اليدين ➔ الرداء الواقي ➔ الكمامة أو جهاز N95 (مع فحص الإحكام) ➔ حماية العينين (درع/نظارات) ➔ القفازات فوق أساور الرداء.</li>
+            <li><strong>تسلسل الخلع (الطريقة المعتمدة):</strong> نزع القفازات والرداء الواقي معًا بقلبهما من الداخل للخارج داخل الغرفة (أو القفازات أولاً ثم الرداء) ➔ نظافة اليدين ➔ نزع حماية العينين ➔ مغادرة الغرفة وإغلاق الباب ➔ نزع جهاز N95 من الأربطة بالخارج ➔ نظافة اليدين الفورية.</li>
+            <li><strong>قاعدة ذهبية لمجرى التنفس:</strong> لا تنزع كمامة N95 داخل غرفة عزل الهواء أبدًا! يجب الخروج وإغلاق الباب أولاً.</li>
+          </ul>
+        </div>
+
+        <!-- Section 4: Specific Facility Policies -->
+        <div class="p-3.5 rounded-2xl bg-teal-50/80 border border-teal-300">
+          <h4 class="font-black text-teal-950 mb-1.5 flex items-center gap-1.5 text-xs sm:text-sm">
+            <span>📋</span> <span>سياسات المنشأة للحالات الخاصة:</span>
+          </h4>
+          <ul class="list-disc list-inside space-y-1 text-[11px] text-teal-900 font-medium">
+            <li><strong>عدوى C. difficile:</strong> تشترط سياسة المنشأة غسل اليدين بالماء والصابون بعد خلع القفازات، لأن المطهرات الكحولية لا تقضي على الأبواغ البكتيرية.</li>
+            <li><strong>جدري الماء للموظفين المحصنين:</strong> يعفى الممارس الصحي الحاصل على توثيق المناعة من ارتداء N95 وفق إرشادات CDC، ولكن يُلزم بارتداء القفازات والرداء الواقي عند ملامسة المريض لتجنب التلوث التلامسي بالآفات.</li>
+            <li><strong>انسكاب الدم:</strong> احتواء الانسكاب بمواد ماصة أولاً، ثم تنظيف المواد العضوية، يليها تطهير السطح بمطهر هيبوكلوريت الصوديوم المعتمد مع استيفاء زمن التلامس الموصى به.</li>
+          </ul>
+        </div>
+
+      </div>
+
+      <div class="mt-5 pt-3.5 border-t border-slate-200 flex justify-end">
+        <button onclick="closeGuardiansPolicyModal()" class="px-5 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs transition active:scale-95 shadow">
+          إغلاق النافذة
+        </button>
+      </div>
+
+    </div>
+  </div>
+  <!-- ⛔ SESSION EXPIRED OVERLAY (DATE-LOCKED QR PROTECTION) ⛔ -->
+  <div id="session-expired-overlay" class="fixed inset-0 z-[999999] bg-[#021124]/95 backdrop-blur-md flex items-center justify-center p-4 hidden select-none" dir="rtl" lang="ar">
+    <div class="bg-gradient-to-br from-[#021c32] via-[#032644] to-[#011422] border-2 border-cyan-400/80 rounded-3xl max-w-lg w-full p-6 sm:p-8 text-center text-white shadow-[0_0_50px_rgba(6,182,212,0.35)] relative animate-fadeIn">
+      
+      <!-- Icon & Status Badge -->
+      <div class="w-16 h-16 sm:w-20 sm:h-20 mx-auto rounded-3xl bg-cyan-950/80 border-2 border-cyan-400/60 flex items-center justify-center text-3xl sm:text-4xl shadow-inner mb-4">
+        🔒
+      </div>
+
+      <span class="inline-block px-3 py-1 rounded-full bg-red-500/20 text-red-300 border border-red-400/40 text-[11px] font-black uppercase tracking-wider mb-2">
+        SESSION EXPIRED • صلاحية الجلسة منتهية
+      </span>
+
+      <h2 class="text-xl sm:text-2xl font-black text-white mb-2">
+        انتهت صلاحية هذه الجلسة التدريبية
+      </h2>
+
+      <p class="text-xs sm:text-sm text-cyan-100 font-medium leading-relaxed mb-4">
+        عذرًا، هذا الباركود والرابط كان مخصصًا لجلسة تدريبية سابقة انتهت صلاحيتها. لمنع تسريب الحالات وحفاظًا على نزاهة وجودة التدريب، يرجى مسح باركود الجلسة النشطة اليوم من شاشة المدرب داخل القاعة.
+      </p>
+
+      <div class="p-3 rounded-2xl bg-black/40 border border-cyan-500/30 text-xs text-slate-300 mb-5 flex items-center justify-around">
+        <div>
+          <span class="text-[10px] text-slate-400 block font-bold">تاريخ الرابط الممسوح:</span>
+          <span id="expired-session-date-label" class="font-mono text-cyan-300 font-black">--</span>
+        </div>
+        <div class="w-px h-8 bg-slate-700"></div>
+        <div>
+          <span class="text-[10px] text-slate-400 block font-bold">تاريخ اليوم الحالي:</span>
+          <span id="current-today-date-label" class="font-mono text-emerald-400 font-black">--</span>
+        </div>
+      </div>
+
+      <!-- Action & Secret Trainer Unlock -->
+      <div class="flex flex-col gap-2">
+        <button onclick="window.location.reload()" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 hover:from-cyan-500 hover:to-teal-500 text-white font-black text-xs transition active:scale-95 shadow cursor-pointer">
+          إعادة المحاولة 🔄
+        </button>
+
+        <button onclick="dismissExpiredOverlayForTrainer()" class="w-full py-2 rounded-xl bg-transparent hover:bg-white/5 text-slate-400 hover:text-cyan-200 text-[11px] font-bold transition cursor-pointer">
+          🔓 دخول المشرف والمدرب (Trainer Login)
+        </button>
+      </div>
+
     </div>
   </div>
 </body>
@@ -9931,15 +10488,1626 @@ function _legacySwitchMainView(viewName) {
       }
     }
 
+
+    // =========================================================================
+    // 15. MODULE 3: PPE CHALLENGE (درع الوقاية)
+    // =========================================================================
+
+    const GUARDIANS_I18N = {
+      ar: {
+        gameTitle: "درع الوقاية",
+        subtitle: "اختر الاحتياطات، جهّز معدات الوقاية، واخلعها بأمان.",
+        portalBtn: "البوابة",
+        casePill: "الحالة {current} من {total}",
+        scoreTitle: "القرارات الأولى:",
+        policyBtn: "المراجع والسياسات",
+        targetTimeHint: "🎯 المدة المستهدفة: 8–10 دقائق للجلسة",
+        diagHead: "التشخيص أو الاشتباه:",
+        taskHead: "المهمة المطلوبة:",
+        riskHead: "احتمال التلامس أو الرذاذ:",
+        step1: "1️⃣ نوع الاحتياطات",
+        step2: "2️⃣ معدات الوقاية المناسبة",
+        step3: "3️⃣ ترتيب الارتداء والخلع",
+        step1Instruction: "حدد نوع أو أنواع الاحتياطات الإضافية المطلوبة لهذه الحالة (فوق الاحتياطات القياسية):",
+        step2Instruction: "اختر جميع معدات الوقاية الشخصية المناسبة لإنجاز المهمة المطلوبة بأمان:",
+        step3Instruction: "رتّب خطوات الارتداء قبل الدخول، وخطوات الخلع والإجراءات عند المغادرة:",
+        donningTitle: "🟢 منطقة الارتداء (قبل الدخول للمريض)",
+        doffingTitle: "🔴 منطقة الخلع والإجراءات (عند مغادرة الغرفة)",
+        bankTitle: "📦 بنك البطاقات المتاحة (اضغط للاختيار ثم أضف للمنطقة):",
+        addToDonning: "➕ إضافة للارتداء",
+        addToDoffing: "➕ إضافة للخلع",
+        undoBtn: "↩️ تراجع",
+        resetBtn: "🔄 إعادة ضبط",
+        checkBtn: "تحقّق من الإجابة 🔍",
+        nextStepBtn: "الانتقال للمرحلة التالية ➡️",
+        nextCaseBtn: "الحالة التالية ➡️",
+        viewResultsBtn: "عرض تقرير الجلسة والنتائج 🎉",
+        retryNotice: "حاول مرة أخرى بعد مراجعة التلميح السريري.",
+        donningEmptyHint: "منطقة الارتداء فارغة. رتب خطوات الارتداء المطلوبة.",
+        doffingEmptyHint: "منطقة الخلع فارغة. رتب خطوات الخلع والإجراءات المطلوبة.",
+        debriefTitle: "تقرير ختام جلسة درع الوقاية",
+        debriefSubtitle: "تقييم القرارات السريرية وصحة الاختيارات من المحاولة الأولى",
+        playAgainBtn: "بدء جلسة جديدة (4 حالات عشوائية) 🔄",
+        debriefScoreLabel: "صحة القرارات من المحاولة الأولى",
+        debriefTimeLabel: "الوقت المستغرق في التحدي",
+        debriefReviewHead: "مراجعة الحالات السريرية الأربع في هذه الجلسة:",
+        firstAttemptBadgeSuccess: "✅ قرار سليم من المحاولة الأولى",
+        firstAttemptBadgeReview: "🔄 احتاج إلى مراجعة وتلميح",
+        caseNumberLabel: "حالة سريرية #{num}"
+      },
+      en: {
+        gameTitle: "PPE Challenge",
+        subtitle: "Select precautions, equip PPE, and doff safely.",
+        portalBtn: "Portal",
+        casePill: "Case {current} of {total}",
+        scoreTitle: "First-Try Score:",
+        policyBtn: "References & Policies",
+        targetTimeHint: "🎯 Target Session Duration: 8–10 Minutes",
+        diagHead: "Diagnosis / Suspicion:",
+        taskHead: "Clinical Task:",
+        riskHead: "Contact / Splash Risk:",
+        step1: "1️⃣ Precautions",
+        step2: "2️⃣ PPE Selection",
+        step3: "3️⃣ Donning & Doffing",
+        step1Instruction: "Select the additional precaution type(s) required beyond Standard Precautions:",
+        step2Instruction: "Select all appropriate Personal Protective Equipment (PPE) for this task:",
+        step3Instruction: "Sequence the donning steps before room entry, and doffing/actions when exiting:",
+        donningTitle: "🟢 Donning Zone (Before Room Entry)",
+        doffingTitle: "🔴 Doffing & Actions Zone (Upon Exit)",
+        bankTitle: "📦 Available Cards (Tap to select, then click add button):",
+        addToDonning: "➕ Add to Donning",
+        addToDoffing: "➕ Add to Doffing",
+        undoBtn: "↩️ Undo",
+        resetBtn: "🔄 Reset",
+        checkBtn: "Check Decision 🔍",
+        nextStepBtn: "Proceed to Next Stage ➡️",
+        nextCaseBtn: "Next Case ➡️",
+        viewResultsBtn: "View Session Debrief & Results 🎉",
+        retryNotice: "Please retry after reviewing the clinical hint.",
+        donningEmptyHint: "Donning zone is empty. Place the required donning steps.",
+        doffingEmptyHint: "Doffing zone is empty. Place the required doffing steps.",
+        debriefTitle: "PPE Challenge — Session Debrief",
+        debriefSubtitle: "First-Attempt Clinical Decision Accuracy & IPC Competency Report",
+        playAgainBtn: "Start New Session (4 Random Cases) 🔄",
+        debriefScoreLabel: "First-Attempt Decision Accuracy",
+        debriefTimeLabel: "Challenge Time Elapsed",
+        debriefReviewHead: "Review of the 4 Clinical Cases in this Session:",
+        firstAttemptBadgeSuccess: "✅ Correct on First Attempt",
+        firstAttemptBadgeReview: "🔄 Required Review & Retried",
+        caseNumberLabel: "Clinical Case #{num}"
+      }
+    };
+
+    const GUARDIANS_PRECAUTIONS = [
+      {
+        id: "none",
+        icon: "🛡️",
+        nameAr: "الاحتياطات القياسية فقط (لا احتياطات إضافية)",
+        nameEn: "Standard Precautions Only (No Extra Precautions)",
+        descAr: "تُطبق لجميع المرضى؛ لا توجد فئة عزل قائمة على انتقال محدد لهذه الحالة.",
+        descEn: "Applies to all patients; no transmission-based isolation required for this case."
+      },
+      {
+        id: "contact",
+        icon: "🚪",
+        nameAr: "احتياطات التلامس (Contact Precautions)",
+        nameEn: "Contact Precautions",
+        descAr: "للأمراض المنقولة بالتلامس المباشر أو غير المباشر (مثل C. diff و MDRO).",
+        descEn: "For pathogens spread by direct or indirect contact with patient or environment."
+      },
+      {
+        id: "droplet",
+        icon: "😷",
+        nameAr: "احتياطات الرذاذ (Droplet Precautions)",
+        nameEn: "Droplet Precautions",
+        descAr: "للقطيرات التنفسية الكبيرة المتطايرة لمسافة متر إلى مترين (مثل الإنفلونزا).",
+        descEn: "For large respiratory droplets travelling short distances (e.g. influenza)."
+      },
+      {
+        id: "airborne",
+        icon: "💨",
+        nameAr: "احتياطات الانتقال الهوائي (Airborne Precautions)",
+        nameEn: "Airborne Precautions",
+        descAr: "للنوى المجهرية المعلقة بالهواء (مثل السل والجدري)؛ تتطلب غرفة AIIR و N95.",
+        descEn: "For small droplet nuclei suspended in air (e.g. TB, varicella); requires AIIR & N95."
+      }
+    ];
+
+    const GUARDIANS_PPE_ITEMS = [
+      {
+        id: "gloves",
+        icon: "🧤",
+        nameAr: "قفازات طبية",
+        nameEn: "Medical Examination Gloves",
+        badge: "PPE"
+      },
+      {
+        id: "gown",
+        icon: "🥼",
+        nameAr: "رداء واقٍ (مريول عزل)",
+        nameEn: "Isolation Gown",
+        badge: "PPE"
+      },
+      {
+        id: "medical_mask",
+        icon: "😷",
+        nameAr: "كمامة طبية جراحية",
+        nameEn: "Medical / Surgical Mask",
+        badge: "PPE"
+      },
+      {
+        id: "n95",
+        icon: "🤿",
+        nameAr: "جهاز تنفس N95 مفحوص الملاءمة",
+        nameEn: "Fit-Tested N95 Respirator",
+        badge: "PPE"
+      },
+      {
+        id: "goggles",
+        icon: "🥽",
+        nameAr: "نظارات واقية محكمة",
+        nameEn: "Protective Goggles",
+        badge: "PPE"
+      },
+      {
+        id: "face_shield",
+        icon: "🛡️",
+        nameAr: "درع الوجه الكامل",
+        nameEn: "Full Face Shield",
+        badge: "PPE"
+      },
+      {
+        id: "no_ppe",
+        icon: "🚫",
+        nameAr: "لا حاجة لمعدات وقاية لهذه المهمة",
+        nameEn: "No PPE Needed for this Task",
+        badge: "Clinical Decision"
+      }
+    ];
+
+    const GUARDIANS_ACTION_ITEMS = [
+      {
+        id: "hand_hygiene",
+        icon: "🧼",
+        nameAr: "نظافة اليدين (فرك كحولي أو ماء وصابون)",
+        nameEn: "Hand Hygiene (Alcohol Rub or Soap & Water)",
+        badge: "Action"
+      },
+      {
+        id: "soap_water_hand_hygiene",
+        icon: "🫧",
+        nameAr: "نظافة اليدين بالماء والصابون (موصى به للأبواغ)",
+        nameEn: "Soap & Water Hand Hygiene (Spore Removal)",
+        badge: "Action"
+      },
+      {
+        id: "seal_check",
+        icon: "🔍",
+        nameAr: "فحص إحكام جهاز التنفس (User Seal Check)",
+        nameEn: "User Seal Check for N95",
+        badge: "Action"
+      },
+      {
+        id: "exit_door",
+        icon: "🚪",
+        nameAr: "الخروج من غرفة العزل وإغلاق الباب",
+        nameEn: "Exit Room & Close Door",
+        badge: "Action"
+      },
+      {
+        id: "contain_spill",
+        icon: "🧻",
+        nameAr: "احتواء الانسكاب بمواد ماصة ومناشف",
+        nameEn: "Contain Spill with Absorbent Material",
+        badge: "Action"
+      },
+      {
+        id: "clean_surface",
+        icon: "🧽",
+        nameAr: "تنظيف السطح بالماء والمنظف لإزالة الدم",
+        nameEn: "Clean Surface with Water & Detergent",
+        badge: "Action"
+      },
+      {
+        id: "disinfect_spill",
+        icon: "🧪",
+        nameAr: "تطهير السطح بمطهر معتمد واستيفاء زمن التلامس",
+        nameEn: "Disinfect Surface with EPA Disinfectant / Bleach",
+        badge: "Action"
+      },
+      {
+        id: "remove_gloves_gown",
+        icon: "🔄",
+        nameAr: "نزع القفازات والرداء الواقي بقلبهما معًا بأمان",
+        nameEn: "Doff Gloves & Gown Together Inside Room",
+        badge: "Action"
+      },
+      {
+        id: "remove_n95",
+        icon: "🏷️",
+        nameAr: "نزع جهاز التنفس N95 من الأربطة خارج الغرفة",
+        nameEn: "Doff N95 by Straps Outside Room",
+        badge: "Action"
+      },
+      {
+        id: "remove_mask",
+        icon: "🎭",
+        nameAr: "نزع الكمامة الطبية من الأربطة دون لمس واجهتها",
+        nameEn: "Doff Medical Mask by Ties/Loops",
+        badge: "Action"
+      },
+      {
+        id: "remove_face_protection",
+        icon: "👓",
+        nameAr: "نزع درع الوجه أو النظارات من الخلف",
+        nameEn: "Doff Face Shield / Goggles from Back",
+        badge: "Action"
+      }
+    ];
+
+    const GUARDIANS_CASES = [
+      // Case 1: Suspected Pulmonary TB
+      {
+        id: 1,
+        titleAr: "اشتباه سل رئوي | دخول الغرفة للتحدث مع المريض",
+        titleEn: "Suspected Pulmonary Tuberculosis | Patient Interview",
+        diagnosisAr: "مريض يعاني من سعال مستمر لأسابيع مع بلغم مدمى وتعرق ليلي ونقص وزن، مشتبه بإصابته بسل رئوي نشط.",
+        diagnosisEn: "Patient with persistent cough, hemoptysis, night sweats, and weight loss; suspected active pulmonary TB.",
+        taskAr: "دخول غرفة العزل للعدوى المنقولة بالهواء (AIIR) لإجراء مقابلة تقييم سريري والتحدث مع المريض دون فحص جسدي ملامس.",
+        taskEn: "Enter Airborne Infection Isolation Room (AIIR) for clinical intake assessment interview; no direct physical touching.",
+        riskAr: "خطر استنشاق نوى الرذاذ المجهرية المعلقة بالهواء (Airborne droplet nuclei). لا يوجد تلامس مع سوائل الجسم أو إجراء مولد للهباء.",
+        riskEn: "Inhalation risk of airborne droplet nuclei. No direct body fluid contact or aerosol-generating procedure.",
+        policyNotesAr: "السل الرئوي يتطلب غرفة ضغط سالب (AIIR) وجهاز تنفس N95 مفحوص الملاءمة مسبقًا، مع إجراء فحص الإحكام ونزعه خارج الغرفة.",
+        policyNotesEn: "Pulmonary TB requires negative-pressure AIIR, fit-tested N95 respirator, seal check, and doffing strictly outside room.",
+        refUrl: "https://www.cdc.gov/tb/topic/infectioncontrol/default.htm",
+        stage1: {
+          correct: ["airborne"],
+          hintAr: "السل الرئوي ينتقل عبر نوى قطيرات مجهرية محمولة بالهواء لمسافات طويلة، ويتطلب غرفة ضغط سالب (AIIR).",
+          hintEn: "Pulmonary tuberculosis transmits via microscopic airborne droplet nuclei suspended in air over distances; requires Airborne Isolation.",
+          explanationAr: "يتطلب السل الرئوي احتياطات الانتقال الهوائي (Airborne Precautions) لمنع استنشاق نوى الميكروبات المعلقة في الهواء.",
+          explanationEn: "Pulmonary TB mandates Airborne Precautions to prevent inhalation of infectious droplet nuclei suspended in air."
+        },
+        stage2: {
+          required: ["n95"],
+          disallowed: ["medical_mask", "no_ppe"],
+          hintAr: "لمجرد المقابلة اللفظية، الحماية التنفسية بجهاز N95 ملائم هي الأساس، ولا داعي للرداء والقفازات دون تلامس سريري.",
+          hintEn: "For a verbal intake interview, fit-tested N95 respiratory protection is essential; gown & gloves are not indicated without physical touch.",
+          explanationAr: "جهاز التنفس N95 مفحوص الملاءمة يرشح 95% على الأقل من الجسيمات المنقولة جوًا، بينما لا تمنع الكمامة الجراحية استنشاق نوى السل.",
+          explanationEn: "A fit-tested N95 respirator filters ≥95% of airborne particles, whereas a surgical mask does not seal against TB droplet nuclei."
+        },
+        stage3: {
+          bypass: false,
+          availableActions: ["hand_hygiene", "n95", "seal_check", "exit_door", "remove_n95"],
+          donningOrder: ["hand_hygiene", "n95", "seal_check"],
+          doffingOrder: ["exit_door", "remove_n95", "hand_hygiene"],
+          hintAr: "تذكر: نظافة اليدين أولاً ➔ N95 ➔ فحص الإحكام. وعند الخروج: الخروج وإغلاق الباب أولاً ➔ نزع N95 بالخارج ➔ نظافة اليدين.",
+          hintEn: "Remember: Hand hygiene first ➔ Don N95 ➔ Seal check. Doffing: Exit & close door first ➔ Doff N95 outside ➔ Hand hygiene.",
+          explanationAr: "يتم فحص إحكام N95 للتأكد من حماية مجرى التنفس، ويُنزع حصرًا خارج الغرفة بعد إغلاق الباب لمنع استنشاق هواء العزل الملوث.",
+          explanationEn: "User seal check confirms respiratory seal, and N95 is removed outside after closing door to avoid inhaling airborne nuclei."
+        }
+      },
+
+      // Case 2: Seasonal Influenza
+      {
+        id: 2,
+        titleAr: "إنفلونزا موسمية | مقابلة سريرية قصيرة",
+        titleEn: "Seasonal Influenza | Short Clinical Interview",
+        diagnosisAr: "مريض مؤكد إصابته بإنفلونزا موسمية حادة، يعاني من حرارة مرتفعة وسعال وسيلان أنفي.",
+        diagnosisEn: "Patient with confirmed acute seasonal influenza, presenting with high fever, cough, and rhinorrhea.",
+        taskAr: "مقابلة سريرية صباحية قصيرة لمتابعة الأعراض، على مسافة متر إلى مترين، دون إجراء مولد للهباء ودون تلامس مع الإفرازات.",
+        taskEn: "Short morning assessment interview at 1-2 meters; no aerosol-generating procedure and no contact with secretions.",
+        riskAr: "تطاير قطيرات تنفسية كبيرة الحجم عند السعال أو التحدث نحو الأغشية المخاطية للوجه.",
+        riskEn: "Large respiratory droplet sprays emitted during coughing or talking within 1-2 meters.",
+        policyNotesAr: "تتطلب الإنفلونزا احتياطات الرذاذ (Droplet Precautions) مع ارتداء كمامة طبية عند دخول غرفة المريض.",
+        policyNotesEn: "Influenza requires Droplet Precautions with a medical/surgical mask donned upon room entry.",
+        refUrl: "https://www.cdc.gov/flu/professionals/infectioncontrol/healthcaresettings.htm",
+        stage1: {
+          correct: ["droplet"],
+          hintAr: "فيروس الإنفلونزا ينتقل أساسًا بالرذاذ التنفسي المباشر لمسافات قصيرة (متر إلى مترين)، وتكفي احتياطات الرذاذ.",
+          hintEn: "Influenza virus spreads primarily through large respiratory droplets traveling short distances; requires Droplet Precautions.",
+          explanationAr: "تنتقل الإنفلونزا عبر قطيرات الرذاذ التنفسي الصادرة من المريض، لذا تتطلب احتياطات الرذاذ (Droplet Precautions).",
+          explanationEn: "Influenza is transmitted via large respiratory droplets, mandating Droplet Precautions upon room entry."
+        },
+        stage2: {
+          required: ["medical_mask"],
+          disallowed: ["no_ppe"],
+          hintAr: "لمقابلة قصيرة دون تلامس مباشر، الكمامة الطبية الجراحية تحمي الأغشية المخاطية للأنف والفم من رذاذ السعال.",
+          hintEn: "For a short interview without direct patient contact, a medical/surgical mask protects mouth and nose from droplets.",
+          explanationAr: "تكفي الكمامة الطبية المعتمدة لحجب قطيرات الرذاذ التنفسي المتطايرة أثناء المقابلة السريرية.",
+          explanationEn: "A medical surgical mask provides effective barrier protection against respiratory droplet spray."
+        },
+        stage3: {
+          bypass: false,
+          availableActions: ["hand_hygiene", "medical_mask", "remove_mask"],
+          donningOrder: ["hand_hygiene", "medical_mask"],
+          doffingOrder: ["remove_mask", "hand_hygiene"],
+          hintAr: "نظافة اليدين ➔ ارتداء الكمامة الطبية. عند الخروج: نزع الكمامة من الأربطة وتجنب لمس واجهتها ➔ نظافة اليدين.",
+          hintEn: "Hand hygiene ➔ Don mask. Doffing: Remove mask by ties/loops avoiding front face ➔ Hand hygiene.",
+          explanationAr: "نزع الكمامة من الأشرطة الخلفية ونظافة اليدين الفورية يمنعان انتقال الفيروسات العالقة بالواجهة الخارجية.",
+          explanationEn: "Removing the mask by ear loops/ties without touching the front barrier prevents hands from viral contamination."
+        }
+      },
+
+      // Case 3: C. difficile Infection
+      {
+        id: 3,
+        titleAr: "عدوى C. difficile | مساعدة مريض مصاب بإسهال حاد",
+        titleEn: "C. difficile Infection | Assisting Patient with Diarrhea",
+        diagnosisAr: "مريض منوم يعاني من إسهال مائي متكرر ومثبت إصابته بمطثية العسيرة (Clostridioides difficile).",
+        diagnosisEn: "Inpatient with frequent watery diarrhea confirmed positive for Clostridioides difficile colitis.",
+        taskAr: "مساعدة المريض على استخدام كرسي الحمام، تنظيف موضع ملوث، واستبدال الفوطة الملوثة.",
+        taskEn: "Assisting patient onto bedside commode, personal perineal care, and changing soiled pad.",
+        riskAr: "تلامس مباشر ولصيق مع براز المريض والأبواغ البكتيرية المقاومة المنتشرة على الأسطح المحيطة.",
+        riskEn: "High-risk direct and indirect contact with feces and highly resilient bacterial endospores.",
+        policyNotesAr: "تتطلب C. diff احتياطات التلامس (رداء وقفازات)، مع غسل اليدين بالماء والصابون لأن الكحول لا يقضي على الأبواغ.",
+        policyNotesEn: "C. diff requires Contact Precautions (gown & gloves), and soap & water hand hygiene as alcohol does not kill spores.",
+        refUrl: "https://www.cdc.gov/c-diff/hcp/clinical-guidance/",
+        stage1: {
+          correct: ["contact"],
+          hintAr: "بكتيريا C. diff وأبواغها تنتقل بالتلامس المباشر مع البراز والأسطح الملوثة بالمحيط السريري.",
+          hintEn: "C. difficile and its spores spread by direct contact with feces and contaminated environment; requires Contact Precautions.",
+          explanationAr: "تتطلب عدوى C. diff احتياطات التلامس (Contact Precautions) لاحتواء الأبواغ ومنع انتشارها عبر الأيدي والبيئة.",
+          explanationEn: "C. diff mandates Contact Precautions to contain hardy bacterial spores from spreading via hands and fomites."
+        },
+        stage2: {
+          required: ["gloves", "gown"],
+          disallowed: ["no_ppe"],
+          hintAr: "تقديم عناية جسدية لصيقة بمريض يعاني من إسهال C. diff يستدعي حماية اليدين والملابس من التلوث البرازي بالأبواغ.",
+          hintEn: "Providing direct toileting care to a patient with C. diff diarrhea requires protecting hands and clothing with gloves and gown.",
+          explanationAr: "القفازات والرداء الواقي يمثلان حاجزًا ضروريًا ضد تلوث الملابس واليدين بأبواغ المطثية العسيرة.",
+          explanationEn: "Gloves and an isolation gown are mandatory barrier protection against heavy fecal spore contamination."
+        },
+        stage3: {
+          bypass: false,
+          availableActions: ["hand_hygiene", "soap_water_hand_hygiene", "gown", "gloves", "remove_gloves_gown"],
+          donningOrder: ["hand_hygiene", "gown", "gloves"],
+          doffingOrder: ["remove_gloves_gown", "soap_water_hand_hygiene"],
+          hintAr: "تنبيه هام: في C. diff يجب خلع القفازات والرداء داخل الغرفة، ثم غسل اليدين بالماء والصابون لإزالة الأبواغ ميكانيكيًا.",
+          hintEn: "Critical alert: Doff gloves & gown inside room, then wash hands with soap & water to mechanically remove spores.",
+          explanationAr: "تُزال القفازات والرداء داخل الغرفة، ثم تُغسل الأيدي بالماء والصابون لأن الأبواغ لا تُقتل بالمطهر الكحولي.",
+          explanationEn: "Gloves and gown are doffed inside room followed by soap and water washing, as alcohol rub is ineffective against spores."
+        }
+      },
+
+      // Case 4: Chickenpox (Varicella)
+      {
+        id: 4,
+        titleAr: "جدري الماء | مساعدة مريض من قِبل ممرض محصّن",
+        titleEn: "Chickenpox (Varicella) | Patient Care by Immune HCW",
+        diagnosisAr: "مريض منوم مصاب بجدري الماء (Varicella-Zoster) مع طفح حويصلي نشط وسعال خفيف.",
+        diagnosisEn: "Inpatient with active varicella (chickenpox) presenting with generalized vesicular rash and mild cough.",
+        taskAr: "دخول الغرفة لتقديم مساعدة سريرية مباشرة وقياس العلامات من قبل ممارس لديه توثيق رسمي للمناعة ضد الفيروس.",
+        taskEn: "Direct bedside physical assistance and vital signs by a healthcare worker with documented varicella immunity.",
+        riskAr: "انتقال مزدوج: عبر نوى الرذاذ المحمولة جوًا من الجهاز التنفسي، وعبر التلامس المباشر مع سائل الحويصلات.",
+        riskEn: "Dual transmission risk: airborne droplet nuclei from respiratory tract and contact with infectious vesicular fluid.",
+        policyNotesAr: "جدري الماء يتطلب عزل هواء + تلامس معًا. يسمح CDC للمحصنين بعدم ارتداء N95، ولكن يجب ارتداء القفازات والرداء للتلامس.",
+        policyNotesEn: "Varicella requires dual Airborne + Contact Precautions. CDC allows immune staff to forgo N95, but gown/gloves are required for contact.",
+        refUrl: "https://www.cdc.gov/chickenpox/hcp/clinical-overview/",
+        stage1: {
+          correct: ["airborne", "contact"],
+          hintAr: "فيروس الجدري يتميز بانتقال مزدوج: بالهواء عبر إفرازات التنفس، وبالتلامس عبر سائل الحويصلات المفتوحة.",
+          hintEn: "Varicella virus features dual transmission: airborne via respiratory secretions and contact via open blister fluid.",
+          explanationAr: "يتطلب جدري الماء احتياطات مزدوجة: الانتقال الهوائي (Airborne) واحتياطات التلامس (Contact).",
+          explanationEn: "Varicella mandates dual precautions: Airborne Precautions plus Contact Precautions."
+        },
+        stage2: {
+          required: ["gloves", "gown"],
+          disallowed: ["no_ppe"],
+          hintAr: "للموظف المحصّن، تتركز معدات الوقاية على حماية التلامس الجسدي مع الآفات الجلدية باستخدام القفازات والرداء الواقي.",
+          hintEn: "For immune personnel, contact barriers (gown & gloves) protect against physical exposure to skin lesions.",
+          explanationAr: "يحتاج الممارس المحصن إلى رداء واقٍ وقفازات لمنع التلوث التلامسي المباشر بآفات وسوائل الجدري.",
+          explanationEn: "Immune staff require an isolation gown and gloves to prevent contact transmission from vesicular lesions."
+        },
+        stage3: {
+          bypass: false,
+          availableActions: ["hand_hygiene", "gown", "gloves", "exit_door", "remove_gloves_gown"],
+          donningOrder: ["hand_hygiene", "gown", "gloves"],
+          doffingOrder: ["remove_gloves_gown", "exit_door", "hand_hygiene"],
+          hintAr: "ارتداء: نظافة اليدين ➔ الرداء ➔ القفازات فوق الأساور. الخلع: نزع القفازات والرداء داخل الغرفة ➔ الخروج وغلق الباب ➔ نظافة اليدين.",
+          hintEn: "Donning: Hand hygiene ➔ Gown ➔ Gloves over cuffs. Doffing: Doff gloves & gown inside ➔ Exit & close door ➔ Hand hygiene.",
+          explanationAr: "تُخلع معدات التلامس داخل الغرفة لمنع تلويث البيئة الخارجية، ويُغلق الباب فورًا للحفاظ على ضغط غرفة العزل.",
+          explanationEn: "Contact PPE is removed inside the room to prevent environmental contamination, followed by door closure to maintain AIIR pressure."
+        }
+      },
+
+      // Case 5: Blood Spill
+      {
+        id: 5,
+        titleAr: "انسكاب دم | تنظيف وتطهير سطح مع خطر تناثر",
+        titleEn: "Blood Spill | Containment & Disinfection with Splash Risk",
+        diagnosisAr: "انسكاب دموي بحجم 100 مل على أرضية غرفة العمليات الصغرى بعد إجراء جراحي، مع احتمال تناثر أثناء المسح.",
+        diagnosisEn: "~100 mL blood spill on floor in minor procedure room; high potential for splashing during mop cleanup.",
+        taskAr: "احتواء الانسكاب بالمواد الماصة، تنظيف السطح، وتطهيره بمطهر كلوري معتمد وفق بروتوكول المنشأة للدم وسوائل الجسم.",
+        taskEn: "Contain spill with absorbent material, clean organic matter, and disinfect surface with hospital-approved chlorine solution.",
+        riskAr: "مسببات الأمراض المنقولة بالدم (HBV, HCV, HIV) مع احتمال تناثر رذاذ ملوث نحو العينين والأغشية المخاطية والملابس واليدين.",
+        riskEn: "Bloodborne pathogens (HBV, HCV, HIV) with splash hazard to facial mucous membranes, clothing, and hands.",
+        policyNotesAr: "التعامل مع الدم يندرج دائمًا تحت الاحتياطات القياسية (Standard Precautions). يجب حماية العينين والوجه والرداء والقفازات.",
+        policyNotesEn: "Blood spills are managed strictly under Standard Precautions. Splash risk demands eye/face protection, gown, and gloves.",
+        refUrl: "https://www.cdc.gov/infection-control/hcp/environmental-control/spills.html",
+        stage1: {
+          correct: ["none"],
+          hintAr: "انسكابات الدم وسوائل الجسم تخضع لـ «الاحتياطات القياسية» العامة المطبقة على جميع المرضى، ولا تتطلب فئة عزل مبنية على الانتقال.",
+          hintEn: "Blood and body fluid spills fall under Standard (Universal) Precautions, not patient-specific transmission-based isolation.",
+          explanationAr: "يندرج التعامل مع الدم وسوائل الجسم تحت الاحتياطات القياسية (Standard Precautions) بحسب تقييم خطر التعرض.",
+          explanationEn: "Blood spill management is governed by Standard Precautions, selecting PPE based on task splash assessment."
+        },
+        stage2: {
+          required: ["gloves", "gown"],
+          acceptEither: [["face_shield"], ["goggles", "medical_mask"]],
+          disallowed: ["no_ppe"],
+          hintAr: "مع وجود خطر تناثر دم، يجب حماية اليدين (قفازات)، الملابس (رداء)، والوجه والعينين (درع الوجه أو نظارات واقية وكمامة).",
+          hintEn: "With splash hazard, protect hands (gloves), clothing (gown), and face/eyes (face shield or goggles + surgical mask).",
+          explanationAr: "حماية العينين والأغشية المخاطية بالدرع أو النظارات والكمامة مع الرداء والقفازات تمنع انتقال مسببات الأمراض المنقولة بالدم.",
+          explanationEn: "Eye and mucosal barrier protection (shield or goggles + mask) with gown and gloves prevents bloodborne pathogen exposure."
+        },
+        stage3: {
+          bypass: false,
+          availableActions: ["hand_hygiene", "gown", "gloves", "face_shield", "contain_spill", "clean_surface", "disinfect_spill", "remove_gloves_gown", "remove_face_protection"],
+          donningOrder: ["hand_hygiene", "gown", "face_shield", "gloves"],
+          procedureOrder: ["contain_spill", "clean_surface", "disinfect_spill"],
+          doffingOrder: ["remove_gloves_gown", "remove_face_protection", "hand_hygiene"],
+          hintAr: "التسلسل السليم: ارتداء المعدات ➔ احتواء الانسكاب بالمادة الماصة ➔ تنظيف السطح ➔ التطهير الكيميائي ➔ نزع المعدات ➔ نظافة اليدين.",
+          hintEn: "Correct flow: Don PPE ➔ Contain spill with absorbent pads ➔ Clean surface ➔ Disinfect ➔ Doff PPE ➔ Hand hygiene.",
+          explanationAr: "يجب احتواء الدم وتنظيف المادة العضوية أولاً لضمان فعالية المطهر الكيميائي، ثم نزع المعدات وتطهير اليدين بأمان.",
+          explanationEn: "Containing and cleaning organic blood prior to disinfectant application ensures chemical efficacy, followed by safe doffing."
+        }
+      },
+
+      // Case 6: Blood Pressure Measurement
+      {
+        id: 6,
+        titleAr: "قياس ضغط الدم | فحص روتيني لمريض مستقر",
+        titleEn: "Blood Pressure Measurement | Routine Vital Signs",
+        diagnosisAr: "مريض منوم للمراقبة الطبية، بدون أمراض معدية مشتبهة، وجلده سليم تمامًا دون أي جروح أو إفرازات.",
+        diagnosisEn: "Inpatient admitted for observation, no infectious symptoms, intact skin, and no draining wounds.",
+        taskAr: "قياس ضغط الدم والعلامات الحيوية الروتينية باستخدام جهاز قياس الضغط وسماعة الطبيب.",
+        taskEn: "Routine blood pressure measurement and vital signs using sphygmomanometer and stethoscope.",
+        riskAr: "لا يوجد أي تعرض متوقع للدم أو سوائل الجسم؛ ملامسة جلد سليم فقط.",
+        riskEn: "No expected contact with blood or body fluids; contact with intact skin only.",
+        policyNotesAr: "فحص جلد سليم لمريض لا يخضع لعزل إضافي يتطلب فقط الاحتياطات القياسية ونظافة اليدين. لا حاجة لمعدات وقاية.",
+        policyNotesEn: "Contact with intact skin without body fluid risk requires Standard Precautions with hand hygiene only; no PPE required.",
+        refUrl: "https://www.cdc.gov/clean-hands/hcp/clinical-safety/",
+        stage1: {
+          correct: ["none"],
+          hintAr: "المريض ذو الجلد السليم بدون أمراض معدية يتطلب فقط الاحتياطات القياسية الروتينية ونظافة اليدين.",
+          hintEn: "A stable patient with intact skin and no communicable disease requires Standard Precautions and hand hygiene only.",
+          explanationAr: "تُطبق الاحتياطات القياسية فقط (Standard Precautions) دون حاجة لأي احتياطات إضافية قائمة على الانتقال.",
+          explanationEn: "Standard Precautions alone apply; no additional transmission-based isolation precautions are indicated."
+        },
+        stage2: {
+          required: ["no_ppe"],
+          disallowed: ["gloves", "gown", "medical_mask", "n95", "goggles", "face_shield"],
+          hintAr: "ملامسة الجلد السليم أثناء قياس الضغط لا تستدعي ارتداء قفازات أو رداء! نظافة اليدين بالفرك الكحولي قبل المريض وبعده كافية تمامًا.",
+          hintEn: "Touching intact skin for blood pressure check does not require gloves! Hand hygiene before and after patient contact is sufficient.",
+          explanationAr: "الاستخدام الرشيد لمعدات الوقاية يمنع إهدار الموارد؛ قياس ضغط الدم لجلد سليم لا يتطلب أي معدات وقاية، بل تكفي نظافة اليدين.",
+          explanationEn: "Prudent PPE utilization avoids waste and false security; measuring BP on intact skin requires hand hygiene only, no PPE."
+        },
+        stage3: {
+          bypass: true,
+          explanationAr: "تم تجاوز مرحلة الارتداء والخلع تلقائيًا: لا توجد معدات لارتدائها أو خلعها! الإجراء السريري الأساسي هو نظافة اليدين في اللحظات الخمس.",
+          explanationEn: "Donning and doffing bypassed: No PPE required for this task! The core clinical practice is 5 Moments of Hand Hygiene."
+        }
+      }
+    ];
+
+    // GUARDIANS GAME RUNTIME STATE
+    let guardiansLang = 'ar';
+    let guardiansSessionCases = [];
+    let guardiansCurrentCaseIdx = 0;
+    let guardiansCurrentStage = 1;
+    let guardiansDecisions = {};
+    let guardiansFirstAttemptScore = 0;
+    let guardiansTimerSeconds = 600;
+    let guardiansTimerInterval = null;
+    let guardiansTimerRunning = false;
+    let guardiansSelectedPrecautions = new Set();
+    let guardiansSelectedPPE = new Set();
+    let guardiansDonningSeq = [];
+    let guardiansDoffingSeq = [];
+    let guardiansActiveBankItem = null;
+    let guardiansHistoryStack = [];
+
+    function initGuardiansGame() {
+      // 1. Randomly sample 4 distinct cases from the bank of 6
+      const shuffledAll = [...GUARDIANS_CASES].sort(() => Math.random() - 0.5);
+      guardiansSessionCases = shuffledAll.slice(0, 4);
+      guardiansCurrentCaseIdx = 0;
+      guardiansCurrentStage = 1;
+      guardiansFirstAttemptScore = 0;
+      guardiansDecisions = {};
+
+      guardiansSessionCases.forEach(c => {
+        guardiansDecisions[c.id] = {
+          stage1Attempts: 0,
+          stage2Attempts: 0,
+          stage3Attempts: 0,
+          stage1CorrectOnFirst: false,
+          stage2CorrectOnFirst: false,
+          stage3CorrectOnFirst: false,
+          caseFirstTrySuccess: true
+        };
+      });
+
+      // 2. Reset and start 10-minute countdown challenge
+      resetGuardiansTimer(600);
+      startGuardiansTimer();
+
+      // 3. Clear state for current case & render
+      resetCurrentCaseStageState();
+      renderGuardiansUI();
+      sound.playActionTransition();
+    }
+
+    function resetCurrentCaseStageState() {
+      guardiansSelectedPrecautions.clear();
+      guardiansSelectedPPE.clear();
+      guardiansDonningSeq = [];
+      guardiansDoffingSeq = [];
+      guardiansActiveBankItem = null;
+      guardiansHistoryStack = [];
+      hideGuardiansFeedback();
+    }
+
+    function toggleGuardiansLanguage() {
+      guardiansLang = (guardiansLang === 'ar') ? 'en' : 'ar';
+      const container = document.getElementById('view-guardians');
+      if (container) {
+        container.setAttribute('dir', guardiansLang === 'ar' ? 'rtl' : 'ltr');
+        container.setAttribute('lang', guardiansLang);
+      }
+      const langBtn = document.getElementById('guardians-lang-btn');
+      if (langBtn) {
+        langBtn.innerHTML = guardiansLang === 'ar' ? '<span>🌐</span> <span>English</span>' : '<span>🌐</span> <span>العربية</span>';
+      }
+      renderGuardiansUI();
+      sound.playTick();
+    }
+
+    function toggleGuardiansSound() {
+      const isMuted = sound.toggle();
+      const btn = document.getElementById('guardians-sound-btn');
+      if (btn) btn.innerText = isMuted ? '🔇' : '🔊';
+      showToast(isMuted ? "Audio Muted" : "Audio Active", isMuted ? "Sound FX muted" : "Sound FX enabled", "cyan");
+    }
+
+    // TIMER CONTROLS
+    function startGuardiansTimer() {
+      if (guardiansTimerRunning) return;
+      guardiansTimerRunning = true;
+      if (guardiansTimerInterval) clearInterval(guardiansTimerInterval);
+      guardiansTimerInterval = setInterval(() => {
+        if (guardiansTimerSeconds > 0) {
+          guardiansTimerSeconds--;
+          updateGuardiansTimerUI();
+        } else {
+          pauseGuardiansTimer();
+          sound.playTimeUpEmergencyAlarm();
+          showToast("⏱️ Time's Up!", "Target challenge time elapsed. Continue to finalize your clinical decisions!", "amber");
+        }
+      }, 1000);
+      updateGuardiansTimerUI();
+    }
+
+    function pauseGuardiansTimer() {
+      guardiansTimerRunning = false;
+      if (guardiansTimerInterval) clearInterval(guardiansTimerInterval);
+      updateGuardiansTimerUI();
+    }
+
+    function toggleGuardiansTimer() {
+      if (guardiansTimerRunning) pauseGuardiansTimer();
+      else startGuardiansTimer();
+    }
+
+    function resetGuardiansTimer(secs = 600) {
+      pauseGuardiansTimer();
+      guardiansTimerSeconds = secs;
+      updateGuardiansTimerUI();
+    }
+
+    function updateGuardiansTimerUI() {
+      const el = document.getElementById('guardians-timer-display');
+      const btn = document.getElementById('guardians-timer-toggle-btn');
+      if (el) {
+        const m = Math.floor(guardiansTimerSeconds / 60);
+        const s = guardiansTimerSeconds % 60;
+        el.innerText = `${m < 10 ? '0' : ''}${m}:${s < 10 ? '0' : ''}${s}`;
+      }
+      if (btn) {
+        btn.innerText = guardiansTimerRunning ? '⏸' : '▶';
+      }
+    }
+
+    // MODAL
+    function openGuardiansPolicyModal() {
+      const m = document.getElementById('guardians-policy-modal');
+      if (m) m.classList.remove('hidden');
+      sound.playPickup();
+    }
+
+    function closeGuardiansPolicyModal() {
+      const m = document.getElementById('guardians-policy-modal');
+      if (m) m.classList.add('hidden');
+      sound.playTick();
+    }
+
+    // UI RENDERERS
+    function renderGuardiansUI() {
+      if (!guardiansSessionCases || guardiansSessionCases.length === 0) return;
+      const t = GUARDIANS_I18N[guardiansLang];
+      const activeCase = guardiansSessionCases[guardiansCurrentCaseIdx];
+
+      // 1. Static text labels in top bar
+      const lblPortal = document.getElementById('lbl-guardians-portal-btn');
+      if (lblPortal) lblPortal.innerText = t.portalBtn;
+      const lblTitle = document.getElementById('lbl-guardians-title');
+      if (lblTitle) lblTitle.innerText = t.gameTitle;
+      const lblSub = document.getElementById('lbl-guardians-subtitle');
+      if (lblSub) lblSub.innerText = t.subtitle;
+      const lblScoreTitle = document.getElementById('lbl-guardians-score-title');
+      if (lblScoreTitle) lblScoreTitle.innerText = t.scoreTitle;
+      const lblPolicyBtn = document.getElementById('lbl-guardians-policy-btn');
+      if (lblPolicyBtn) lblPolicyBtn.innerText = t.policyBtn;
+      const scoreDisp = document.getElementById('guardians-score-display');
+      if (scoreDisp) scoreDisp.innerText = `${guardiansFirstAttemptScore}/${guardiansCurrentCaseIdx}`;
+
+      const casePill = document.getElementById('guardians-case-pill');
+      if (casePill) {
+        casePill.innerText = t.casePill.replace('{current}', guardiansCurrentCaseIdx + 1).replace('{total}', guardiansSessionCases.length);
+      }
+
+      // 2. Case Presentation Card
+      const caseBadge = document.getElementById('guardians-case-num-badge');
+      if (caseBadge) caseBadge.innerText = t.caseNumberLabel.replace('{num}', guardiansCurrentCaseIdx + 1);
+      const caseTitle = document.getElementById('guardians-case-title');
+      if (caseTitle) caseTitle.innerText = (guardiansLang === 'ar') ? activeCase.titleAr : activeCase.titleEn;
+      const targetHint = document.getElementById('guardians-target-time-hint');
+      if (targetHint) targetHint.innerHTML = `<span>${t.targetTimeHint}</span>`;
+
+      const diagHead = document.getElementById('lbl-case-diag-head');
+      if (diagHead) diagHead.innerText = t.diagHead;
+      const diagBody = document.getElementById('guardians-case-diagnosis');
+      if (diagBody) diagBody.innerText = (guardiansLang === 'ar') ? activeCase.diagnosisAr : activeCase.diagnosisEn;
+
+      const taskHead = document.getElementById('lbl-case-task-head');
+      if (taskHead) taskHead.innerText = t.taskHead;
+      const taskBody = document.getElementById('guardians-case-task');
+      if (taskBody) taskBody.innerText = (guardiansLang === 'ar') ? activeCase.taskAr : activeCase.taskEn;
+
+      const riskHead = document.getElementById('lbl-case-risk-head');
+      if (riskHead) riskHead.innerText = t.riskHead;
+      const riskBody = document.getElementById('guardians-case-risk');
+      if (riskBody) riskBody.innerText = (guardiansLang === 'ar') ? activeCase.riskAr : activeCase.riskEn;
+
+      // 3. Step Stepper Tabs
+      ['1', '2', '3'].forEach(stepStr => {
+        const btn = document.getElementById(`guardians-step-btn-${stepStr}`);
+        const lbl = document.getElementById(`lbl-step-${stepStr}`);
+        if (lbl) lbl.innerText = t[`step${stepStr}`];
+        if (btn) {
+          const stepNum = parseInt(stepStr, 10);
+          if (stepNum === guardiansCurrentStage) {
+            btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1 bg-emerald-700 text-white shadow";
+          } else if (stepNum < guardiansCurrentStage) {
+            btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-300";
+          } else {
+            btn.className = "flex-1 py-1.5 px-2 rounded-lg text-xs font-black transition flex items-center justify-center gap-1 bg-white text-slate-500 hover:bg-slate-50 border border-slate-200";
+          }
+        }
+      });
+
+      // 4. Render Active Stage Workspace
+      const workspace = document.getElementById('guardians-stage-workspace');
+      if (!workspace) return;
+
+      if (guardiansCurrentStage === 1) {
+        renderStage1Workspace(workspace, t, activeCase);
+      } else if (guardiansCurrentStage === 2) {
+        renderStage2Workspace(workspace, t, activeCase);
+      } else if (guardiansCurrentStage === 3) {
+        renderStage3Workspace(workspace, t, activeCase);
+      }
+    }
+
+    function setGuardiansStage(stageNum) {
+      if (stageNum > guardiansCurrentStage + 1) {
+        showToast("المرحلة مقفلة", "أنجز المرحلة الحالية أولاً للوصول إلى الخطوة التالية.", "amber");
+        return;
+      }
+      guardiansCurrentStage = stageNum;
+      hideGuardiansFeedback();
+      renderGuardiansUI();
+      sound.playTick();
+    }
+
+    // -------------------------------------------------------------------------
+    // STAGE 1: PRECAUTIONS SELECTION
+    // -------------------------------------------------------------------------
+    function renderStage1Workspace(container, t, activeCase) {
+      container.innerHTML = `
+        <div class="bg-white border border-slate-300 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>🛡️</span> <span>${t.step1Instruction}</span>
+            </h4>
+            <span class="text-[10px] font-bold text-slate-500">اختر نوعاً أو أكثر حسب مقتضى الحالة</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            ${GUARDIANS_PRECAUTIONS.map(p => {
+              const isSelected = guardiansSelectedPrecautions.has(p.id);
+              const name = (guardiansLang === 'ar') ? p.nameAr : p.nameEn;
+              const desc = (guardiansLang === 'ar') ? p.descAr : p.descEn;
+              return `
+                <div onclick="togglePrecautionSelection('${p.id}')"
+                     class="guardians-card p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-start gap-3 ${isSelected ? 'selected' : 'border-slate-200 bg-slate-50/70 hover:border-emerald-300 hover:bg-emerald-50/20'}">
+                  <span class="text-2xl flex-shrink-0 mt-0.5">${p.icon}</span>
+                  <div class="flex-1">
+                    <div class="flex items-center justify-between">
+                      <span class="text-xs font-black text-slate-900 leading-tight">${name}</span>
+                      <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-black border transition ${isSelected ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-transparent border-slate-300'}">
+                        ✓
+                      </span>
+                    </div>
+                    <p class="text-[11px] text-slate-600 font-medium mt-1 leading-relaxed">${desc}</p>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="flex justify-end pt-2 border-t border-slate-100">
+            <button onclick="checkGuardiansStage1()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>${t.checkBtn}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function togglePrecautionSelection(id) {
+      if (id === 'none') {
+        guardiansSelectedPrecautions.clear();
+        guardiansSelectedPrecautions.add('none');
+      } else {
+        guardiansSelectedPrecautions.delete('none');
+        if (guardiansSelectedPrecautions.has(id)) {
+          guardiansSelectedPrecautions.delete(id);
+        } else {
+          guardiansSelectedPrecautions.add(id);
+        }
+      }
+      hideGuardiansFeedback();
+      renderGuardiansUI();
+      sound.playPickup();
+    }
+
+    function ensureCaseDec(caseId) {
+      if (!guardiansDecisions[caseId]) {
+        guardiansDecisions[caseId] = {
+          stage1Attempts: 0,
+          stage2Attempts: 0,
+          stage3Attempts: 0,
+          stage1CorrectOnFirst: false,
+          stage2CorrectOnFirst: false,
+          stage3CorrectOnFirst: false,
+          caseFirstTrySuccess: true
+        };
+      }
+      return guardiansDecisions[caseId];
+    }
+
+    function checkGuardiansStage1() {
+      const activeCase = guardiansSessionCases[guardiansCurrentCaseIdx];
+      const caseDec = ensureCaseDec(activeCase.id);
+      caseDec.stage1Attempts++;
+
+      const selected = Array.from(guardiansSelectedPrecautions).sort();
+      const correct = [...activeCase.stage1.correct].sort();
+
+      const isMatch = (selected.length === correct.length) && selected.every((v, i) => v === correct[i]);
+
+      if (isMatch) {
+        if (caseDec.stage1Attempts === 1) {
+          caseDec.stage1CorrectOnFirst = true;
+        }
+        sound.playSuccess();
+        const expl = (guardiansLang === 'ar') ? activeCase.stage1.explanationAr : activeCase.stage1.explanationEn;
+        showGuardiansFeedback(true, expl, () => {
+          guardiansCurrentStage = 2;
+          hideGuardiansFeedback();
+          renderGuardiansUI();
+          sound.playActionTransition();
+        });
+      } else {
+        caseDec.caseFirstTrySuccess = false;
+        sound.playWrongSoft();
+        const hint = (guardiansLang === 'ar') ? activeCase.stage1.hintAr : activeCase.stage1.hintEn;
+        showGuardiansFeedback(false, hint);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // STAGE 2: PPE SELECTION
+    // -------------------------------------------------------------------------
+    function renderStage2Workspace(container, t, activeCase) {
+      container.innerHTML = `
+        <div class="bg-white border border-slate-300 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>🧤</span> <span>${t.step2Instruction}</span>
+            </h4>
+            <span class="text-[10px] font-bold text-slate-500">اختر جميع المعدات المطلوبة لإتمام المهمة</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+            ${GUARDIANS_PPE_ITEMS.map(item => {
+              const isSelected = guardiansSelectedPPE.has(item.id);
+              const name = (guardiansLang === 'ar') ? item.nameAr : item.nameEn;
+              const isNoPPE = item.id === 'no_ppe';
+              return `
+                <div onclick="togglePPESelection('${item.id}')"
+                     class="guardians-card p-3 rounded-2xl border-2 transition-all cursor-pointer flex items-center gap-2.5 ${isSelected ? 'selected' : 'border-slate-200 bg-slate-50/70 hover:border-emerald-300 hover:bg-emerald-50/20'} ${isNoPPE ? 'sm:col-span-2 md:col-span-3 border-amber-300 bg-amber-50/40' : ''}">
+                  <span class="text-2xl flex-shrink-0">${item.icon}</span>
+                  <div class="flex-1">
+                    <span class="text-xs font-black text-slate-900 block leading-tight">${name}</span>
+                    <span class="text-[9px] font-bold uppercase text-slate-500">${item.badge}</span>
+                  </div>
+                  <span class="w-5 h-5 rounded-md flex items-center justify-center text-xs font-black border transition ${isSelected ? 'bg-emerald-600 text-white border-emerald-600' : 'bg-white text-transparent border-slate-300'}">
+                    ✓
+                  </span>
+                </div>
+              `;
+            }).join('')}
+          </div>
+
+          <div class="flex justify-end pt-2 border-t border-slate-100">
+            <button onclick="checkGuardiansStage2()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>${t.checkBtn}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function togglePPESelection(id) {
+      if (id === 'no_ppe') {
+        guardiansSelectedPPE.clear();
+        guardiansSelectedPPE.add('no_ppe');
+      } else {
+        guardiansSelectedPPE.delete('no_ppe');
+        if (guardiansSelectedPPE.has(id)) {
+          guardiansSelectedPPE.delete(id);
+        } else {
+          guardiansSelectedPPE.add(id);
+        }
+      }
+      hideGuardiansFeedback();
+      renderGuardiansUI();
+      sound.playPickup();
+    }
+
+    function checkGuardiansStage2() {
+      const activeCase = guardiansSessionCases[guardiansCurrentCaseIdx];
+      const caseDec = ensureCaseDec(activeCase.id);
+      caseDec.stage2Attempts++;
+
+      const selected = Array.from(guardiansSelectedPPE);
+      let isValid = false;
+
+      // Special check for Case 6: No PPE needed
+      if (activeCase.stage2.required.includes('no_ppe')) {
+        isValid = (selected.length === 1 && selected[0] === 'no_ppe');
+      } else if (activeCase.stage2.acceptEither) {
+        // e.g. Case 5: required gloves & gown + (face_shield OR goggles+medical_mask)
+        const hasBaseRequired = activeCase.stage2.required.every(req => selected.includes(req));
+        if (hasBaseRequired) {
+          isValid = activeCase.stage2.acceptEither.some(combo => {
+            const expectedTotal = activeCase.stage2.required.length + combo.length;
+            const hasCombo = combo.every(item => selected.includes(item));
+            return hasCombo && selected.length === expectedTotal;
+          });
+        }
+      } else {
+        // Standard required array comparison
+        const required = activeCase.stage2.required;
+        isValid = (selected.length === required.length) && required.every(req => selected.includes(req));
+      }
+
+      if (isValid) {
+        if (caseDec.stage2Attempts === 1) {
+          caseDec.stage2CorrectOnFirst = true;
+        }
+        sound.playSuccess();
+        const expl = (guardiansLang === 'ar') ? activeCase.stage2.explanationAr : activeCase.stage2.explanationEn;
+
+        // If this case bypasses Stage 3 (e.g. Case 6 - Blood Pressure measurement)
+        if (activeCase.stage3.bypass) {
+          caseDec.stage3CorrectOnFirst = true;
+          if (caseDec.caseFirstTrySuccess) {
+            guardiansFirstAttemptScore++;
+          }
+          const bypassExpl = (guardiansLang === 'ar') ? activeCase.stage3.explanationAr : activeCase.stage3.explanationEn;
+          showGuardiansFeedback(true, `${expl} • ${bypassExpl}`, () => {
+            advanceGuardiansCase();
+          });
+        } else {
+          showGuardiansFeedback(true, expl, () => {
+            guardiansCurrentStage = 3;
+            hideGuardiansFeedback();
+            renderGuardiansUI();
+            sound.playActionTransition();
+          });
+        }
+      } else {
+        caseDec.caseFirstTrySuccess = false;
+        sound.playWrongSoft();
+        const hint = (guardiansLang === 'ar') ? activeCase.stage2.hintAr : activeCase.stage2.hintEn;
+        showGuardiansFeedback(false, hint);
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // STAGE 3: DONNING & DOFFING SEQUENCE & PROCEDURES
+    // -------------------------------------------------------------------------
+    function renderStage3Workspace(container, t, activeCase) {
+      // Build bank of cards available for ordering
+      const availableItems = [];
+
+      // Add selected PPE items
+      guardiansSelectedPPE.forEach(ppeId => {
+        const itemObj = GUARDIANS_PPE_ITEMS.find(i => i.id === ppeId);
+        if (itemObj && itemObj.id !== 'no_ppe') {
+          availableItems.push(itemObj);
+        }
+      });
+
+      // Add relevant procedure / action items specified for this case
+      if (activeCase.stage3.availableActions) {
+        activeCase.stage3.availableActions.forEach(actId => {
+          const actObj = GUARDIANS_ACTION_ITEMS.find(a => a.id === actId);
+          if (actObj && !availableItems.some(i => i.id === actObj.id)) {
+            availableItems.push(actObj);
+          }
+        });
+      }
+
+      container.innerHTML = `
+        <div class="bg-white border border-slate-300 rounded-2xl p-3.5 sm:p-4 shadow-sm flex flex-col gap-3">
+          <div class="flex items-center justify-between">
+            <h4 class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>🔄</span> <span>${t.step3Instruction}</span>
+            </h4>
+            <div class="flex items-center gap-2">
+              <button onclick="undoGuardiansSeq()" title="تراجع عن آخر حركة" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition active:scale-95 border border-slate-300">
+                ${t.undoBtn}
+              </button>
+              <button onclick="resetGuardiansSeq()" title="مسح الترتيب وإعادة البدء" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition active:scale-95 border border-slate-300">
+                ${t.resetBtn}
+              </button>
+            </div>
+          </div>
+
+          <!-- TWO ORDERING ZONES: DONNING (LEFT/TOP) & DOFFING (RIGHT/BOTTOM) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            
+            <!-- DONNING ZONE -->
+            <div ondragover="event.preventDefault(); this.classList.add('drag-over');"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="handleCardDrop(event, 'donning')"
+                 class="guardians-drop-zone p-3 rounded-2xl border-2 border-emerald-400/80 bg-emerald-50/40 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-2 border-b border-emerald-300/60 mb-2">
+                  <span class="text-xs font-black text-emerald-950 flex items-center gap-1">
+                    ${t.donningTitle}
+                  </span>
+                  <span class="text-[10px] font-bold text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full">
+                    ${guardiansDonningSeq.length} خطوات
+                  </span>
+                </div>
+
+                <div class="flex flex-col gap-1.5 min-h-[90px]" id="guardians-donning-list">
+                  ${guardiansDonningSeq.length === 0 ? `
+                    <div class="text-[11px] text-slate-400 italic text-center py-6">
+                      ${t.donningEmptyHint}
+                    </div>
+                  ` : guardiansDonningSeq.map((itemId, idx) => {
+                    const item = availableItems.find(i => i.id === itemId) || GUARDIANS_ACTION_ITEMS.find(i => i.id === itemId) || GUARDIANS_PPE_ITEMS.find(i => i.id === itemId);
+                    const name = item ? ((guardiansLang === 'ar') ? item.nameAr : item.nameEn) : itemId;
+                    const icon = item ? item.icon : '📌';
+                    return `
+                      <div class="guardians-seq-item p-2 rounded-xl bg-white border border-emerald-300 shadow-xs flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 overflow-hidden">
+                          <span class="w-5 h-5 rounded-full bg-emerald-600 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">
+                            ${idx + 1}
+                          </span>
+                          <span class="text-base flex-shrink-0">${icon}</span>
+                          <span class="text-xs font-bold text-slate-900 truncate leading-tight">${name}</span>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                          <button onclick="moveItemInSeq('donning', ${idx}, -1)" title="تحريك لأعلى" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                            ⬆
+                          </button>
+                          <button onclick="moveItemInSeq('donning', ${idx}, 1)" title="تحريك لأسفل" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                            ⬇
+                          </button>
+                          <button onclick="removeItemFromSeq('donning', ${idx})" title="حذف" class="w-6 h-6 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center justify-center">
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <div class="pt-2 mt-2 border-t border-emerald-200/60 flex justify-end">
+                <button onclick="addActiveItemToZone('donning')" class="px-3 py-1.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs transition active:scale-95 shadow flex items-center gap-1 cursor-pointer">
+                  <span>${t.addToDonning}</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- DOFFING & PROCEDURES ZONE -->
+            <div ondragover="event.preventDefault(); this.classList.add('drag-over');"
+                 ondragleave="this.classList.remove('drag-over')"
+                 ondrop="handleCardDrop(event, 'doffing')"
+                 class="guardians-drop-zone p-3 rounded-2xl border-2 border-rose-400/80 bg-rose-50/40 flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between pb-2 border-b border-rose-300/60 mb-2">
+                  <span class="text-xs font-black text-rose-950 flex items-center gap-1">
+                    ${t.doffingTitle}
+                  </span>
+                  <span class="text-[10px] font-bold text-rose-800 bg-rose-100 px-2 py-0.5 rounded-full">
+                    ${guardiansDoffingSeq.length} خطوات
+                  </span>
+                </div>
+
+                <div class="flex flex-col gap-1.5 min-h-[90px]" id="guardians-doffing-list">
+                  ${guardiansDoffingSeq.length === 0 ? `
+                    <div class="text-[11px] text-slate-400 italic text-center py-6">
+                      ${t.doffingEmptyHint}
+                    </div>
+                  ` : guardiansDoffingSeq.map((itemId, idx) => {
+                    const item = availableItems.find(i => i.id === itemId) || GUARDIANS_ACTION_ITEMS.find(i => i.id === itemId) || GUARDIANS_PPE_ITEMS.find(i => i.id === itemId);
+                    const name = item ? ((guardiansLang === 'ar') ? item.nameAr : item.nameEn) : itemId;
+                    const icon = item ? item.icon : '📌';
+                    return `
+                      <div class="guardians-seq-item p-2 rounded-xl bg-white border border-rose-300 shadow-xs flex items-center justify-between gap-2">
+                        <div class="flex items-center gap-2 overflow-hidden">
+                          <span class="w-5 h-5 rounded-full bg-rose-600 text-white text-[10px] font-black flex items-center justify-center flex-shrink-0">
+                            ${idx + 1}
+                          </span>
+                          <span class="text-base flex-shrink-0">${icon}</span>
+                          <span class="text-xs font-bold text-slate-900 truncate leading-tight">${name}</span>
+                        </div>
+                        <div class="flex items-center gap-1 flex-shrink-0">
+                          <button onclick="moveItemInSeq('doffing', ${idx}, -1)" title="تحريك لأعلى" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                            ⬆
+                          </button>
+                          <button onclick="moveItemInSeq('doffing', ${idx}, 1)" title="تحريك لأسفل" class="w-6 h-6 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold flex items-center justify-center">
+                            ⬇
+                          </button>
+                          <button onclick="removeItemFromSeq('doffing', ${idx})" title="حذف" class="w-6 h-6 rounded bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold flex items-center justify-center">
+                            ✕
+                          </button>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+
+              <div class="pt-2 mt-2 border-t border-rose-200/60 flex justify-end">
+                <button onclick="addActiveItemToZone('doffing')" class="px-3 py-1.5 rounded-xl bg-rose-700 hover:bg-rose-600 text-white font-black text-xs transition active:scale-95 shadow flex items-center gap-1 cursor-pointer">
+                  <span>${t.addToDoffing}</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- CARD BANK (TAP TO SELECT, DRAGGABLE ON DESKTOP) -->
+          <div class="p-3 rounded-2xl bg-slate-50 border border-slate-200 mt-1">
+            <span class="text-xs font-black text-slate-800 mb-2 block">${t.bankTitle}</span>
+            <div class="flex flex-wrap gap-2">
+              ${availableItems.map(item => {
+                const isSelected = guardiansActiveBankItem === item.id;
+                const name = (guardiansLang === 'ar') ? item.nameAr : item.nameEn;
+                const isAction = item.badge === 'Action';
+                return `
+                  <div onclick="selectBankItem('${item.id}')"
+                       draggable="true"
+                       ondragstart="event.dataTransfer.setData('text/plain', '${item.id}')"
+                       class="guardians-card px-3 py-2 rounded-xl border-2 transition-all cursor-pointer flex items-center gap-2 ${isSelected ? 'border-emerald-500 bg-emerald-100 text-emerald-950 ring-2 ring-emerald-400' : (isAction ? 'border-indigo-300 bg-indigo-50/70 text-indigo-950 hover:border-indigo-400' : 'border-slate-300 bg-white text-slate-800 hover:border-emerald-400')}">
+                    <span class="text-lg">${item.icon}</span>
+                    <span class="text-xs font-bold">${name}</span>
+                    ${isAction ? '<span class="text-[8px] font-black uppercase px-1 rounded bg-indigo-200 text-indigo-800">إجراء</span>' : ''}
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <div class="flex justify-end pt-2 border-t border-slate-100">
+            <button onclick="checkGuardiansStage3()" class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>${t.checkBtn}</span>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    function selectBankItem(id) {
+      guardiansActiveBankItem = id;
+      renderGuardiansUI();
+      sound.playPickup();
+    }
+
+    function addActiveItemToZone(zone) {
+      if (!guardiansActiveBankItem) {
+        showToast("اختر بطاقة أولاً", "اضغط على إحدى البطاقات من البنك بالأسفل ثم اضغط زر الإضافة.", "amber");
+        return;
+      }
+      pushSeqHistory();
+      if (zone === 'donning') {
+        guardiansDonningSeq.push(guardiansActiveBankItem);
+      } else {
+        guardiansDoffingSeq.push(guardiansActiveBankItem);
+      }
+      sound.playDropSuccess();
+      renderGuardiansUI();
+    }
+
+    function handleCardDrop(event, zone) {
+      event.preventDefault();
+      const el = event.currentTarget;
+      if (el) el.classList.remove('drag-over');
+      const itemId = event.dataTransfer.getData('text/plain');
+      if (itemId) {
+        pushSeqHistory();
+        if (zone === 'donning') {
+          guardiansDonningSeq.push(itemId);
+        } else {
+          guardiansDoffingSeq.push(itemId);
+        }
+        sound.playDropSuccess();
+        renderGuardiansUI();
+      }
+    }
+
+    function moveItemInSeq(zone, idx, dir) {
+      const arr = (zone === 'donning') ? guardiansDonningSeq : guardiansDoffingSeq;
+      const targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= arr.length) return;
+      pushSeqHistory();
+      const temp = arr[idx];
+      arr[idx] = arr[targetIdx];
+      arr[targetIdx] = temp;
+      sound.playTick();
+      renderGuardiansUI();
+    }
+
+    function removeItemFromSeq(zone, idx) {
+      pushSeqHistory();
+      if (zone === 'donning') {
+        guardiansDonningSeq.splice(idx, 1);
+      } else {
+        guardiansDoffingSeq.splice(idx, 1);
+      }
+      sound.playTick();
+      renderGuardiansUI();
+    }
+
+    function pushSeqHistory() {
+      guardiansHistoryStack.push({
+        donning: [...guardiansDonningSeq],
+        doffing: [...guardiansDoffingSeq]
+      });
+      if (guardiansHistoryStack.length > 20) guardiansHistoryStack.shift();
+    }
+
+    function undoGuardiansSeq() {
+      if (guardiansHistoryStack.length === 0) return;
+      const last = guardiansHistoryStack.pop();
+      guardiansDonningSeq = [...last.donning];
+      guardiansDoffingSeq = [...last.doffing];
+      sound.playTick();
+      renderGuardiansUI();
+    }
+
+    function resetGuardiansSeq() {
+      pushSeqHistory();
+      guardiansDonningSeq = [];
+      guardiansDoffingSeq = [];
+      guardiansActiveBankItem = null;
+      sound.playTick();
+      renderGuardiansUI();
+    }
+
+    function checkGuardiansStage3() {
+      const activeCase = guardiansSessionCases[guardiansCurrentCaseIdx];
+      const caseDec = ensureCaseDec(activeCase.id);
+      caseDec.stage3Attempts++;
+
+      let isCorrect = true;
+      let errorReasonAr = "";
+      let errorReasonEn = "";
+
+      // 1. Check Donning Sequence against Case Requirements
+      if (activeCase.id === 1) { // TB
+        // Donning must include hand hygiene -> n95 -> seal check
+        const dSeq = guardiansDonningSeq;
+        if (!dSeq.includes('seal_check')) {
+          isCorrect = false;
+          errorReasonAr = "إجراء مفقود: بعد ارتداء جهاز N95 يجب إجراء فحص الإحكام (User Seal Check) للتأكد من انعدام التسريب!";
+          errorReasonEn = "Missing procedure: User Seal Check must be performed immediately after donning N95!";
+        } else if (dSeq.indexOf('hand_hygiene') > dSeq.indexOf('n95')) {
+          isCorrect = false;
+          errorReasonAr = "ترتيب خاطئ: يجب إجراء نظافة اليدين قبل لمس وارتداء جهاز التنفس N95!";
+          errorReasonEn = "Order error: Hand hygiene must precede touching and donning the N95 respirator!";
+        } else if (dSeq.indexOf('n95') > dSeq.indexOf('seal_check')) {
+          isCorrect = false;
+          errorReasonAr = "فحص الإحكام يتم بعد ارتداء جهاز التنفس N95 مباشرة!";
+          errorReasonEn = "User seal check must follow donning the N95 respirator!";
+        }
+
+        // Doffing must have exit_door BEFORE remove_n95
+        const doffSeq = guardiansDoffingSeq;
+        if (doffSeq.includes('remove_n95') && doffSeq.includes('exit_door')) {
+          if (doffSeq.indexOf('remove_n95') < doffSeq.indexOf('exit_door')) {
+            isCorrect = false;
+            errorReasonAr = "🚨 خطأ سريري حرج: نزع جهاز N95 داخل غرفة عزل السل يعرضك لاستنشاق نوى البكتيريا! يجب الخروج وإغلاق الباب أولاً ثم نزع جهاز التنفس بالخارج.";
+            errorReasonEn = "Critical clinical hazard: Doffing N95 inside TB room risks inhaling airborne droplet nuclei! Exit and close door first.";
+          }
+        } else {
+          isCorrect = false;
+          errorReasonAr = "يجب أن يشمل الخلع: الخروج وإغلاق الباب ➔ نزع جهاز N95 بالخارج ➔ نظافة اليدين.";
+          errorReasonEn = "Doffing must sequence: Exit & close door ➔ Doff N95 outside ➔ Hand hygiene.";
+        }
+      } else if (activeCase.id === 3) { // C. diff
+        // Doffing must use soap & water hand hygiene or specific C. diff guidance
+        const doffSeq = guardiansDoffingSeq;
+        if (doffSeq.includes('hand_hygiene') && !doffSeq.includes('soap_water_hand_hygiene')) {
+          isCorrect = false;
+          errorReasonAr = "⚠️ تنبيه سياسة المنشأة: أبواغ C. difficile لا يقضي عليها الفرك الكحولي! يجب غسل اليدين بالماء والصابون لإزالة الأبواغ ميكانيكيًا.";
+          errorReasonEn = "Facility policy alert: C. difficile spores resist alcohol rub! Hand washing with soap & water is mandatory.";
+        } else if (!doffSeq.includes('remove_gloves_gown')) {
+          isCorrect = false;
+          errorReasonAr = "يجب نزع القفازات والرداء الواقي داخل الغرفة لمنع تلويث البيئة المحيطة.";
+          errorReasonEn = "Gloves & gown must be doffed inside the room to prevent contaminating surrounding areas.";
+        }
+      } else if (activeCase.id === 5) { // Blood Spill
+        // Doffing and spill actions
+        const doffSeq = guardiansDoffingSeq;
+        if (!doffSeq.includes('contain_spill') || !doffSeq.includes('clean_surface') || !doffSeq.includes('disinfect_spill')) {
+          isCorrect = false;
+          errorReasonAr = "إجراءات الانسكاب ناقصة: يجب احتواء الانسكاب بالمواد الماصة، ثم تنظيف السطح، ثم التطهير بمطهر معتمد.";
+          errorReasonEn = "Spill procedures incomplete: Contain with absorbent material, clean surface, then disinfect.";
+        } else {
+          const cIdx = doffSeq.indexOf('contain_spill');
+          const clIdx = doffSeq.indexOf('clean_surface');
+          const dIdx = doffSeq.indexOf('disinfect_spill');
+          if (cIdx > clIdx || clIdx > dIdx) {
+            isCorrect = false;
+            errorReasonAr = "ترتيب خاطئ للانسكاب: احتواء الدم أولاً ➔ تنظيف السطح لإزالة المواد العضوية ➔ تطهير السطح بالمطهر المعتمد.";
+            errorReasonEn = "Incorrect spill sequence: Contain blood first ➔ Clean organic material ➔ Apply disinfectant with contact time.";
+          }
+        }
+      } else {
+        // Generic sequence checks: Hand hygiene before donning, hand hygiene after doffing
+        if (guardiansDonningSeq.length === 0 || guardiansDoffingSeq.length === 0) {
+          isCorrect = false;
+          errorReasonAr = "يرجى ترتيب خطوات الارتداء والخلع المطلوبة لكلتا المنطقتين.";
+          errorReasonEn = "Please place the required donning and doffing sequence in both zones.";
+        }
+      }
+
+      if (isCorrect) {
+        if (caseDec.stage3Attempts === 1) {
+          caseDec.stage3CorrectOnFirst = true;
+        }
+        if (caseDec.caseFirstTrySuccess) {
+          guardiansFirstAttemptScore++;
+        }
+        sound.playStageVictory();
+        const expl = (guardiansLang === 'ar') ? activeCase.stage3.explanationAr : activeCase.stage3.explanationEn;
+        showGuardiansFeedback(true, expl, () => {
+          advanceGuardiansCase();
+        });
+      } else {
+        caseDec.caseFirstTrySuccess = false;
+        sound.playWrongSoft();
+        const hint = (guardiansLang === 'ar') ? errorReasonAr : errorReasonEn;
+        showGuardiansFeedback(false, hint);
+      }
+    }
+
+    // FEEDBACK DOCK
+    function showGuardiansFeedback(isSuccess, message, onNextClick = null) {
+      const dock = document.getElementById('guardians-feedback-dock');
+      if (!dock) return;
+      dock.classList.remove('hidden');
+      const t = GUARDIANS_I18N[guardiansLang];
+
+      const isLastCase = (guardiansCurrentCaseIdx === guardiansSessionCases.length - 1);
+      const isStage3OrBypass = (guardiansCurrentStage === 3 || guardiansSessionCases[guardiansCurrentCaseIdx].stage3.bypass);
+      let btnLabel = t.nextStepBtn;
+      if (isStage3OrBypass) {
+        btnLabel = isLastCase ? t.viewResultsBtn : t.nextCaseBtn;
+      }
+
+      dock.innerHTML = `
+        <div class="p-3.5 sm:p-4 rounded-2xl border-2 transition-all flex flex-col sm:flex-row items-center justify-between gap-3 shadow-lg ${isSuccess ? 'bg-emerald-950/90 border-emerald-400 text-white shadow-emerald-500/20' : 'bg-rose-950/90 border-rose-400 text-white shadow-rose-500/20'}">
+          <div class="flex items-center gap-2.5">
+            <span class="text-2xl sm:text-3xl flex-shrink-0">${isSuccess ? '✅' : '💡'}</span>
+            <div class="leading-relaxed">
+              <span class="text-xs font-black uppercase tracking-wider block ${isSuccess ? 'text-emerald-300' : 'text-rose-300'}">
+                ${isSuccess ? 'قرار سريري ممتاز! • Verified Clinical Decision' : 'تلميح سريري للتصحيح • Clinical Guidance Hint'}
+              </span>
+              <p class="text-xs sm:text-sm font-medium mt-0.5">${message}</p>
+            </div>
+          </div>
+          <div class="flex-shrink-0">
+            ${isSuccess ? `
+              <button id="guardians-next-action-btn" class="px-5 py-2.5 rounded-xl bg-white hover:bg-slate-100 text-emerald-950 font-black text-xs sm:text-sm shadow transition active:scale-95 cursor-pointer">
+                ${btnLabel}
+              </button>
+            ` : `
+              <button onclick="hideGuardiansFeedback()" class="px-4 py-2 rounded-xl bg-rose-800 hover:bg-rose-700 text-white font-bold text-xs transition active:scale-95 cursor-pointer">
+                إعادة المحاولة ✕
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+
+      if (isSuccess && onNextClick) {
+        const btn = document.getElementById('guardians-next-action-btn');
+        if (btn) btn.onclick = onNextClick;
+      }
+    }
+
+    function hideGuardiansFeedback() {
+      const dock = document.getElementById('guardians-feedback-dock');
+      if (dock) {
+        dock.classList.add('hidden');
+        dock.innerHTML = '';
+      }
+    }
+
+    function advanceGuardiansCase() {
+      hideGuardiansFeedback();
+      if (guardiansCurrentCaseIdx < guardiansSessionCases.length - 1) {
+        guardiansCurrentCaseIdx++;
+        guardiansCurrentStage = 1;
+        resetCurrentCaseStageState();
+        renderGuardiansUI();
+        sound.playActionTransition();
+      } else {
+        pauseGuardiansTimer();
+        sound.playVictory();
+        sound.playApplause(3);
+        showGuardiansDebrief();
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // SESSION DEBRIEF & CLINICAL REVIEW VIEW
+    // -------------------------------------------------------------------------
+    function showGuardiansDebrief() {
+      const workspace = document.getElementById('guardians-stage-workspace');
+      if (!workspace) return;
+      const t = GUARDIANS_I18N[guardiansLang];
+
+      const m = Math.floor(guardiansTimerSeconds / 60);
+      const s = guardiansTimerSeconds % 60;
+      const timeUsedFormatted = `${10 - m - 1}:${(60 - s) < 10 ? '0' : ''}${60 - s}`;
+
+      workspace.innerHTML = `
+        <div class="bg-white border-2 border-emerald-500 rounded-3xl p-5 sm:p-7 shadow-xl flex flex-col gap-5">
+          
+          <!-- Header Banner -->
+          <div class="text-center flex flex-col items-center">
+            <span class="text-4xl sm:text-5xl mb-2 animate-bounce">🏆</span>
+            <h2 class="text-lg sm:text-2xl font-black text-slate-900">${t.debriefTitle}</h2>
+            <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">${t.debriefSubtitle}</p>
+          </div>
+
+          <!-- Score & Time Stats Cards -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-emerald-950 to-teal-900 text-white border border-emerald-500/50 shadow flex items-center justify-between">
+              <div>
+                <span class="text-xs font-black uppercase tracking-wider text-emerald-300 block">${t.debriefScoreLabel}</span>
+                <span class="text-2xl sm:text-3xl font-black text-white font-mono">${guardiansFirstAttemptScore} / ${guardiansSessionCases.length}</span>
+              </div>
+              <span class="text-3xl">🎯</span>
+            </div>
+
+            <div class="p-4 rounded-2xl bg-gradient-to-br from-slate-950 to-[#021f1c] text-white border border-teal-500/50 shadow flex items-center justify-between">
+              <div>
+                <span class="text-xs font-black uppercase tracking-wider text-teal-300 block">${t.debriefTimeLabel}</span>
+                <span class="text-2xl sm:text-3xl font-black text-white font-mono">${timeUsedFormatted} دقيقة</span>
+              </div>
+              <span class="text-3xl">⏱️</span>
+            </div>
+          </div>
+
+          <!-- 4 Cases Review List -->
+          <div class="flex flex-col gap-3">
+            <h4 class="text-xs sm:text-sm font-black text-slate-900 flex items-center gap-1.5">
+              <span>📋</span> <span>${t.debriefReviewHead}</span>
+            </h4>
+
+            <div class="space-y-3">
+              ${guardiansSessionCases.map((c, idx) => {
+                const dec = guardiansDecisions[c.id];
+                const isFirstTrySuccess = dec && dec.caseFirstTrySuccess;
+                const title = (guardiansLang === 'ar') ? c.titleAr : c.titleEn;
+                const expl = (guardiansLang === 'ar') ? c.stage1.explanationAr : c.stage1.explanationEn;
+                const ppeExpl = (guardiansLang === 'ar') ? c.stage2.explanationAr : c.stage2.explanationEn;
+                const seqExpl = (guardiansLang === 'ar') ? c.stage3.explanationAr : c.stage3.explanationEn;
+                return `
+                  <div class="p-3.5 rounded-2xl border-2 transition-all ${isFirstTrySuccess ? 'border-emerald-300 bg-emerald-50/50' : 'border-amber-300 bg-amber-50/50'} flex flex-col gap-2">
+                    <div class="flex flex-wrap items-center justify-between gap-2 pb-1.5 border-b border-slate-200">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs font-black text-slate-900">#${idx + 1} ${title}</span>
+                      </div>
+                      <span class="text-[10px] font-black px-2.5 py-0.5 rounded-full ${isFirstTrySuccess ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-amber-100 text-amber-800 border border-amber-300'}">
+                        ${isFirstTrySuccess ? t.firstAttemptBadgeSuccess : t.firstAttemptBadgeReview}
+                      </span>
+                    </div>
+
+                    <div class="text-[11.5px] text-slate-700 space-y-1">
+                      <p><strong>الاحتياطات:</strong> ${expl}</p>
+                      <p><strong>معدات الوقاية:</strong> ${ppeExpl}</p>
+                      <p><strong>التسلسل السريري:</strong> ${seqExpl}</p>
+                    </div>
+
+                    <div class="flex justify-end pt-1">
+                      <a href="${c.refUrl}" target="_blank" rel="noopener noreferrer" class="text-[10.5px] font-bold text-teal-700 hover:text-teal-900 underline flex items-center gap-1">
+                        <span>CDC Guideline Reference ↗</span>
+                      </a>
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-slate-200">
+            <button onclick="switchMainView('portal')" class="px-5 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-xs sm:text-sm transition active:scale-95 border border-slate-300 cursor-pointer">
+              🏛️ العودة إلى البوابة الرئيسية
+            </button>
+            <button onclick="initGuardiansGame()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs sm:text-sm shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+              <span>${t.playAgainBtn}</span>
+            </button>
+          </div>
+
+        </div>
+      `;
+    }
+
+
+    // =========================================================================
+    // 📅 DATE-LOCKED QR PROTECTION ENGINE (صلاحية الباركود لتاريخ اليوم فقط)
+    // =========================================================================
+    function getTodayDateString() {
+      const d = new Date();
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, '0');
+      const day = String(d.getDate()).padStart(2, '0');
+      return `${year}-${month}-${day}`;
+    }
+
+    function generateDateSignature(dateStr) {
+      let hash = 5381;
+      const salt = dateStr + '_JubranIPC_SecureSalt_2025';
+      for (let i = 0; i < salt.length; i++) {
+        hash = ((hash << 5) + hash) + salt.charCodeAt(i);
+        hash |= 0;
+      }
+      return Math.abs(hash).toString(36);
+    }
+
+    function verifySessionDateLock() {
+      // 1. If trainer is authenticated, bypass completely
+      if (sessionStorage.getItem('ipc_trainer_authed') === 'true') {
+        return true;
+      }
+
+      // 2. If date lock is toggled OFF by trainer in settings, allow access
+      if (localStorage.getItem('ipc_date_lock_enabled') === 'false') {
+        return true;
+      }
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const isStudentParam = (urlParams.get('mode') === 'student' || urlParams.get('role') === 'student');
+      const isLocalhost = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' || window.location.protocol === 'file:');
+
+      // Allow trainer direct setup on localhost without student param
+      if (isLocalhost && !isStudentParam) {
+        return true;
+      }
+
+      // 3. For any student / external visitor: validate date & signature
+      const linkDate = urlParams.get('date');
+      const linkSig = urlParams.get('sig');
+      const today = getTodayDateString();
+
+      // Check if date is missing, not today, or signature is invalid
+      if (!linkDate || linkDate !== today || !linkSig || linkSig !== generateDateSignature(linkDate)) {
+        showSessionExpiredOverlay(linkDate || 'غير متوفر / Missing');
+        return false;
+      }
+
+      return true;
+    }
+
+    function showSessionExpiredOverlay(expiredDate) {
+      const overlay = document.getElementById('session-expired-overlay');
+      const dateSpan = document.getElementById('expired-session-date-label');
+      const todaySpan = document.getElementById('current-today-date-label');
+      if (dateSpan) dateSpan.innerText = expiredDate;
+      if (todaySpan) todaySpan.innerText = getTodayDateString();
+      if (overlay) {
+        overlay.classList.remove('hidden');
+        document.body.classList.add('overflow-hidden');
+      }
+    }
+
+    function dismissExpiredOverlayForTrainer() {
+      const ok = promptTrainerUnlock();
+      if (ok) {
+        const overlay = document.getElementById('session-expired-overlay');
+        if (overlay) overlay.classList.add('hidden');
+        document.body.classList.remove('overflow-hidden');
+      }
+    }
+
+    function toggleDateLockSetting() {
+      const current = localStorage.getItem('ipc_date_lock_enabled') !== 'false';
+      const newVal = !current;
+      localStorage.setItem('ipc_date_lock_enabled', newVal ? 'true' : 'false');
+      updateDateLockUI();
+      showToast(newVal ? "Date-Lock Active 📅" : "Date-Lock Disabled ⚠️", 
+                newVal ? "Shared barcodes expire at end of today." : "Shared barcodes do not expire by date.", 
+                newVal ? "emerald" : "amber");
+    }
+
+    function updateDateLockUI() {
+      const btn = document.getElementById('btn-toggle-datelock');
+      const dateLbl = document.getElementById('pm-today-date-str');
+      const isEnabled = localStorage.getItem('ipc_date_lock_enabled') !== 'false';
+      if (btn) {
+        btn.innerText = isEnabled ? "Status: Active (Protected)" : "Status: Disabled (Open Practice)";
+        btn.className = isEnabled ? "flex-1 py-2 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs transition"
+                                  : "flex-1 py-2 rounded-xl bg-slate-700 hover:bg-slate-600 text-amber-200 font-black text-xs transition";
+      }
+      if (dateLbl) {
+        dateLbl.innerText = getTodayDateString();
+      }
+    }
+
     // 🚀 APP INITIALIZATION & SECURE URL PARAMETER PARSER
     window.addEventListener('DOMContentLoaded', () => {
       try {
         const urlParams = new URLSearchParams(window.location.search);
         const hash = window.location.hash.toLowerCase();
 
-        // 1. Detect role: student mode (?mode=student, ?role=student, #student)
-        if (urlParams.get('mode') === 'student' || urlParams.get('role') === 'student' || hash.includes('student')) {
+        // 1. Strict Security: Default to Student Mode unless authenticated
+        const isTrainerAuthed = (sessionStorage.getItem('ipc_trainer_authed') === 'true');
+        if (!isTrainerAuthed) {
           applyStudentMode();
+        } else {
+          unlockTrainerUI();
+        }
+
+        // 1b. 📅 Verify Date-Locked QR: Ensure student barcode is only valid for today
+        const isSessionDateValid = verifySessionDateLock();
+        if (!isSessionDateValid) {
+          return; // Halt further game execution if session link has expired!
         }
 
         // 2. Detect target view (?view=puzzle, ?view=icebreaker, ?view=portal)
@@ -9951,6 +12119,8 @@ function _legacySwitchMainView(viewName) {
           }
         } else if (targetView === 'icebreaker') {
           switchMainView('icebreaker');
+        } else if (targetView === 'guardians' || targetView === 'puzzle3') {
+          switchMainView('guardians');
         } else if (targetView === 'portal') {
           switchMainView('portal');
         }

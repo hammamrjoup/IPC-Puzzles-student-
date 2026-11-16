@@ -20,16 +20,16 @@ try {
 Write-Host '========================================================' -ForegroundColor Cyan
 Write-Host '  SERVER ACTIVE - READY FOR SMARTPHONE SCANNING!' -ForegroundColor Green
 Write-Host '========================================================' -ForegroundColor Cyan
-Write-Host ("  Trainer PC URL:     http://localhost:$port/index.html?view=puzzle") -ForegroundColor Yellow
-Write-Host ("  Student Phone URL:  http://" + $ip + ":" + $port + "/index.html?mode=student&view=puzzle") -ForegroundColor White
+Write-Host ("  Trainer / Screen:   http://localhost:$port/index.html?view=portal") -ForegroundColor Yellow
+Write-Host ("  Student Phone URL:  http://" + $ip + ":" + $port + "/index.html?mode=student&view=portal") -ForegroundColor White
 Write-Host '--------------------------------------------------------'
 Write-Host 'Students connected to the same Wi-Fi can now scan QR code!' -ForegroundColor Green
 Write-Host 'Keep this window OPEN while running your training class.' -ForegroundColor Gray
 Write-Host 'Press Ctrl+C to close server when finished.' -ForegroundColor Gray
 Write-Host '========================================================' -ForegroundColor Cyan
 
-# Launch game directly in default browser for Trainer
-Start-Process "http://localhost:$port/index.html?view=puzzle"
+# Launch All-Puzzles Portal directly in default browser for Trainer / Wall Touch Screen
+Start-Process "http://localhost:$port/index.html?view=portal"
 
 # State storage for live Wi-Fi sync
 $sessionState = '{"isPaused":false,"stage":1,"timeRemaining":240,"status":"stopped"}'
