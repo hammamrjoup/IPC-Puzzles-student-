@@ -11,6 +11,10 @@
   <!-- QRCode.js Library CDN for Client-Side Barcode / QR Generation -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+  <!-- Module 5: أكمل الحزمة | HAI Bundle Challenge Scripts -->
+  <script src="hai-bundle-cases.js"></script>
+  <script src="hai-bundle-engine.js"></script>
+
   <style>
     /* =========================================================================
        TRUE FULL-SCREEN & UNIVERSAL ZERO-SCROLL RESPONSIVE GAMING ENGINE
@@ -2462,6 +2466,9 @@
             <button id="mobile-tab-safe-injection" onclick="switchMainView('safe-injection')" class="flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200">
               <span>💉 4: الحقن الآمن</span>
             </button>
+            <button id="mobile-tab-bundle-challenge" onclick="switchMainView('bundle-challenge')" class="flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200">
+              <span>📦 5: أكمل الحزمة</span>
+            </button>
     </div>
 
     <!-- 🧭 MAIN TWO-COLUMN WORKSPACE: LEFT MENU (SIDEBAR) + ACTIVE MODULE VIEW 🧭 -->
@@ -2569,6 +2576,13 @@
             </div>
             <div class="text-sm font-extrabold text-white">تحدّي الحقن الآمن</div>
             <div class="text-[11px] text-slate-400">Safe Injection Challenge</div>
+          </button>
+          <button id="menu-btn-bundle-challenge" onclick="switchMainView('bundle-challenge')" class="w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-slate-900/80 hover:bg-[#03203f] border-slate-700 text-slate-300 hover:text-white">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black uppercase tracking-wider text-blue-400">Puzzle 5</span>
+              <span class="text-lg">📦</span>
+            </div>
+            <div class="text-sm font-extrabold text-white">أكمل الحزمة | HAI Bundle Challenge</div>
           </button>
 
           </div>
@@ -2779,6 +2793,38 @@
             </div>
 
 
+          
+            <!-- PUZZLE 5 LAUNCH CARD: أكمل الحزمة | HAI BUNDLE CHALLENGE -->
+            <div onclick="switchMainView('bundle-challenge')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('bundle-challenge');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#061838] via-[#0b2d5c] to-[#041226] border-2 border-blue-400/80 hover:border-blue-300 shadow-xl hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between md:col-span-2">
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 text-[11px] font-black uppercase tracking-wider">
+                    MODULE 5 • PREMIER CLINICAL SIMULATION
+                  </span>
+                  <div class="flex items-center gap-1.5 text-2xl group-hover:scale-110 transition-transform">
+                    <span>🩸</span><span>💧</span><span>🫁</span><span>🩹</span>
+                    <span>🛡️</span>
+                  </div>
+                </div>
+                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-blue-300 transition-colors">
+                  أكمل الحزمة | HAI Bundle Challenge
+                </h3>
+                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
+                  4 Comprehensive Clinical Stations: CLABSI (C1, C2) • CAUTI (U1, U2) • VAP (V1) • SSI (S1, S2).
+                  Quick 8-case round, room scene error spotting, bundle building, and clinical chart audit.
+                </p>
+                <div class="text-[11px] text-blue-300 font-bold mt-1" dir="rtl">
+                  الجولة السريعة (8 حالات متوازنة) • 3 مهام تفاعلية: بناء الحزمة، اكتشاف الأخطاء بالمشهد، وتدقيق السجلات • 100 حالة سريرية معتمدة
+                </div>
+              </div>
+              <div class="mt-5 pt-3.5 border-t border-blue-500/30 flex items-center justify-between">
+                <span class="text-xs font-bold text-blue-200">⛶ Full Wide Screen View • بنك 100 حالة معتمدة</span>
+                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 group-hover:from-blue-500 group-hover:to-cyan-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
+                  <span>Start Module 5</span> <span>➡️</span>
+                </span>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -2808,6 +2854,9 @@
 
                 <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-violet-50 text-slate-700 hover:text-violet-900 border border-slate-200 transition active:scale-95 cursor-pointer">
                   <span>💉 4</span>
+                </button>
+                <button onclick="switchMainView('bundle-challenge')" title="Module 5: أكمل الحزمة | HAI Bundle Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>📦 5</span>
                 </button>
               </div>
 
@@ -3440,6 +3489,9 @@
                 <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-violet-50 text-slate-700 hover:text-violet-900 border border-slate-200 transition active:scale-95 cursor-pointer">
                   <span>💉 4</span>
                 </button>
+                <button onclick="switchMainView('bundle-challenge')" title="Module 5: أكمل الحزمة | HAI Bundle Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>📦 5</span>
+                </button>
               </div>
 
               <!-- 🏷️ SMALL VIEW NAME BADGE (CLEAN & COMPACT) 🏷️ -->
@@ -3758,6 +3810,9 @@
                 <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-violet-50 text-slate-700 hover:text-violet-900 border border-slate-200 transition active:scale-95 cursor-pointer">
                   <span>💉 4</span>
                 </button>
+                <button onclick="switchMainView('bundle-challenge')" title="Module 5: أكمل الحزمة | HAI Bundle Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>📦 5</span>
+                </button>
               </div>
 
               <div class="flex items-center gap-2">
@@ -3923,6 +3978,9 @@
                 <button onclick="switchMainView('safe-injection')" title="Puzzle 4: تحدي الحقن الآمن | Safe Injection Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-violet-700 text-white shadow ring-2 ring-violet-400 cursor-pointer">
                   <span>💉 4</span>
                 </button>
+                <button onclick="switchMainView('bundle-challenge')" title="Module 5: أكمل الحزمة | HAI Bundle Challenge" class="px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black bg-white hover:bg-blue-50 text-slate-700 hover:text-blue-900 border border-slate-200 transition active:scale-95 cursor-pointer">
+                  <span>📦 5</span>
+                </button>
               </div>
 
               <!-- Module Title Badge -->
@@ -4034,6 +4092,13 @@
             </div>
           </div>
 
+        </div>
+
+      
+        <!-- =========================================================================
+             MODULE 5: أكمل الحزمة | HAI BUNDLE CHALLENGE
+             ========================================================================= -->
+        <div id="view-bundle-challenge" class="hidden flex flex-col gap-2.5 w-full select-none" dir="rtl" lang="ar">
         </div>
 
       </main>
@@ -4677,6 +4742,12 @@
             <span class="text-lg">💉</span>
             <span class="leading-tight text-center">Module 4: Safe Injection</span>
             <span class="text-[9px] font-bold opacity-80" dir="rtl">الحقن الآمن</span>
+          </button>
+          <button id="tab-share-bundle-challenge" onclick="switchShareTarget('bundle-challenge')" 
+                  class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-slate-50 border-slate-200 text-slate-600 hover:border-blue-400">
+            <span class="text-lg">📦</span>
+            <span class="leading-tight text-center">Module 5: HAI Bundle</span>
+            <span class="text-[9px] font-bold opacity-80" dir="rtl">أكمل الحزمة</span>
           </button>
           <button id="tab-share-portal" onclick="switchShareTarget('portal')" 
                   class="p-2.5 rounded-2xl border-2 transition font-black text-xs flex flex-col items-center gap-1 bg-slate-50 border-slate-200 text-slate-600 hover:border-cyan-400">
@@ -9020,6 +9091,8 @@
       if (portalView) portalView.classList.add('hidden');
       if (puzzleView) puzzleView.classList.add('hidden');
       if (icebreakerView) icebreakerView.classList.add('hidden');
+      const bundleChallengeView = document.getElementById('view-bundle-challenge');
+      if (bundleChallengeView) bundleChallengeView.classList.add('hidden');
 
       // 5. Update lock states & timer displays to ready state
       if (typeof updateLockStateIndicator === 'function') updateLockStateIndicator();
@@ -9174,6 +9247,9 @@
       const icebreakerView = document.getElementById('view-icebreaker');
       const guardiansView = document.getElementById('view-guardians');
       const safeInjectionView = document.getElementById('view-safe-injection');
+      const bundleChallengeView = document.getElementById('view-bundle-challenge');
+      const btnBundleChallenge = document.getElementById('menu-btn-bundle-challenge');
+      const mobBundleChallenge = document.getElementById('mobile-tab-bundle-challenge');
       const btnSafeInjection = document.getElementById('menu-btn-safe-injection');
       const mobSafeInjection = document.getElementById('mobile-tab-safe-injection');
       
@@ -9202,6 +9278,7 @@
       if (icebreakerView) { icebreakerView.classList.add('hidden'); icebreakerView.style.display = 'none'; }
       if (guardiansView) { guardiansView.classList.add('hidden'); guardiansView.style.display = 'none'; }
       if (safeInjectionView) { safeInjectionView.classList.add('hidden'); safeInjectionView.style.display = 'none'; }
+      if (bundleChallengeView) { bundleChallengeView.classList.add('hidden'); bundleChallengeView.style.display = 'none'; }
 
       // Reset sidebar buttons style
       if (btnPortal) btnPortal.className = inactiveBtnClass;
@@ -9209,6 +9286,7 @@
       if (btnIcebreaker) btnIcebreaker.className = inactiveBtnClass;
       if (btnGuardians) btnGuardians.className = inactiveBtnClass;
       if (btnSafeInjection) btnSafeInjection.className = inactiveBtnClass;
+      if (btnBundleChallenge) btnBundleChallenge.className = inactiveBtnClass;
 
       // Reset mobile tab buttons style
       if (mobPortal) mobPortal.className = inactiveMobClass;
@@ -9216,6 +9294,7 @@
       if (mobIcebreaker) mobIcebreaker.className = inactiveMobClass;
       if (mobGuardians) mobGuardians.className = inactiveMobClass;
       if (mobSafeInjection) mobSafeInjection.className = inactiveMobClass;
+      if (mobBundleChallenge) mobBundleChallenge.className = inactiveMobClass;
 
       const badgeText = document.getElementById('header-badge-text');
       if (badgeText) {
@@ -9223,6 +9302,7 @@
         else if (viewName === 'icebreaker') badgeText.textContent = '🧊 PUZZLE 2: ICE BREAKER';
         else if (viewName === 'guardians') badgeText.textContent = '🛡️ درع الوقاية | PPE CHALLENGE';
         else if (viewName === 'safe-injection') badgeText.textContent = '💉 تحدّي الحقن الآمن | SAFE INJECTION CHALLENGE';
+        else if (viewName === 'bundle-challenge' || viewName === 'hai-bundle' || viewName === 'puzzle5') badgeText.textContent = '📦 أكمل الحزمة | HAI BUNDLE CHALLENGE';
         else if (viewName === 'portal') badgeText.textContent = '🏛️ MAIN PORTAL';
       }
 
@@ -9327,6 +9407,26 @@
         }
         fitGameToScreen();
         showToast("💉 تحدّي الحقن الآمن نشط", "ممارسات الحقن • سلامة الأدوية • السلامة من الأدوات الحادة!", "violet");
+      }
+      else if (viewName === 'bundle-challenge' || viewName === 'hai-bundle' || viewName === 'puzzle5') {
+        // ZERO-SCROLL FULL SCREEN VIEW FOR HAI BUNDLE CHALLENGE
+        setWidescreenMode(true);
+        requestGameFullScreen();
+
+        if (topHeaderRow) topHeaderRow.classList.add('hidden');
+        if (mainHeader) mainHeader.classList.add('hidden');
+        if (squadsBar) squadsBar.classList.add('hidden');
+        if (leftTeamCard) leftTeamCard.classList.add('hidden');
+
+        if (bundleChallengeView) { bundleChallengeView.classList.remove('hidden'); bundleChallengeView.style.display = ''; }
+        if (btnBundleChallenge) btnBundleChallenge.className = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-gradient-to-r from-blue-950 via-[#0e3b6e] to-indigo-900 border-blue-400 text-white shadow-blue-500/30 ring-2 ring-blue-400/30";
+        if (mobBundleChallenge) mobBundleChallenge.className = "flex-1 min-w-[115px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-blue-700 text-white shadow";
+
+        if (window.HaiBundleEngine && typeof window.HaiBundleEngine.init === 'function') {
+          window.HaiBundleEngine.init();
+        }
+        fitGameToScreen();
+        showToast("📦 أكمل الحزمة نشط", "CLABSI • CAUTI • VAP • SSI — 100 حالة معتمدة!", "blue");
       }
       else if (viewName === 'guardians') {
         // 🛡️ ZERO-SCROLL FULL SCREEN VIEW FOR GUARDIANS OF STERILIZATION
@@ -9785,6 +9885,7 @@ function _legacySwitchMainView(viewName) {
         icebreaker: document.getElementById('tab-share-icebreaker'),
         guardians: document.getElementById('tab-share-guardians'),
         'safe-injection': document.getElementById('tab-share-safe-injection'),
+        'bundle-challenge': document.getElementById('tab-share-bundle-challenge'),
         portal: document.getElementById('tab-share-portal')
       };
 
@@ -9817,6 +9918,7 @@ function _legacySwitchMainView(viewName) {
         icebreaker: "Puzzle 2: Definitions",
         guardians: "درع الوقاية | PPE Challenge",
         'safe-injection': "تحدّي الحقن الآمن | Safe Injection Challenge",
+        'bundle-challenge': "أكمل الحزمة | HAI Bundle Challenge",
         portal: "Main Portal Hub"
       };
       if (badge) {
@@ -13460,6 +13562,10 @@ function _legacySwitchMainView(viewName) {
       const today = getTodayDateString();
 
       // Check if date is missing, not today, or signature is invalid
+      // Allow local direct practice and testing without requiring daily barcode signature
+      if ((isLocalhost || window.location.protocol === 'file:') && !linkDate) {
+        return true;
+      }
       if (!linkDate || linkDate !== today || !linkSig || linkSig !== generateDateSignature(linkDate)) {
         showSessionExpiredOverlay(linkDate || 'غير متوفر / Missing');
         return false;
@@ -13547,6 +13653,9 @@ function _legacySwitchMainView(viewName) {
         } else if (targetView === 'guardians' || targetView === 'puzzle3') {
           // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Module 3 (PPE Challenge)
           switchMainView('guardians');
+        } else if (targetView === 'bundle-challenge' || targetView === 'hai-bundle' || targetView === 'puzzle5' || targetView === '5') {
+          // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Module 5 (HAI Bundle Challenge)
+          switchMainView('bundle-challenge');
         } else if (targetView === 'safe-injection' || targetView === 'puzzle4') {
           // 🚀 DIRECT STUDENT OR SHARED LINK: Move directly to Module 4 (Safe Injection Challenge)
           switchMainView('safe-injection');
