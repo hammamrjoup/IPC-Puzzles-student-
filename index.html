@@ -1424,6 +1424,176 @@
       to { opacity: 1; transform: scale(1); }
     }
 
+    /* =========================================================================
+       🏛️ RESPONSIVE COMPACT PORTAL GALLERY & MOBILE LAUNCH LIST
+       ========================================================================= */
+    .portal-gallery-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0.625rem;
+      width: 100%;
+      max-width: 1360px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Responsive label toggles */
+    .start-btn-full, .details-btn-full, .admin-btn-full {
+      display: inline !important;
+    }
+    .start-btn-short, .details-btn-short, .admin-btn-short, .card-title-icon-inline {
+      display: none !important;
+    }
+
+    /* 🖥️ DESKTOP & IPAD LANDSCAPE (>= 900px): 3 COLUMNS */
+    @media (min-width: 900px) {
+      .portal-puzzle-card {
+        width: calc(33.333% - 0.55rem) !important;
+        min-height: 200px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
+      .portal-puzzle-card .card-summary {
+        display: -webkit-box !important;
+      }
+      .portal-puzzle-card .card-action-col {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border-top-width: 1px !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.5rem !important;
+      }
+    }
+
+    /* 📱 TABLET PORTRAIT (640px to 899px): 2 COLUMNS */
+    @media (min-width: 640px) and (max-width: 899px) {
+      .portal-puzzle-card {
+        width: calc(50% - 0.45rem) !important;
+        min-height: 200px !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
+      }
+      .portal-puzzle-card .card-summary {
+        display: -webkit-box !important;
+      }
+      .portal-puzzle-card .card-action-col {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        border-top-width: 1px !important;
+        margin-top: 0.5rem !important;
+        padding-top: 0.5rem !important;
+      }
+    }
+
+    /* 📲 MOBILE PHONES (< 640px): COMPACT TOUCH LAUNCH LIST */
+    @media (max-width: 639px) {
+      .start-btn-full, .details-btn-full, .admin-btn-full {
+        display: none !important;
+      }
+      .start-btn-short, .details-btn-short, .admin-btn-short, .card-title-icon-inline {
+        display: inline !important;
+      }
+      #app {
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+        max-width: 100% !important;
+      }
+      .portal-gallery-container {
+        flex-direction: column !important;
+        gap: 0.35rem !important;
+        width: 100% !important;
+        max-width: 355px !important;
+        margin-left: 0 !important;
+        margin-right: auto !important;
+      }
+      #view-portal > header {
+        max-width: 355px !important;
+        margin-left: 0 !important;
+        margin-right: auto !important;
+      }
+      footer {
+        max-width: 355px !important;
+        margin-left: 0 !important;
+        margin-right: auto !important;
+      }
+      .portal-puzzle-card {
+        width: 100% !important;
+        max-width: 355px !important;
+        min-height: 0 !important;
+        padding: 0.45rem 0.5rem !important;
+        border-radius: 0.875rem !important;
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 0.25rem !important;
+        box-sizing: border-box !important;
+      }
+      .portal-puzzle-card .card-info-col {
+        flex: 1 1 0% !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+      }
+      .portal-puzzle-card .card-badge-row {
+        display: none !important;
+      }
+      .portal-puzzle-card .card-info-col h3 {
+        font-size: 0.8rem !important;
+        line-height: 1.15 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+      .portal-puzzle-card .card-arabic-title {
+        font-size: 0.68rem !important;
+        line-height: 1.1 !important;
+        white-space: nowrap !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+      }
+      .portal-puzzle-card .card-summary {
+        display: none !important;
+      }
+      .portal-puzzle-card .card-action-col {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 0.2rem !important;
+        flex-shrink: 0 !important;
+        margin-top: 0 !important;
+        padding-top: 0 !important;
+        border-top: none !important;
+      }
+      .portal-puzzle-card .card-details-btn {
+        min-height: 44px !important;
+        min-width: 30px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.25rem 0.3rem !important;
+        font-size: 0.7rem !important;
+      }
+      .portal-puzzle-card .card-start-btn {
+        min-height: 44px !important;
+        min-width: 66px !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 0.35rem 0.5rem !important;
+        font-size: 0.72rem !important;
+        border-radius: 0.65rem !important;
+        font-weight: 900 !important;
+        white-space: nowrap !important;
+      }
+    }
+
   </style>
 </head>
 <body id="body-root" class="bg-[#e5ebf1] text-slate-800 min-h-screen antialiased select-none font-sans overflow-x-hidden">
@@ -2324,7 +2494,83 @@
   <div id="drawer-backdrop" onclick="toggleLeftDrawer()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-80 hidden transition-opacity"></div>
 
   <!-- APP CONTAINER -->
-  <div id="app" class="max-w-[1720px] 2xl:max-w-[1840px] w-full mx-auto p-3 sm:p-5 flex flex-col gap-4 min-h-screen">
+  <div id="app" class="max-w-[1720px] 2xl:max-w-[1840px] w-full mx-auto p-2 sm:p-3 flex flex-col gap-2 min-h-screen">
+    
+    <!-- 🌟 UNIVERSAL TOP HEADER: BRAND LOGO FIRST + ALL ICONS CLEAR IN VIEW + ADMIN LOGIN 🌟 -->
+    <header id="universal-top-header" class="w-full max-w-[1720px] 2xl:max-w-[1840px] mx-auto bg-gradient-to-r from-[#021329] via-[#032347] to-[#021329] border-[3px] sm:border-4 border-cyan-400/80 rounded-2xl sm:rounded-3xl px-4 sm:px-6 py-3.5 sm:py-4.5 min-h-[68px] sm:min-h-[80px] shadow-[0_12px_36px_rgba(2,19,41,0.9),0_0_24px_rgba(6,182,212,0.3)] flex flex-row items-center justify-between gap-3 sm:gap-5 mb-2.5 shrink-0 z-50 transition-all duration-200 overflow-x-auto scrollbar-thin">
+      
+      <!-- 🔍 1. BRAND LOGO & TITLE (PROMINENT & ENLARGED ON LEFT) 🔍 -->
+      <div class="flex items-center gap-3 sm:gap-4 shrink-0 cursor-pointer" onclick="switchMainView('portal')" title="IPC Training Puzzles • العودة إلى البوابة الرئيسية">
+        <img src="ipc-logo.jpg" alt="IPC Logo" 
+             class="h-12 sm:h-14 md:h-16 w-auto object-contain rounded-full border-2 border-cyan-300 bg-white p-1 shrink-0 shadow-lg cursor-pointer hover:scale-105 transition-transform" 
+             onerror="this.src='template.jpg'">
+        <div class="flex flex-col justify-center">
+          <div class="flex items-center gap-2 sm:gap-2.5">
+            <h1 class="text-base sm:text-lg md:text-xl lg:text-2xl font-black tracking-tight text-white leading-none hover:text-cyan-300 transition-colors whitespace-nowrap">
+              IPC TRAINING PUZZLES
+            </h1>
+            <span class="text-xs sm:text-sm md:text-base text-cyan-300 font-extrabold hidden md:inline" dir="rtl">ألعاب تدريب مكافحة العدوى</span>
+          </div>
+          <p class="text-[10px] sm:text-xs text-slate-300 font-medium leading-none truncate hidden 2xl:block mt-1.5">
+            Hammam Jubran Rjoup / MSN, CPIC • Infection Prevention & Control Training Center
+          </p>
+        </div>
+      </div>
+
+      <!-- 🎮 2. CENTER: MODULE NAVIGATION ICONS (ENLARGED & COMFORTABLE) 🎮 -->
+      <div id="universal-module-switcher" class="flex items-center justify-center bg-[#011427]/95 p-1.5 sm:p-2 rounded-2xl border-2 border-cyan-400/50 gap-1.5 sm:gap-2 shadow-inner shrink-0">
+        <button id="univ-tab-portal" onclick="switchMainView('portal')" title="الرئيسية • All Puzzles Hub" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-black transition flex items-center gap-1.5 cursor-pointer bg-cyan-700 text-white shadow-md ring-2 ring-cyan-300 shrink-0">
+          <span class="text-base sm:text-lg">🏛️</span><span class="hidden md:inline">الرئيسية</span>
+        </button>
+        <button id="univ-tab-puzzle" onclick="switchMainView('puzzle')" title="اللغز 1: كسر سلسلة انتقال العدوى • Chain of Infection" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-black transition flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-cyan-500/20 text-slate-200 hover:text-white border border-white/10 shrink-0">
+          <span class="text-base sm:text-lg">🧩</span><span>1</span><span class="hidden xl:inline text-xs sm:text-sm">السلسلة</span>
+        </button>
+        <button id="univ-tab-icebreaker" onclick="switchMainView('icebreaker')" title="اللغز 2: كسر الجليد ومطابقة المفاهيم • Match Definitions" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-black transition flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-teal-500/20 text-slate-200 hover:text-white border border-white/10 shrink-0">
+          <span class="text-base sm:text-lg">🧊</span><span>2</span><span class="hidden xl:inline text-xs sm:text-sm">المفاهيم</span>
+        </button>
+        <button id="univ-tab-guardians" onclick="switchMainView('guardians')" title="اللغز 3: درع الوقاية • PPE Challenge" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-black transition flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-emerald-500/20 text-slate-200 hover:text-white border border-white/10 shrink-0">
+          <span class="text-base sm:text-lg">🛡️</span><span>3</span><span class="hidden xl:inline text-xs sm:text-sm">الوقاية</span>
+        </button>
+        <button id="univ-tab-safe-injection" onclick="switchMainView('safe-injection')" title="اللغز 4: تحدّي الحقن الآمن • Safe Injection Challenge" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-black transition flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-violet-500/20 text-slate-200 hover:text-white border border-white/10 shrink-0">
+          <span class="text-base sm:text-lg">💉</span><span>4</span><span class="hidden xl:inline text-xs sm:text-sm">الحقن</span>
+        </button>
+        <button id="univ-tab-bundle-challenge" onclick="switchMainView('bundle-challenge')" title="اللغز 5: أكمل الحزمة • HAI Bundle Challenge" class="px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl text-xs sm:text-sm md:text-base font-black transition flex items-center gap-1 cursor-pointer bg-white/10 hover:bg-blue-500/20 text-slate-200 hover:text-white border border-white/10 shrink-0">
+          <span class="text-base sm:text-lg">📦</span><span>5</span><span class="hidden xl:inline text-xs sm:text-sm">الحزم</span>
+        </button>
+      </div>
+
+      <!-- ⚙️ 3. RIGHT: ACTION ICONS & ADMIN LOGIN (ENLARGED & ACCESSIBLE) ⚙️ -->
+      <div class="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <!-- 🔊 SOUND FX TOGGLE -->
+        <button id="univ-btn-sound" onclick="toggleSound()" title="كتم / تشغيل المؤثرات الصوتية (Toggle Sound FX)" class="p-2 sm:p-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-200 border-2 border-cyan-400/40 text-sm sm:text-base font-bold transition active:scale-95 cursor-pointer flex items-center justify-center">
+          <span id="univ-sound-icon" class="text-base sm:text-lg">🔊</span>
+        </button>
+
+        <!-- ⛶ FULL SCREEN TOGGLE -->
+        <button id="univ-btn-fullscreen" onclick="toggleFullScreen()" title="تكبير الشاشة بالكامل (Toggle Full Screen)" class="p-2 sm:px-3 sm:py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-cyan-200 border-2 border-cyan-400/40 text-xs sm:text-sm font-bold transition active:scale-95 cursor-pointer flex items-center gap-1.5">
+          <span class="fs-icon text-base sm:text-lg">⛶</span><span class="hidden 2xl:inline fs-text">Full</span>
+        </button>
+
+        <!-- 📲 SHARE BARCODE / WI-FI LINK -->
+        <button id="univ-btn-share" onclick="openShareModal(currentMainView || 'puzzle')" title="مشاركة رابط الجلسة ورمز الاستجابة السريعة (Share QR & Wi-Fi)" class="p-2 sm:px-3 sm:py-2.5 rounded-xl bg-teal-800/90 hover:bg-teal-700 text-teal-100 border-2 border-teal-400/50 text-xs sm:text-sm font-bold transition active:scale-95 cursor-pointer flex items-center gap-1.5">
+          <span class="text-base sm:text-lg">📲</span><span class="hidden 2xl:inline">QR</span>
+        </button>
+
+        <!-- 🎓 MY CERTIFICATE -->
+        <button id="univ-btn-certificate" onclick="showCertificate()" title="عرض وطباعة شهادة الإتمام (Certificate)" class="p-2 sm:px-3.5 sm:py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs sm:text-sm font-black transition active:scale-95 shadow-md cursor-pointer flex items-center gap-1.5">
+          <span class="text-base sm:text-lg">🎓</span><span class="hidden 2xl:inline">Cert</span>
+        </button>
+
+        <!-- 🔐 ADMIN LOGIN BUTTON (PROMINENT & ENLARGED) -->
+        <button id="univ-btn-admin-login" onclick="promptTrainerUnlock()" 
+                title="تسجيل دخول المشرف والمدرب / Facilitator Admin Login" 
+                class="px-3.5 sm:px-4.5 py-2.5 sm:py-3 rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs sm:text-sm md:text-base shadow-xl transition active:scale-95 flex items-center gap-2 border-2 border-amber-300 cursor-pointer shrink-0">
+          <span class="text-base sm:text-lg">🔐</span>
+          <span class="admin-btn-full">دخول المشرف | Admin Login</span><span class="admin-btn-short">Admin</span>
+        </button>
+      </div>
+
+    </header>
     
     <!-- 🌟 TOP HEADER ROW: LOGO ALONE ON LEFT SIDE + THIN SLIM PUZZLE 1 BANNER 🌟 -->
     <div id="top-header-row" class="hidden flex flex-col md:flex-row items-stretch gap-4 w-full transition-all duration-300">
@@ -2445,7 +2691,7 @@
     </div>
 
     <!-- 🧭 TOP MOBILE TAB NAVIGATION (VISIBLE ON SMALL/MEDIUM SCREENS) 🧭 -->
-    <div id="mobile-nav-tabs" class="flex lg:hidden items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-300 w-full shadow-md sticky top-2 z-40 overflow-x-auto">
+    <div id="mobile-nav-tabs" class="hidden items-center gap-1.5 p-1.5 rounded-2xl bg-white/95 backdrop-blur-sm border border-slate-300 w-full shadow-md sticky top-2 z-40 overflow-x-auto">
       <button onclick="switchMainView('portal')" id="mobile-tab-portal" 
               class="flex-1 min-w-[95px] py-2 px-2 rounded-xl text-[11px] font-black transition flex items-center justify-center gap-1 bg-slate-100 text-slate-700 hover:bg-slate-200">
         <span>🏛️</span> <span>الرئيسية</span>
@@ -2659,168 +2905,152 @@
         <!-- ======================================================== -->
         <!-- 🏠 MODULE VIEW 0: MAIN TRAINING PORTAL (WELCOME HUB) 🏠  -->
         <!-- ======================================================== -->
-        <div id="view-portal" class="flex flex-col items-center justify-center w-full py-2">
-          
-          <!-- 🌟 HERO PORTAL BANNER (EXACT USER GRAPHIC) 🌟 -->
-          <div class="w-full max-w-[1024px] rounded-3xl overflow-hidden bg-[#021329] border-2 border-cyan-500/60 shadow-2xl transition-all cursor-pointer hover:border-cyan-400" onclick="switchMainView('puzzle')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('puzzle');}" tabindex="0" role="button" title="Click to Start Puzzle 1">
-            <img src="main-portal-banner.jpg" 
-                 alt="IPC Training Puzzles — Developed by Hammam Jubran Rjoup / MSN, CPIC" 
-                 class="w-full max-h-[220px] object-contain block select-none mx-auto"
-                 onerror="this.src='header-banner.jpg'" />
-          </div>
+        <div id="view-portal" class="flex flex-col items-center justify-center w-full py-0.5">
 
-          <!-- 🔐 TRAINER / ADMIN LOGIN BAR -->
-          <div class="w-full max-w-[1100px] flex items-center justify-between px-2 pt-2 pb-1">
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-slate-300">مرحباً بك في البوابة الرئيسية لمكافحة العدوى • Welcome to IPC Training Hub</span>
-            </div>
-            <button onclick="promptTrainerUnlock()" title="تسجيل دخول المشرف / Facilitator Admin Login" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 hover:from-amber-500 hover:to-amber-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center gap-1.5 border border-amber-300 cursor-pointer">
-              <span>🔐</span>
-              <span>دخول المشرف | Admin Login</span>
-            </button>
-          </div>
-
-          <!-- 🚀 INTERACTIVE DIRECT LAUNCH CARDS ON MAIN PORTAL 🚀 -->
-          <!-- 🚀 2x2 SYMMETRIC GRID: 2 PUZZLES ON RIGHT, 2 PUZZLES ON LEFT 🚀 -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-[1100px] mt-3">
+          <!-- 🚀 RESPONSIVE 5-MODULE PUZZLE GALLERY (CLEAN 3+2 CENTERED ZERO-SCROLL GRID) 🚀 -->
+          <div class="portal-gallery-container flex flex-wrap justify-center gap-3 w-full max-w-[1400px] mx-auto">
             
-            <!-- PUZZLE 1 LAUNCH CARD -->
-            <div onclick="switchMainView('puzzle')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('puzzle');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#021b35] via-[#03284d] to-[#011425] border-2 border-cyan-400/80 hover:border-cyan-300 shadow-xl hover:shadow-[0_0_25px_rgba(6,182,212,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <span class="px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[11px] font-black uppercase tracking-wider">
+            <!-- MODULE 1: CHAIN OF INFECTION & BREAK THE CHAIN -->
+            <div onclick="switchMainView('puzzle')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('puzzle');}" tabindex="0" role="button" title="Start Module 1: Chain of Infection" class="portal-puzzle-card group cursor-pointer p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-[#021b35] via-[#03284d] to-[#011425] border-2 border-cyan-400/80 hover:border-cyan-300 shadow-lg hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all duration-200 hover:scale-[1.01] flex flex-col justify-between w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.6rem)] min-h-[160px]">
+              <div class="card-info-col">
+                <div class="card-badge-row flex items-center justify-between gap-1.5 mb-1.5">
+                  <span class="px-2 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-black uppercase tracking-wider">
                     MODULE 1 • CORE SIMULATION
                   </span>
-                  <span class="text-2xl group-hover:scale-125 transition-transform">🧩</span>
+                  <span class="text-xl group-hover:scale-125 transition-transform">🧩</span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-cyan-300 transition-colors">
-                  Chain of Infection & Break Chain
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-cyan-300 transition-colors leading-tight">
+                  <span class="card-title-icon-inline mr-1">🧩</span><span>Chain of Infection & Break Chain</span>
                 </h3>
-                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
-                  Stage 1: Assemble the 6 clockwise chain links • Stage 2: Break links using 11 CDC Standard Precautions.
-                </p>
-                <div class="text-[11px] text-cyan-300 font-bold mt-1" dir="rtl">
-                  المرحلة 1: تجميع السلسلة • المرحلة 2: كسر السلسلة بالاحتياطات القياسية
+                <div class="card-arabic-title text-[11px] text-cyan-300 font-bold mt-0.5 leading-tight" dir="rtl">
+                  كسر سلسلة انتقال العدوى
                 </div>
+                <p class="card-summary text-[11px] text-slate-300 font-medium mt-1 leading-snug line-clamp-2">
+                  Stage 1: Assemble 6 chain links • Stage 2: Break links using 11 CDC Standard Precautions.
+                </p>
               </div>
-              <div class="mt-5 pt-3.5 border-t border-cyan-500/30 flex items-center justify-between">
-                <span class="text-xs font-bold text-cyan-200">⛶ Full Wide Screen View</span>
-                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 group-hover:from-cyan-500 group-hover:to-teal-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
-                  <span>Start Puzzle 1</span> <span>➡️</span>
+              <div class="card-action-col mt-2 pt-2 border-t border-cyan-500/30 flex items-center justify-between gap-2">
+                <button type="button" onclick="event.stopPropagation(); openPortalCardDetails(1);" class="card-details-btn text-[11px] font-bold text-cyan-200 hover:text-white flex items-center gap-1 hover:underline cursor-pointer">
+                  <span>ℹ️</span> <span class="details-btn-full">Details | تفاصيل</span><span class="details-btn-short">تفاصيل</span>
+                </button>
+                <span class="card-start-btn px-3 py-1.5 rounded-xl bg-gradient-to-r from-cyan-600 to-teal-600 group-hover:from-cyan-500 group-hover:to-teal-500 text-white font-black text-xs shadow flex items-center gap-1 transition">
+                  <span>Start <span class="start-btn-full">Puzzle 1</span><span class="start-btn-short">1</span></span> <span>➡️</span>
                 </span>
               </div>
             </div>
 
-            <!-- PUZZLE 2 LAUNCH CARD -->
-            <div onclick="switchMainView('icebreaker')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('icebreaker');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#02202b] via-[#02384a] to-[#01171f] border-2 border-teal-400/80 hover:border-teal-300 shadow-xl hover:shadow-[0_0_25px_rgba(20,184,166,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <span class="px-3 py-1 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40 text-[11px] font-black uppercase tracking-wider">
+            <!-- MODULE 2: MATCH THE DEFINITIONS -->
+            <div onclick="switchMainView('icebreaker')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('icebreaker');}" tabindex="0" role="button" title="Start Module 2: Match the Definitions" class="portal-puzzle-card group cursor-pointer p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-[#02202b] via-[#02384a] to-[#01171f] border-2 border-teal-400/80 hover:border-teal-300 shadow-lg hover:shadow-[0_0_20px_rgba(20,184,166,0.4)] transition-all duration-200 hover:scale-[1.01] flex flex-col justify-between w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.6rem)] min-h-[160px]">
+              <div class="card-info-col">
+                <div class="card-badge-row flex items-center justify-between gap-1.5 mb-1.5">
+                  <span class="px-2 py-0.5 rounded-full bg-teal-500/20 text-teal-300 border border-teal-400/40 text-[10px] font-black uppercase tracking-wider">
                     MODULE 2 • TEAM WARM-UP
                   </span>
-                  <span class="text-2xl group-hover:scale-125 transition-transform">🧊</span>
+                  <span class="text-xl group-hover:scale-125 transition-transform">🧊</span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-teal-300 transition-colors">
-                  Ice Breaker: Match the Definitions
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-teal-300 transition-colors leading-tight">
+                  <span class="card-title-icon-inline mr-1">🧊</span><span>Ice Breaker: Match Definitions</span>
                 </h3>
-                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
-                  Interactive matching challenge: Connect 14 core IPC clinical terms to their authoritative definitions.
-                </p>
-                <div class="text-[11px] text-teal-300 font-bold mt-1" dir="rtl">
-                  تحدي مطابقة 14 مصطلحاً سريرياً مع تعريفاتها المعتمدة لمكافحة العدوى
+                <div class="card-arabic-title text-[11px] text-teal-300 font-bold mt-0.5 leading-tight" dir="rtl">
+                  كسر الجليد ومطابقة المفاهيم
                 </div>
+                <p class="card-summary text-[11px] text-slate-300 font-medium mt-1 leading-snug line-clamp-2">
+                  Interactive matching challenge: Connect 14 core IPC clinical terms to authoritative definitions.
+                </p>
               </div>
-              <div class="mt-5 pt-3.5 border-t border-teal-500/30 flex items-center justify-between">
-                <span class="text-xs font-bold text-teal-200">⛶ Full Wide Screen View</span>
-                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 group-hover:from-teal-500 group-hover:to-emerald-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
-                  <span>Start Puzzle 2</span> <span>➡️</span>
+              <div class="card-action-col mt-2 pt-2 border-t border-teal-500/30 flex items-center justify-between gap-2">
+                <button type="button" onclick="event.stopPropagation(); openPortalCardDetails(2);" class="card-details-btn text-[11px] font-bold text-teal-200 hover:text-white flex items-center gap-1 hover:underline cursor-pointer">
+                  <span>ℹ️</span> <span class="details-btn-full">Details | تفاصيل</span><span class="details-btn-short">تفاصيل</span>
+                </button>
+                <span class="card-start-btn px-3 py-1.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-600 group-hover:from-teal-500 group-hover:to-emerald-500 text-white font-black text-xs shadow flex items-center gap-1 transition">
+                  <span>Start <span class="start-btn-full">Puzzle 2</span><span class="start-btn-short">2</span></span> <span>➡️</span>
                 </span>
               </div>
             </div>
 
-            <!-- PUZZLE 3 LAUNCH CARD: GUARDIANS OF STERILIZATION -->
-            <div onclick="switchMainView('guardians')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('guardians');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#01251f] via-[#023b32] to-[#011714] border-2 border-emerald-400/80 hover:border-emerald-300 shadow-xl hover:shadow-[0_0_25px_rgba(16,185,129,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <span class="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[11px] font-black uppercase tracking-wider">
+            <!-- MODULE 3: PPE CHALLENGE (GUARDIANS OF STERILIZATION) -->
+            <div onclick="switchMainView('guardians')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('guardians');}" tabindex="0" role="button" title="Start Module 3: PPE Challenge" class="portal-puzzle-card group cursor-pointer p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-[#01251f] via-[#023b32] to-[#011714] border-2 border-emerald-400/80 hover:border-emerald-300 shadow-lg hover:shadow-[0_0_20px_rgba(16,185,129,0.4)] transition-all duration-200 hover:scale-[1.01] flex flex-col justify-between w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.6rem)] min-h-[160px]">
+              <div class="card-info-col">
+                <div class="card-badge-row flex items-center justify-between gap-1.5 mb-1.5">
+                  <span class="px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-400/40 text-[10px] font-black uppercase tracking-wider">
                     MODULE 3 • PPE & ISOLATION MASTER
                   </span>
-                  <span class="text-2xl group-hover:scale-125 transition-transform">🛡️</span>
+                  <span class="text-xl group-hover:scale-125 transition-transform">🛡️</span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-emerald-300 transition-colors">
-                  درع الوقاية | PPE Challenge
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-emerald-300 transition-colors leading-tight">
+                  <span class="card-title-icon-inline mr-1">🛡️</span><span>PPE Challenge | درع الوقاية</span>
                 </h3>
-                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
+                <div class="card-arabic-title text-[11px] text-emerald-300 font-bold mt-0.5 leading-tight" dir="rtl">
+                  تحدي معدات الوقاية والعزل السريري
+                </div>
+                <p class="card-summary text-[11px] text-slate-300 font-medium mt-1 leading-snug line-clamp-2">
                   Select additional precautions, equip task-tailored PPE, and sequence donning & doffing safely.
                 </p>
-                <div class="text-[11px] text-emerald-300 font-bold mt-1" dir="rtl">
-                  اختر الاحتياطات، جهّز معدات الوقاية، واخلعها بأمان (جلسة سريرية من 4 حالات)
-                </div>
               </div>
-              <div class="mt-5 pt-3.5 border-t border-emerald-500/30 flex items-center justify-between">
-                <span class="text-xs font-bold text-emerald-200">⛶ Full Wide Screen View</span>
-                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:from-emerald-500 group-hover:to-teal-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
-                  <span>Start Module 3</span> <span>➡️</span>
+              <div class="card-action-col mt-2 pt-2 border-t border-emerald-500/30 flex items-center justify-between gap-2">
+                <button type="button" onclick="event.stopPropagation(); openPortalCardDetails(3);" class="card-details-btn text-[11px] font-bold text-emerald-200 hover:text-white flex items-center gap-1 hover:underline cursor-pointer">
+                  <span>ℹ️</span> <span class="details-btn-full">Details | تفاصيل</span><span class="details-btn-short">تفاصيل</span>
+                </button>
+                <span class="card-start-btn px-3 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 group-hover:from-emerald-500 group-hover:to-teal-500 text-white font-black text-xs shadow flex items-center gap-1 transition">
+                  <span>Start <span class="start-btn-full">Module 3</span><span class="start-btn-short">3</span></span> <span>➡️</span>
                 </span>
               </div>
             </div>
 
-            <!-- PUZZLE 4 LAUNCH CARD: SAFE INJECTION CHALLENGE -->
-            <div onclick="switchMainView('safe-injection')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('safe-injection');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#1a0f37] via-[#2a1758] to-[#120826] border-2 border-violet-400/80 hover:border-violet-300 shadow-xl hover:shadow-[0_0_25px_rgba(167,139,250,0.45)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <span class="px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 border border-violet-400/40 text-[11px] font-black uppercase tracking-wider">
+            <!-- MODULE 4: SAFE INJECTION CHALLENGE -->
+            <div onclick="switchMainView('safe-injection')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('safe-injection');}" tabindex="0" role="button" title="Start Module 4: Safe Injection Challenge" class="portal-puzzle-card group cursor-pointer p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-[#1a0f37] via-[#2a1758] to-[#120826] border-2 border-violet-400/80 hover:border-violet-300 shadow-lg hover:shadow-[0_0_20px_rgba(167,139,250,0.4)] transition-all duration-200 hover:scale-[1.01] flex flex-col justify-between w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.6rem)] min-h-[160px]">
+              <div class="card-info-col">
+                <div class="card-badge-row flex items-center justify-between gap-1.5 mb-1.5">
+                  <span class="px-2 py-0.5 rounded-full bg-violet-500/20 text-violet-300 border border-violet-400/40 text-[10px] font-black uppercase tracking-wider">
                     MODULE 4 • CLINICAL SAFETY MASTERY
                   </span>
-                  <span class="text-2xl group-hover:scale-125 transition-transform">💉</span>
+                  <span class="text-xl group-hover:scale-125 transition-transform">💉</span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-violet-300 transition-colors">
-                  تحدّي الحقن الآمن | Safe Injection Challenge
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-violet-300 transition-colors leading-tight">
+                  <span class="card-title-icon-inline mr-1">💉</span><span>Safe Injection | تحدّي الحقن الآمن</span>
                 </h3>
-                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
-                  3 Clinical Domains: Safe Injections • Medication Safety • Sharps Safety. Test single domains or mixed challenge!
-                </p>
-                <div class="text-[11px] text-violet-300 font-bold mt-1" dir="rtl">
-                  ممارسات الحقن الآمن • سلامة الأدوية • السلامة من الأدوات الحادة (وضع المحور الواحد والتحدي المختلط)
+                <div class="card-arabic-title text-[11px] text-violet-300 font-bold mt-0.5 leading-tight" dir="rtl">
+                  سلامة الأدوية وممارسات الحقن والأدوات الحادة
                 </div>
+                <p class="card-summary text-[11px] text-slate-300 font-medium mt-1 leading-snug line-clamp-2">
+                  3 Domains: Safe Injections • Medication Safety • Sharps Safety. Single domain & mixed challenge!
+                </p>
               </div>
-              <div class="mt-5 pt-3.5 border-t border-violet-500/30 flex items-center justify-between">
-                <span class="text-xs font-bold text-violet-200">⛶ Full Wide Screen View</span>
-                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 group-hover:from-violet-500 group-hover:to-indigo-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
-                  <span>Start Module 4</span> <span>➡️</span>
+              <div class="card-action-col mt-2 pt-2 border-t border-violet-500/30 flex items-center justify-between gap-2">
+                <button type="button" onclick="event.stopPropagation(); openPortalCardDetails(4);" class="card-details-btn text-[11px] font-bold text-violet-200 hover:text-white flex items-center gap-1 hover:underline cursor-pointer">
+                  <span>ℹ️</span> <span class="details-btn-full">Details | تفاصيل</span><span class="details-btn-short">تفاصيل</span>
+                </button>
+                <span class="card-start-btn px-3 py-1.5 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 group-hover:from-violet-500 group-hover:to-indigo-500 text-white font-black text-xs shadow flex items-center gap-1 transition">
+                  <span>Start <span class="start-btn-full">Module 4</span><span class="start-btn-short">4</span></span> <span>➡️</span>
                 </span>
               </div>
             </div>
 
-
-          
-            <!-- PUZZLE 5 LAUNCH CARD: أكمل الحزمة | HAI BUNDLE CHALLENGE -->
-            <div onclick="switchMainView('bundle-challenge')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('bundle-challenge');}" tabindex="0" role="button" class="group cursor-pointer p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#061838] via-[#0b2d5c] to-[#041226] border-2 border-blue-400/80 hover:border-blue-300 shadow-xl hover:shadow-[0_0_25px_rgba(59,130,246,0.5)] transition-all duration-300 hover:scale-[1.02] flex flex-col justify-between md:col-span-2">
-              <div>
-                <div class="flex items-center justify-between mb-3">
-                  <span class="px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 text-[11px] font-black uppercase tracking-wider">
+            <!-- MODULE 5: HAI BUNDLE CHALLENGE (SAME FOOTPRINT AS OTHER CARDS) -->
+            <div onclick="switchMainView('bundle-challenge')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); switchMainView('bundle-challenge');}" tabindex="0" role="button" title="Start Module 5: HAI Bundle Challenge" class="portal-puzzle-card group cursor-pointer p-3 sm:p-3.5 rounded-2xl bg-gradient-to-br from-[#061838] via-[#0b2d5c] to-[#041226] border-2 border-blue-400/80 hover:border-blue-300 shadow-lg hover:shadow-[0_0_20px_rgba(59,130,246,0.45)] transition-all duration-200 hover:scale-[1.01] flex flex-col justify-between w-full sm:w-[calc(50%-0.5rem)] lg:w-[calc(33.333%-0.6rem)] min-h-[160px]">
+              <div class="card-info-col">
+                <div class="card-badge-row flex items-center justify-between gap-1.5 mb-1.5">
+                  <span class="px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-400/40 text-[10px] font-black uppercase tracking-wider">
                     MODULE 5 • PREMIER CLINICAL SIMULATION
                   </span>
-                  <div class="flex items-center gap-1.5 text-2xl group-hover:scale-110 transition-transform">
-                    <span>🩸</span><span>💧</span><span>🫁</span><span>🩹</span>
-                    <span>🛡️</span>
-                  </div>
+                  <span class="text-xl group-hover:scale-125 transition-transform">📦</span>
                 </div>
-                <h3 class="text-lg sm:text-xl font-black text-white group-hover:text-blue-300 transition-colors">
-                  أكمل الحزمة | HAI Bundle Challenge
+                <h3 class="text-sm sm:text-base font-black text-white group-hover:text-blue-300 transition-colors leading-tight">
+                  <span class="card-title-icon-inline mr-1">📦</span><span>أكمل الحزمة | HAI Bundle Challenge</span>
                 </h3>
-                <p class="text-xs text-slate-300 font-medium mt-1.5 leading-relaxed">
-                  4 Comprehensive Clinical Stations: CLABSI (C1, C2) • CAUTI (U1, U2) • VAP (V1) • SSI (S1, S2).
-                  Quick 8-case round, room scene error spotting, bundle building, and clinical chart audit.
-                </p>
-                <div class="text-[11px] text-blue-300 font-bold mt-1" dir="rtl">
-                  الجولة السريعة (8 حالات متوازنة) • 3 مهام تفاعلية: بناء الحزمة، اكتشاف الأخطاء بالمشهد، وتدقيق السجلات • 100 حالة سريرية معتمدة
+                <div class="card-arabic-title text-[11px] text-blue-300 font-bold mt-0.5 leading-tight" dir="rtl">
+                  تحدي حزم الوقاية (CLABSI, CAUTI, VAP, SSI)
                 </div>
+                <p class="card-summary text-[11px] text-slate-300 font-medium mt-1 leading-snug line-clamp-2">
+                  4 Stations: CLABSI • CAUTI • VAP • SSI. Spot scene errors, build bundles & audit 100 cases!
+                </p>
               </div>
-              <div class="mt-5 pt-3.5 border-t border-blue-500/30 flex items-center justify-between">
-                <span class="text-xs font-bold text-blue-200">⛶ Full Wide Screen View • بنك 100 حالة معتمدة</span>
-                <span class="px-4 py-2 rounded-xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 group-hover:from-blue-500 group-hover:to-cyan-500 text-white font-black text-xs shadow flex items-center gap-1.5 transition">
-                  <span>Start Module 5</span> <span>➡️</span>
+              <div class="card-action-col mt-2 pt-2 border-t border-blue-500/30 flex items-center justify-between gap-2">
+                <button type="button" onclick="event.stopPropagation(); openPortalCardDetails(5);" class="card-details-btn text-[11px] font-bold text-blue-200 hover:text-white flex items-center gap-1 hover:underline cursor-pointer">
+                  <span>ℹ️</span> <span class="details-btn-full">Details | تفاصيل</span><span class="details-btn-short">تفاصيل</span>
+                </button>
+                <span class="card-start-btn px-3 py-1.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 group-hover:from-blue-500 group-hover:to-indigo-500 text-white font-black text-xs shadow flex items-center gap-1 transition">
+                  <span>Start <span class="start-btn-full">Module 5</span><span class="start-btn-short">5</span></span> <span>➡️</span>
                 </span>
               </div>
             </div>
@@ -4106,13 +4336,62 @@
     </div>
 
     <!-- FOOTER WITH ACCREDITATION & CONTROLS -->
-    <footer ondblclick="promptTrainerUnlock()" class="mt-auto cursor-pointer py-3 text-center text-xs text-slate-500 flex items-center justify-center border-t border-slate-300">
-      <span>Standards: <strong>WHO Infection Prevention & Control</strong> & <strong>CDC Standard Precautions</strong></span>
+    <footer ondblclick="promptTrainerUnlock()" class="mt-auto cursor-pointer py-1.5 sm:py-2 text-center text-[10px] sm:text-[11px] text-slate-500 flex flex-wrap items-center justify-center px-2 border-t border-slate-300 w-full max-w-full">
+      <span class="text-center break-words">Standards: <strong>WHO Infection Prevention & Control</strong> & <strong>CDC Standard Precautions</strong></span>
     </footer>
 
   </div>
 
-  <!-- ⚙️ SPECIAL SCREEN FOR PROJECT MANAGEMENT ⚙️ -->
+  <!-- ℹ️ ACCESSIBLE PORTAL CARD DETAILS MODAL ℹ️ -->
+  <div id="portal-card-details-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5 hidden" onclick="if(event.target===this) closePortalCardDetails();" role="dialog" aria-modal="true" aria-labelledby="portal-details-title-en">
+    <div class="bg-[#021329] border-2 border-cyan-400/70 rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto text-white flex flex-col gap-4">
+      <!-- Header: Badge, Title & Close -->
+      <div class="flex items-start justify-between gap-3 border-b border-cyan-500/30 pb-3">
+        <div class="flex items-start gap-3 min-w-0">
+          <span id="portal-details-icon" class="text-3xl sm:text-4xl shrink-0">🧩</span>
+          <div class="min-w-0">
+            <span id="portal-details-badge" class="px-2.5 py-0.5 rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 text-[10px] font-black uppercase tracking-wider">
+              MODULE 1 • CORE SIMULATION
+            </span>
+            <h2 id="portal-details-title-en" class="text-base sm:text-lg font-black text-white mt-1 leading-tight">
+              Chain of Infection & Break Chain
+            </h2>
+            <div id="portal-details-title-ar" class="text-xs sm:text-sm font-bold text-cyan-300 mt-0.5 leading-tight" dir="rtl">
+              كسر سلسلة انتقال العدوى
+            </div>
+          </div>
+        </div>
+        <button onclick="closePortalCardDetails()" class="w-8 h-8 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold flex items-center justify-center transition cursor-pointer shrink-0" aria-label="Close dialog">
+          ✕
+        </button>
+      </div>
+
+      <!-- Body: Detailed Description & Highlights -->
+      <div class="flex flex-col gap-3 text-xs sm:text-sm leading-relaxed text-slate-200">
+        <div>
+          <h4 class="text-[11px] font-black uppercase tracking-wider text-cyan-400 mb-1">Clinical Overview / نبذة سريرية</h4>
+          <p id="portal-details-desc-en" class="text-slate-300 font-medium leading-relaxed"></p>
+          <p id="portal-details-desc-ar" class="text-cyan-200/90 font-medium leading-relaxed mt-2" dir="rtl"></p>
+        </div>
+
+        <div>
+          <h4 class="text-[11px] font-black uppercase tracking-wider text-cyan-400 mb-1.5">Key Objectives & Features</h4>
+          <ul id="portal-details-highlights" class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-xs text-slate-300 font-medium"></ul>
+        </div>
+      </div>
+
+      <!-- Footer: Launch Action -->
+      <div class="border-t border-cyan-500/30 pt-3 flex items-center justify-end gap-2.5">
+        <button onclick="closePortalCardDetails()" class="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white font-bold text-xs transition active:scale-95 cursor-pointer">
+          Close / إغلاق
+        </button>
+        <button id="portal-details-launch-btn" onclick="launchFromDetailsModal()" class="px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-400 text-white font-black text-xs shadow-lg transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
+          <span id="portal-details-launch-text">Start Puzzle 1</span>
+          <span>➡️</span>
+        </button>
+      </div>
+    </div>
+  </div>
   <div id="pm-modal" class="fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5 hidden">
     <div class="bg-white border border-slate-300 rounded-3xl max-w-4xl w-full p-5 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto">
       
@@ -7834,7 +8113,8 @@
       const isNativeFs = !!(document.fullscreenElement || document.webkitFullscreenElement);
       const btns = [
         document.getElementById('btn-nav-fullscreen'),
-        document.getElementById('btn-match-fullscreen')
+        document.getElementById('btn-match-fullscreen'),
+        document.getElementById('univ-btn-fullscreen')
       ];
       btns.forEach(btn => {
         if (!btn) return;
@@ -9217,6 +9497,39 @@
       }
     });
 
+    function updateUniversalHeaderTabs(activeView) {
+      const v = (activeView === 'hai-bundle' || activeView === 'puzzle5') ? 'bundle-challenge' :
+                (activeView === 'puzzle3') ? 'guardians' :
+                (activeView === 'puzzle4') ? 'safe-injection' : activeView;
+
+      const tabs = {
+        'portal': document.getElementById('univ-tab-portal'),
+        'puzzle': document.getElementById('univ-tab-puzzle'),
+        'icebreaker': document.getElementById('univ-tab-icebreaker'),
+        'guardians': document.getElementById('univ-tab-guardians'),
+        'safe-injection': document.getElementById('univ-tab-safe-injection'),
+        'bundle-challenge': document.getElementById('univ-tab-bundle-challenge')
+      };
+
+      const activeThemes = {
+        'portal': 'bg-cyan-700 text-white shadow ring-2 ring-cyan-300 font-black',
+        'puzzle': 'bg-cyan-700 text-white shadow ring-2 ring-cyan-400 font-black',
+        'icebreaker': 'bg-teal-700 text-white shadow ring-2 ring-teal-400 font-black',
+        'guardians': 'bg-emerald-700 text-white shadow ring-2 ring-emerald-400 font-black',
+        'safe-injection': 'bg-violet-700 text-white shadow ring-2 ring-violet-400 font-black',
+        'bundle-challenge': 'bg-blue-700 text-white shadow ring-2 ring-blue-400 font-black'
+      };
+
+      const inactiveClass = 'bg-white/10 hover:bg-white/20 text-slate-300 hover:text-white border border-white/10';
+
+      Object.keys(tabs).forEach(k => {
+        const tab = tabs[k];
+        if (!tab) return;
+        tab.className = 'px-2 py-1 rounded-lg text-[11px] transition flex items-center gap-1 cursor-pointer ' + 
+                        (k === v ? (activeThemes[k] || 'bg-cyan-700 text-white') : inactiveClass);
+      });
+    }
+
     function switchMainView(viewName) {
       const prevView = currentMainView;
 
@@ -9226,6 +9539,7 @@
       }
 
       currentMainView = viewName;
+      updateUniversalHeaderTabs(viewName);
 
       // Update browser URL query so reload retains active puzzle
       if (window.history && window.history.replaceState) {
@@ -9306,23 +9620,40 @@
         else if (viewName === 'portal') badgeText.textContent = '🏛️ MAIN PORTAL';
       }
 
+      // Manage mobile nav tabs: hide on portal hub gallery, show inside modules
+      const mobNavTabs = document.getElementById('mobile-nav-tabs');
+      if (mobNavTabs) {
+        if (viewName === 'portal') {
+          mobNavTabs.classList.add('hidden');
+          mobNavTabs.classList.remove('flex');
+        } else {
+          mobNavTabs.classList.remove('hidden');
+          mobNavTabs.classList.add('flex');
+        }
+      }
+
       if (viewName === 'portal') {
         // Restore normal portal mode with full smooth scrolling
         document.documentElement.classList.remove('game-fullscreen-mode');
         document.body.classList.remove('game-fullscreen-mode');
         document.documentElement.style.overflowY = 'auto';
         document.body.style.overflowY = 'auto';
-        setWidescreenMode(false);
+        setWidescreenMode(true);
         updateFullscreenButtonUI();
         if (isStudentMode) {
           applyStudentMode();
         }
 
-        // Remove/hide top header, squads bar, and left turn card from Main Portal page
+        // Remove/hide top header, squads bar, left turn card, and left sidebar menu from Main Portal page
         if (topHeaderRow) topHeaderRow.classList.add('hidden');
         if (mainHeader) mainHeader.classList.add('hidden');
         if (squadsBar) squadsBar.classList.add('hidden');
         if (leftTeamCard) leftTeamCard.classList.add('hidden');
+        const leftNav = document.getElementById('left-nav-menu');
+        if (leftNav) {
+          leftNav.classList.add('hidden');
+          leftNav.classList.remove('lg:flex');
+        }
 
         if (portalView) { portalView.classList.remove('hidden'); portalView.style.display = ''; }
         if (btnPortal) btnPortal.className = "w-full text-left p-3.5 rounded-2xl border-2 transition-all duration-200 flex flex-col gap-1 shadow active:scale-98 bg-gradient-to-r from-cyan-950 via-[#032347] to-cyan-900 border-cyan-400 text-white shadow-cyan-500/30 ring-2 ring-cyan-400/30";
@@ -9537,6 +9868,8 @@ function _legacySwitchMainView(viewName) {
       if (soundBtn) soundBtn.innerText = sound.enabled ? '🔊' : '🔇';
       const hdrSoundBtn = document.getElementById('hdr-sound-btn');
       if (hdrSoundBtn) hdrSoundBtn.innerText = sound.enabled ? '🔊' : '🔇';
+      const univSoundIcon = document.getElementById('univ-sound-icon');
+      if (univSoundIcon) univSoundIcon.innerText = sound.enabled ? '🔊' : '🔇';
     }
 
     function toggleSound() {
@@ -9652,6 +9985,144 @@ function _legacySwitchMainView(viewName) {
     }
 
     // =========================================================================
+    // ℹ️ PORTAL CARD DETAILS MODAL SYSTEM
+    // =========================================================================
+    let activePortalDetailModule = 1;
+    const PORTAL_CARD_DETAILS = {
+      1: {
+        badge: "MODULE 1 • CORE SIMULATION",
+        icon: "🧩",
+        titleEn: "Chain of Infection & Break the Chain",
+        titleAr: "كسر سلسلة انتقال العدوى بالاحتياطات القياسية",
+        descEn: "A foundational interactive simulation covering the complete chain of transmission. Stage 1 tasks learners with correctly assembling the 6 clockwise chain links (Infectious Agent, Reservoir, Portal of Exit, Mode of Transmission, Portal of Entry, Susceptible Host). Stage 2 requires actively breaking each link using 11 CDC Standard Precautions cards.",
+        descAr: "محاكاة أساسية لسلسلة انتقال العدوى. المرحلة الأولى: تركيب الحلقات الست باتجاه عقارب الساعة (العامل الممرض، المستودع، مخرج العدوى، طريقة الانتقال، مدخل العدوى، والعائل المعرض). المرحلة الثانية: كسر الحلقات باستخدام 11 بطاقة احتياطات قياسية معتمدة من CDC.",
+        highlights: [
+          "6 Clockwise Chain Links assembly",
+          "11 CDC Standard Precautions Cards",
+          "Immediate clinical rationales on strike",
+          "Real-time countdown and scoring"
+        ],
+        view: "puzzle",
+        btnText: "Start Puzzle 1"
+      },
+      2: {
+        badge: "MODULE 2 • TEAM WARM-UP",
+        icon: "🧊",
+        titleEn: "Ice Breaker: Match the Definitions",
+        titleAr: "كسر الجليد ومطابقة المفاهيم السريرية",
+        descEn: "An engaging clinical terminology challenge designed for team warm-up. Connect 14 authoritative infection prevention and control clinical concepts to their official definitions, reinforcing theoretical foundations before complex case rounds.",
+        descAr: "تحدي كسر الجليد السريري لمطابقة 14 مصطلحاً سريرياً مع تعريفاتها الرسمية المعتمدة في مكافحة العدوى، مما يعزز الفهم النظري والمفاهيم الأساسية قبل البدء بالحالات السريرية المعقدة.",
+        highlights: [
+          "14 Standard IPC clinical definitions",
+          "Touch-friendly drag & drop matching",
+          "Error review & reference guide",
+          "Bilingual clinical terms"
+        ],
+        view: "icebreaker",
+        btnText: "Start Puzzle 2"
+      },
+      3: {
+        badge: "MODULE 3 • PPE & ISOLATION MASTER",
+        icon: "🛡️",
+        titleEn: "درع الوقاية | PPE Challenge",
+        titleAr: "تحدي معدات الوقاية الشخصية والعزل السريري",
+        descEn: "Master transmission-based precautions and PPE selection across randomized clinical scenarios. Select additional isolation precautions (Contact, Droplet, Airborne), equip task-tailored PPE, and sequence donning & doffing safely.",
+        descAr: "إتقان احتياطات العزل القائمة على طرق الانتقال واختيار الواقيات الشخصية عبر سيناريوهات سريرية عشوائية. اختر احتياطات العزل (تلامس، رذاذ، هوائي)، جهّز معدات الوقاية المناسبة، ورتب خطوات الارتداء والخلع الآمن.",
+        highlights: [
+          "Standard & Transmission-Based Precautions",
+          "Task-tailored PPE selection",
+          "Safe Donning & Doffing sequencing",
+          "4-case balanced clinical sessions"
+        ],
+        view: "guardians",
+        btnText: "Start Module 3"
+      },
+      4: {
+        badge: "MODULE 4 • CLINICAL SAFETY MASTERY",
+        icon: "💉",
+        titleEn: "تحدّي الحقن الآمن | Safe Injection Challenge",
+        titleAr: "سلامة الأدوية وممارسات الحقن والأدوات الحادة",
+        descEn: "Comprehensive clinical safety testing across 3 domains: Safe Injection Practices (💉), Medication Safety (🧴), and Sharps Safety (☣️). Includes single-domain practice and 12-case mixed challenge with approved alternative procedures and CDC references.",
+        descAr: "اختبار سريري متكامل عبر 3 محاور: ممارسات الحقن الآمن (💉)، سلامة الأدوية (🧴)، والسلامة من الأدوات الحادة (☣️). يدعم وضع المحور الفردي والتحدي الشامل لـ 12 حالة مع عرض الإجراء الآمن البديل والمراجع المعتمدة.",
+        highlights: [
+          "3 Clinical Domains (Injection, Medication, Sharps)",
+          "Single-Domain & 12-Case Mixed Challenge",
+          "Approved safe alternative procedures",
+          "CDC, Joint Commission & OSHA references"
+        ],
+        view: "safe-injection",
+        btnText: "Start Module 4"
+      },
+      5: {
+        badge: "MODULE 5 • PREMIER CLINICAL SIMULATION",
+        icon: "📦",
+        titleEn: "أكمل الحزمة | HAI Bundle Challenge",
+        titleAr: "تحدي حزم الوقاية من عدوى الرعاية الصحية الحادة",
+        descEn: "100 comprehensive clinical scenarios for acute adult care across 4 stations: CLABSI (WHO 2026/CDC), CAUTI (CDC 2009/2025), VAP/VAE (SHEA 2022), and SSI (WHO 2018/CDC 2017). Features room scene error spotting, bundle building, and record audit compliance calculations.",
+        descAr: "100 سيناريو سريري معتمد لرعاية البالغين الحادة عبر 4 محطات: CLABSI (WHO 2026/CDC)، CAUTI (CDC 2009/2025)، VAP/VAE (SHEA 2022)، و SSI (WHO 2018/CDC 2017). تشمل مهام بناء الحزم، واكتشاف الأخطاء بالمشهد، وتدقيق السجلات الطبية.",
+        highlights: [
+          "100 Evidence-based acute care scenarios",
+          "4 Stations: CLABSI, CAUTI, VAP, SSI",
+          "Room scene error spotting & bundle building",
+          "Record audits & All-or-None calculation"
+        ],
+        view: "bundle-challenge",
+        btnText: "Start Module 5"
+      }
+    };
+
+    function openPortalCardDetails(modNum) {
+      activePortalDetailModule = modNum;
+      const data = PORTAL_CARD_DETAILS[modNum];
+      if (!data) return;
+
+      const modal = document.getElementById('portal-card-details-modal');
+      const badge = document.getElementById('portal-details-badge');
+      const icon = document.getElementById('portal-details-icon');
+      const titleEn = document.getElementById('portal-details-title-en');
+      const titleAr = document.getElementById('portal-details-title-ar');
+      const descEn = document.getElementById('portal-details-desc-en');
+      const descAr = document.getElementById('portal-details-desc-ar');
+      const list = document.getElementById('portal-details-highlights');
+      const btnText = document.getElementById('portal-details-launch-text');
+
+      if (badge) badge.textContent = data.badge;
+      if (icon) icon.textContent = data.icon;
+      if (titleEn) titleEn.textContent = data.titleEn;
+      if (titleAr) titleAr.textContent = data.titleAr;
+      if (descEn) descEn.textContent = data.descEn;
+      if (descAr) descAr.textContent = data.descAr;
+      if (btnText) btnText.textContent = data.btnText;
+
+      if (list) {
+        list.innerHTML = data.highlights.map(h => `
+          <li class="flex items-center gap-1.5 p-1.5 rounded-lg bg-white/5 border border-white/10">
+            <span class="text-cyan-400">✓</span> <span>${h}</span>
+          </li>
+        `).join('');
+      }
+
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closePortalCardDetails() {
+      const modal = document.getElementById('portal-card-details-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function launchFromDetailsModal() {
+      const data = PORTAL_CARD_DETAILS[activePortalDetailModule];
+      closePortalCardDetails();
+      if (data && data.view) {
+        switchMainView(data.view);
+      }
+    }
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closePortalCardDetails();
+    });
+
+    // =========================================================================
     // 14. STUDENT MODE & PUZZLE SHARING SYSTEM (BARCODE / QR & DIRECT LINK)
     // =========================================================================
     let isStudentMode = false;
@@ -9697,6 +10168,14 @@ function _legacySwitchMainView(viewName) {
       if (saveArchiveBtn) saveArchiveBtn.classList.add('hidden');
       const viewArchiveBtn = document.getElementById('btn-view-archive');
       if (viewArchiveBtn) viewArchiveBtn.classList.add('hidden');
+
+      const univAdminBtn = document.getElementById('univ-btn-admin-login');
+      if (univAdminBtn) {
+        univAdminBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs shadow-md transition active:scale-95 flex items-center gap-1 sm:gap-1.5 border border-amber-300 cursor-pointer";
+        univAdminBtn.innerHTML = '<span class="text-xs sm:text-sm">🔐</span><span class="admin-btn-full">دخول المشرف | Admin Login</span><span class="admin-btn-short">Admin</span>';
+        univAdminBtn.title = "تسجيل دخول المشرف والمدرب / Facilitator Admin Login";
+        univAdminBtn.onclick = function() { promptTrainerUnlock(); };
+      }
 
       showToast("🎓 وضع الطالب نشط", "مرحباً بكم في لغز مكافحة العدوى! أظهر مهاراتك لحماية المرضى.", "emerald");
     }
@@ -9763,6 +10242,17 @@ function _legacySwitchMainView(viewName) {
 
       const trainerControls = document.querySelectorAll('.trainer-only');
       trainerControls.forEach(el => el.style.removeProperty('display'));
+
+      const univAdminBtn = document.getElementById('univ-btn-admin-login');
+      if (univAdminBtn) {
+        univAdminBtn.className = "px-2.5 sm:px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-black text-xs shadow-md transition active:scale-95 flex items-center gap-1 sm:gap-1.5 border border-emerald-300 cursor-pointer";
+        univAdminBtn.innerHTML = '<span class="text-xs sm:text-sm">🔓</span><span class="admin-btn-full">المشرف نشط | Trainer Active</span><span class="admin-btn-short">Trainer</span>';
+        univAdminBtn.title = "المشرف نشط / Trainer Mode Active (انقر لإدارة الجلسة)";
+        univAdminBtn.onclick = function(e) {
+          if (typeof toggleSupervisorMenu === 'function') toggleSupervisorMenu(e);
+          else showToast("👨‍🏫 وضع المشرف", "صلاحيات المدرب مفعلة بالكامل.", "emerald");
+        };
+      }
     }
 
     function lockToStudentMode() {
