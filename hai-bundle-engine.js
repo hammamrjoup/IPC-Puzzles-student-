@@ -11,6 +11,73 @@
   // 1. SOUND SYNTHESIZER (WEB AUDIO API - ZERO EXTERNAL ASSET DEPENDENCY)
   // =========================================================================
   class HaiSoundEngine {
+    // Soft hardware click for equipment controls and adjustments
+    playHardwareClick() {
+      if (!this.enabled) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(450, now);
+        osc.frequency.exponentialRampToValueAtTime(150, now + 0.035);
+        gain.gain.setValueAtTime(0.3 * this.volume, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.045);
+      } catch (e) {}
+    }
+
+    // Subtle ambient hospital room tone (soft 55Hz hum)
+    startRoomTone() {
+      if (!this.enabled || this.roomToneOsc) return;
+      this.init();
+      if (!this.ctx) return;
+      try {
+        const now = this.ctx.currentTime;
+        this.roomToneOsc = this.ctx.createOscillator();
+        this.roomToneGain = this.ctx.createGain();
+        this.roomToneOsc.type = 'sine';
+        this.roomToneOsc.frequency.setValueAtTime(55, now);
+        this.roomToneGain.gain.setValueAtTime(0.025 * this.volume, now);
+        this.roomToneOsc.connect(this.roomToneGain);
+        this.roomToneGain.connect(this.ctx.destination);
+        this.roomToneOsc.start();
+      } catch (e) {}
+    }
+
+    stopRoomTone() {
+      if (this.roomToneOsc) {
+        try {
+          this.roomToneOsc.stop();
+          this.roomToneOsc.disconnect();
+        } catch (e) {}
+        this.roomToneOsc = null;
+        this.roomToneGain = null;
+      }
+    }
+
+    // Web Speech API Voice Handover (Natural English Speech)
+    speakHandover(text, onEnd) {
+      if (!this.enabled) return;
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel();
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.lang = 'en-US';
+          utterance.rate = 0.95;
+          utterance.pitch = 1.0;
+          utterance.volume = Math.min(1.0, this.volume * 1.2);
+          if (typeof onEnd === 'function') utterance.onend = onEnd;
+          window.speechSynthesis.speak(utterance);
+        } catch (e) {}
+      }
+    }
+
     constructor() {
       this.ctx = null;
       this.enabled = localStorage.getItem('hai_bundle_sound_enabled') !== 'false';
@@ -153,11 +220,28 @@
   // =========================================================================
   // 2. STATE & CONFIGURATION
   // =========================================================================
+  let currentLang = localStorage.getItem('hai_bundle_lang') || 'en';
+
+  function setLanguage(lang) {
+    currentLang = (lang === 'ar') ? 'ar' : 'en';
+    try { localStorage.setItem('hai_bundle_lang', currentLang); } catch(e) {}
+    render();
+  }
+
+  function toggleLanguage() {
+    setLanguage(currentLang === 'en' ? 'ar' : 'en');
+  }
+
+  function t(en, ar) {
+    return currentLang === 'en' ? en : ar;
+  }
+
   const STORAGE_KEYS = {
     SEEN_IDS: 'hai_bundle_seen_ids',
     ACTIVE_SESSION: 'hai_bundle_active_session',
     REDUCED_MOTION: 'hai_bundle_reduced_motion',
-    CUSTOM_SETTINGS: 'hai_bundle_custom_settings'
+    CUSTOM_SETTINGS: 'hai_bundle_custom_settings',
+    HANDOVER_SESSION: 'hai_bundle_handover_session'
   };
 
   const STATIONS = {
@@ -366,381 +450,224 @@
   }
 
   // =========================================================================
-  // 5. INTERACTIVE SVG ROOM SCENES GENERATORS
+  // 5. INTERACTIVE PHOTOREALISTIC ROOM SCENES & DIAGRAM GENERATORS
   // =========================================================================
-  
+
   /**
-   * CLABSI Scene: Oncology room with PICC/CVC dressing, IV infusion line, and access Hub.
-   * Clicking on the Hub zooms in to show a close-up where user scrubs the hub.
+   * CLABSI Scene: Realistic Oncology Procedural Room with Central Venous Line insertion setup,
+   * drape breach hotspot, and access hub macro close-up.
    */
   function renderClabsiSceneSvg(caseObj, isZoomed = false) {
     const isLoose = caseObj.sceneObject === 'dressing_loose';
     const isWet = caseObj.sceneObject === 'dressing_wet';
     const isOozing = caseObj.sceneObject === 'oozing_site';
     const isHub = caseObj.sceneObject === 'hub' || isZoomed;
-    const isSmallDrape = caseObj.sceneObject === 'drape';
+    const isSmallDrape = caseObj.sceneObject === 'drape' || caseObj.id === 'CLABSI-01' || caseObj.id === 'CLABSI-21';
 
     if (isZoomed) {
-      // Magnified Close-Up on Needleless Access Hub & Dressing Site
+      // Macro Close-Up on Needleless Access Hub
       return `
-        <div class="relative w-full h-[260px] sm:h-[300px] bg-gradient-to-b from-slate-900 via-[#071f38] to-slate-950 rounded-2xl border-2 border-cyan-400/80 p-3 flex flex-col items-center justify-between overflow-hidden shadow-inner">
-          <div class="w-full flex items-center justify-between text-xs px-2">
-            <span class="px-2 py-0.5 rounded-full bg-cyan-900/80 border border-cyan-400 text-cyan-200 font-bold flex items-center gap-1">
-              <span>🔍</span> <span>لقطة مكبّرة: منفذ الوصول الوريدي وغيار القسطرة</span>
+        <div class="relative w-full h-[260px] sm:h-[300px] bg-slate-950 rounded-2xl border-2 border-cyan-400 p-3 flex flex-col items-center justify-between overflow-hidden shadow-2xl">
+          <div class="w-full flex items-center justify-between text-xs px-2 z-10">
+            <span class="px-2.5 py-1 rounded-full bg-cyan-950/90 border border-cyan-400 text-cyan-200 font-black flex items-center gap-1.5">
+              <span>🔍</span> <span>${t('Macro Close-Up: Needleless Access Hub & Site', 'لقطة مكبّرة: منفذ الوصول الوريدي وغيار القسطرة')}</span>
             </span>
-            <button onclick="window.HaiBundleEngine.toggleSceneZoom(false)" class="px-2.5 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition flex items-center gap-1">
-              <span>✕</span> <span>تصغير المشهد</span>
+            <button onclick="window.HaiBundleEngine.toggleSceneZoom(false)" class="px-3 py-1 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-bold transition flex items-center gap-1 cursor-pointer">
+              <span>✕</span> <span>${t('Exit Zoom', 'تصغير المشهد')}</span>
             </button>
           </div>
 
-          <svg viewBox="0 0 400 200" class="w-full max-w-[380px] h-[190px] drop-shadow-lg select-none">
-            <!-- Lumen Tube -->
-            <path d="M 50 100 Q 150 100 220 100" stroke="#0ea5e9" stroke-width="14" fill="none" stroke-linecap="round" />
-            <path d="M 50 100 Q 150 100 220 100" stroke="#bae6fd" stroke-width="6" fill="none" stroke-linecap="round" />
-            
-            <!-- Clamp -->
-            <rect x="110" y="80" width="24" height="40" rx="4" fill="#ef4444" stroke="#7f1d1d" stroke-width="2" />
-            
-            <!-- Needleless Connector (Hub) -->
-            <g class="cursor-pointer transition-transform hover:scale-105" onclick="window.HaiBundleEngine.interactSceneElement('hub')" tabindex="0" role="button" aria-label="منفذ القسطرة">
-              <rect x="220" y="82" width="60" height="36" rx="6" fill="#0284c7" stroke="#38bdf8" stroke-width="3" />
-              <!-- Threaded connection tip -->
-              <rect x="280" y="87" width="22" height="26" rx="3" fill="#cbd5e1" stroke="#94a3b8" stroke-width="2" />
-              <!-- Diaphragm septum tip -->
-              <circle cx="302" cy="100" r="10" fill="#e2e8f0" stroke="#0284c7" stroke-width="2.5" />
-              <!-- Scrubbing antiseptic icon -->
-              <circle cx="302" cy="100" r="5" fill="#f59e0b" class="animate-ping" opacity="0.6" />
-            </g>
+          <!-- High-res close-up interaction -->
+          <div class="relative flex flex-col items-center justify-center my-auto">
+            <div class="relative cursor-pointer group" onclick="window.HaiBundleEngine.interactSceneElement('hub')" role="button" tabindex="0" title="${t('Click to scrub hub for 15s', 'انقر لفرك المنفذ 15 ثانية')}">
+              <div class="w-48 h-24 bg-gradient-to-r from-sky-600 via-cyan-500 to-sky-700 rounded-2xl border-4 border-cyan-300 shadow-xl flex items-center justify-between px-4 group-hover:scale-105 transition-transform">
+                <div class="w-8 h-8 rounded-full bg-slate-200 border-2 border-sky-900 flex items-center justify-center font-black text-xs text-sky-900">IV</div>
+                <div class="flex flex-col items-center">
+                  <span class="text-xs font-black text-white">${t('Access Hub', 'منفذ الوصول')}</span>
+                  <span class="text-[10px] text-cyan-100 font-bold">${t('70% Alcohol Scrub', 'فرك بكحول 70%')}</span>
+                </div>
+                <div class="w-6 h-6 rounded-full bg-amber-400 animate-ping opacity-75"></div>
+              </div>
+            </div>
+            <div class="mt-3 text-center">
+              <span class="text-xs font-bold text-cyan-300 bg-cyan-950/80 px-3 py-1 rounded-xl border border-cyan-500/40">
+                💡 ${t('Vigorously scrub the access hub with 70% alcohol for 15 seconds and allow to fully dry.', 'افرك منفذ الوصول جيداً بكحول 70% لمدة 15 ثانية ودعه يجف تماماً.')}
+              </span>
+            </div>
+          </div>
 
-            <!-- Label -->
-            <text x="250" y="145" fill="#38bdf8" font-size="12" font-weight="bold" text-anchor="middle">منفذ الوصول (Hub)</text>
-            <text x="250" y="162" fill="#94a3b8" font-size="10" text-anchor="middle">فرك المنفذ 15 ثانية بكحول 70% وتركه يجف</text>
-          </svg>
-
-          <div class="text-[11px] text-cyan-200 bg-cyan-950/70 border border-cyan-500/40 px-3 py-1 rounded-xl flex items-center gap-1.5">
-            <span>💡</span> <span>انقر على منفذ الوصول لفركه بالمطهر (Scrub the Hub) أو حدد الإجراء المطلوب بالأسفل.</span>
+          <div class="text-[11px] text-slate-300 bg-slate-900/90 px-3 py-1 rounded-xl">
+            ${t('Click the hub or select your answer from the options on the right.', 'انقر على المنفذ أو حدد الإجراء المطلوب من الخيارات.')}
           </div>
         </div>
       `;
     }
 
-    // Default Overview Scene
+    // Realistic Overview Scene
     return `
-      <div class="relative w-full h-[220px] sm:h-[260px] bg-gradient-to-b from-slate-950 via-[#031c38] to-[#011224] rounded-2xl border border-cyan-500/40 p-2 sm:p-3 overflow-hidden shadow-md flex flex-col justify-between">
-        <!-- Room Scene Header -->
-        <div class="flex items-center justify-between text-xs px-1">
-          <div class="flex items-center gap-1.5 text-cyan-300 font-bold">
-            <span class="text-base">🏥</span>
-            <span>غرفة أورام — عناية القسطرة المركزية | Oncology Line Station</span>
+      <div class="relative w-full h-[230px] sm:h-[270px] bg-slate-950 rounded-2xl border border-cyan-500/50 overflow-hidden shadow-xl flex flex-col justify-between group">
+        <!-- Photorealistic Background Image -->
+        <img src="clabsi_realistic_scene.jpg" alt="CLABSI Procedural Scene" class="absolute inset-0 w-full h-full object-cover object-center brightness-95 contrast-105 group-hover:scale-101 transition-transform duration-500 pointer-events-none" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/30 to-slate-950/70 pointer-events-none"></div>
+
+        <!-- Top Overlay Header -->
+        <div class="relative z-10 flex items-center justify-between text-xs p-2 sm:p-2.5">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/85 backdrop-blur-md border border-cyan-400/50 text-cyan-200 font-black">
+            <span class="text-sm">🏥</span>
+            <span>${t('Oncology Procedural Room — Central Venous Catheter Care', 'غرفة أورام — عناية القسطرة المركزية')}</span>
           </div>
-          <button onclick="window.HaiBundleEngine.toggleSceneZoom(true)" class="px-2.5 py-1 rounded-lg bg-cyan-900/60 hover:bg-cyan-800 text-cyan-200 border border-cyan-400 text-[11px] font-bold transition flex items-center gap-1 shadow-sm">
-            <span>🔍</span> <span>تكبير المنفذ</span>
+          <button onclick="window.HaiBundleEngine.toggleSceneZoom(true)" class="px-2.5 py-1 rounded-xl bg-cyan-800/90 hover:bg-cyan-700 text-white border border-cyan-300 text-[11px] font-black transition flex items-center gap-1 shadow cursor-pointer">
+            <span>🔍</span> <span>${t('Zoom Access Hub', 'تكبير المنفذ')}</span>
           </button>
         </div>
 
-        <!-- Room Scene SVG -->
-        <svg viewBox="0 0 500 200" class="w-full h-[155px] sm:h-[180px] drop-shadow-md select-none mx-auto">
-          <!-- Patient Hospital Bed -->
-          <rect x="50" y="110" width="260" height="60" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
-          <path d="M 50 140 L 40 185 M 310 140 L 320 185" stroke="#475569" stroke-width="5" stroke-linecap="round" />
-          <!-- Mattress & Pillow -->
-          <rect x="55" y="100" width="250" height="20" rx="6" fill="#38bdf8" opacity="0.3" />
-          <rect x="65" y="85" width="45" height="22" rx="6" fill="#f8fafc" stroke="#cbd5e1" />
-          
-          <!-- Patient Silhouette (Torso & Head) -->
-          <circle cx="85" cy="80" r="14" fill="#fde047" opacity="0.8" />
-          <path d="M 85 95 Q 140 100 180 115" stroke="#f8fafc" stroke-width="16" stroke-linecap="round" fill="none" opacity="0.85" />
-
-          <!-- Drape in case CLABSI-01 -->
+        <!-- Interactive Hotspots on the Realistic Image -->
+        <div class="relative z-10 flex items-center justify-center gap-2 p-2">
           ${isSmallDrape ? `
-            <rect x="110" y="88" width="50" height="40" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5" stroke-dasharray="3,3" />
-            <text x="135" y="112" fill="#f8fafc" font-size="8" font-weight="black" text-anchor="middle">غطاء صغير ⚠️</text>
+            <button onclick="window.HaiBundleEngine.interactSceneElement('drape')" class="px-3 py-1.5 rounded-xl bg-amber-500/95 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg border border-amber-200 flex items-center gap-1.5 animate-pulse cursor-pointer">
+              <span>⚠️</span> <span>${t('Observed: Small Drape Only (Breach)', 'الملاحظة: غطاء صغير فقط (خرق)')}</span>
+            </button>
           ` : `
-            <rect x="60" y="85" width="230" height="65" rx="6" fill="#0284c7" opacity="0.25" stroke="#38bdf8" stroke-width="1" />
-            <text x="175" y="130" fill="#bae6fd" font-size="8" text-anchor="middle">غطاء معقم لكامل الجسم (Full Drape)</text>
+            <div class="px-3 py-1 rounded-xl bg-slate-900/80 backdrop-blur-md border border-cyan-400/40 text-cyan-300 text-xs font-bold flex items-center gap-1">
+              <span>🛡️</span> <span>${t('Maximal Sterile Barriers: Cap, Mask, Gown, Gloves, Full Drape', 'الحواجز المعقمة القصوى: غطاء رأس، كمامة، مئزر، قفازات، غطاء كامل الجسم')}</span>
+            </div>
           `}
+        </div>
 
-          <!-- Central Line Dressing Site -->
-          <g class="cursor-pointer" onclick="window.HaiBundleEngine.toggleSceneZoom(true)" tabindex="0" role="button">
-            <rect x="135" y="92" width="34" height="26" rx="4" fill="${isWet ? '#38bdf8' : (isOozing ? '#f43f5e' : '#f8fafc')}" opacity="${isWet ? '0.7' : '0.9'}" stroke="${isLoose ? '#f59e0b' : '#0ea5e9'}" stroke-width="2" />
-            <!-- Insertion dot -->
-            <circle cx="152" cy="105" r="3" fill="#ef4444" />
-            ${isLoose ? '<path d="M 135 92 L 142 85" stroke="#f59e0b" stroke-width="2.5" />' : ''}
-            ${isWet ? '<text x="152" y="115" fill="#0369a1" font-size="7" font-weight="bold" text-anchor="middle">مبتل 💧</text>' : ''}
-            ${isOozing ? '<text x="152" y="115" fill="#881337" font-size="7" font-weight="bold" text-anchor="middle">ينز 🩸</text>' : ''}
-          </g>
-
-          <!-- IV Line to Pole -->
-          <path d="M 152 105 Q 230 70 360 55" stroke="#38bdf8" stroke-width="3" fill="none" stroke-linecap="round" />
-          
-          <!-- Needleless Port (Hub) along line -->
-          <g class="cursor-pointer group" onclick="window.HaiBundleEngine.toggleSceneZoom(true)" tabindex="0" role="button">
-            <circle cx="260" cy="80" r="10" fill="#0284c7" stroke="#bae6fd" stroke-width="2" />
-            <circle cx="260" cy="80" r="4" fill="#f8fafc" />
-            <text x="260" y="70" fill="#38bdf8" font-size="8" font-weight="bold" text-anchor="middle">المنفذ 🔍</text>
-          </g>
-
-          <!-- IV Stand & Infusion Bag -->
-          <line x1="360" y1="20" x2="360" y2="185" stroke="#94a3b8" stroke-width="4" stroke-linecap="round" />
-          <path d="M 345 25 L 360 20 L 375 25" stroke="#cbd5e1" stroke-width="3" fill="none" />
-          <rect x="348" y="26" width="24" height="35" rx="5" fill="#f1f5f9" stroke="#94a3b8" stroke-width="1.5" />
-          <rect x="351" y="32" width="18" height="24" rx="2" fill="#0ea5e9" opacity="0.4" />
-          
-          <!-- Prep Tray on Table -->
-          <rect x="395" y="125" width="85" height="50" rx="6" fill="#1e293b" stroke="#475569" stroke-width="2" />
-          <line x1="437" y1="175" x2="437" y2="195" stroke="#64748b" stroke-width="5" />
-          <!-- Bottles on Tray -->
-          <rect x="405" y="112" width="14" height="20" rx="2" fill="#f59e0b" stroke="#d97706" />
-          <rect x="425" y="114" width="12" height="18" rx="2" fill="#0284c7" stroke="#0369a1" />
-          <text x="437" y="145" fill="#cbd5e1" font-size="8" text-anchor="middle">طاولة التطهير</text>
-        </svg>
-
-        <div class="flex items-center justify-between text-[11px] text-cyan-200 bg-cyan-950/60 px-2 py-0.5 rounded-lg">
-          <span>🎯 افحص موقع القسطرة والضماد أو اضغط على «تكبير المنفذ» للتحقق المباشر.</span>
-          <span class="text-cyan-400 font-bold">${caseObj.id}</span>
+        <!-- Bottom Scene Footer Banner -->
+        <div class="relative z-10 flex items-center justify-between text-[11px] text-cyan-100 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 border-t border-cyan-500/30">
+          <div class="flex items-center gap-1.5">
+            <span>💡</span>
+            <span class="truncate">${t('Examine the procedural setup. Choose the indicated bundle action on the right.', 'افحص المشهد السريري وحدد الإجراء الصحيح وفق حزمة الوقاية بالجانب الأيمن.')}</span>
+          </div>
+          <span class="text-cyan-300 font-mono font-bold shrink-0">${caseObj.id}</span>
         </div>
       </div>
     `;
   }
 
   /**
-   * CAUTI Scene: Anatomical Bladder, Foley Catheter, Continuous Drainage Path, and Collection Bag.
-   * Fully supports interactive multi-step corrections:
-   * - Lowering bag (below bladder level)
-   * - Untwisting/straightening kinked tubing under thigh
-   * Allows fixing either in any order!
+   * CAUTI Scene: Realistic Bedside with Indwelling Urinary Catheter Setup,
+   * downhill drainage tubing, bag elevation/floor state, and kink untwist hotspots.
    */
   function renderCautiSceneSvg(caseObj) {
     const p = session.multiStepProgress[caseObj.id] || {};
-    // Check if bag is lowered or still high
     const isBagHigh = caseObj.sceneObject === 'bag_height' && !p.bagLowered;
     const isTouchingFloor = caseObj.sceneObject === 'bag_on_floor' && !p.bagHanging;
-    // Check if tube is kinked
     const isKinked = (caseObj.sceneObject === 'tubing_kink' || caseObj.id === 'CAUTI-21' || (caseObj.multiStep && caseObj.stepId === 'untwist_kink')) && !p.kinkUntwisted;
-    
-    // Bag coordinates based on state
-    // Normal correct: bag hanging below bladder (y: 110-145)
-    // High: bag above bladder level (y: 35-70)
-    // Floor: bag on floor (y: 155-190)
-    let bagY = 115;
-    let bagStatusLabel = 'تحت مستوى المثانة (سليم ✓)';
-    let bagStatusColor = '#10b981';
-
-    if (isBagHigh) {
-      bagY = 40;
-      bagStatusLabel = 'مرتفع فوق مستوى المثانة ⚠️';
-      bagStatusColor = '#ef4444';
-    } else if (isTouchingFloor) {
-      bagY = 158;
-      bagStatusLabel = 'ملامس للأرضية ⚠️';
-      bagStatusColor = '#f59e0b';
-    }
 
     return `
-      <div class="relative w-full h-[250px] sm:h-[280px] bg-gradient-to-b from-slate-950 via-[#261c02] to-[#120c01] rounded-2xl border border-amber-500/50 p-2 sm:p-3 overflow-hidden shadow-md flex flex-col justify-between">
-        <!-- Scene Header -->
-        <div class="flex items-center justify-between text-xs px-1">
-          <div class="flex items-center gap-1.5 text-amber-300 font-bold">
-            <span class="text-base">💧</span>
-            <span>منظومة القسطرة وتصريف البول | Closed Urinary Drainage Station</span>
+      <div class="relative w-full h-[230px] sm:h-[270px] bg-slate-950 rounded-2xl border border-amber-500/50 overflow-hidden shadow-xl flex flex-col justify-between group">
+        <!-- Photorealistic Background Image -->
+        <img src="cauti_realistic_scene.jpg" alt="CAUTI Bedside Scene" class="absolute inset-0 w-full h-full object-cover object-center brightness-95 contrast-105 group-hover:scale-101 transition-transform duration-500 pointer-events-none" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-slate-950/70 pointer-events-none"></div>
+
+        <!-- Top Overlay Header -->
+        <div class="relative z-10 flex items-center justify-between text-xs p-2 sm:p-2.5">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/85 backdrop-blur-md border border-amber-400/50 text-amber-200 font-black">
+            <span class="text-sm">🚽</span>
+            <span>${t('Inpatient Bedside — Indwelling Urinary Catheter Care', 'سرير المريض — عناية القسطرة البولية الثابتة')}</span>
           </div>
-          <!-- Multi-step Indicator Pills -->
-          <div class="flex items-center gap-1.5">
+          <!-- Status Badges -->
+          <div class="flex items-center gap-1">
             ${isBagHigh ? `
-              <button onclick="window.HaiBundleEngine.interactSceneElement('lower_bag')" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-[11px] shadow animate-bounce flex items-center gap-1">
-                <span>⬇️</span> <span>اخفض الكيس</span>
+              <button onclick="window.HaiBundleEngine.interactSceneElement('lower_bag')" class="px-2.5 py-1 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-xs shadow animate-bounce flex items-center gap-1 cursor-pointer">
+                <span>⬇️</span> <span>${t('Lower Bag Below Bladder', 'اخفض الكيس تحت المثانة')}</span>
               </button>
-            ` : ''}
-            ${isKinked ? `
-              <button onclick="window.HaiBundleEngine.interactSceneElement('untwist_kink')" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-[11px] shadow animate-bounce flex items-center gap-1">
-                <span>🔄</span> <span>حرّر انثناء الأنبوب</span>
-              </button>
-            ` : ''}
-          </div>
-        </div>
-
-        <!-- SVG Arena -->
-        <svg viewBox="0 0 500 200" class="w-full h-[180px] sm:h-[200px] drop-shadow-md select-none mx-auto">
-          <!-- Hospital Bed Frame -->
-          <rect x="70" y="60" width="280" height="70" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
-          <path d="M 70 95 L 60 170 M 350 95 L 360 170" stroke="#475569" stroke-width="5" stroke-linecap="round" />
-          
-          <!-- Bed Rail & Level Guideline (Bladder Reference Line) -->
-          <line x1="40" y1="80" x2="460" y2="80" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,4" opacity="0.6" />
-          <text x="455" y="74" fill="#fbbf24" font-size="9" text-anchor="end">مستوى المثانة (Reference Line)</text>
-
-          <!-- Patient Body Silhouette & Bladder -->
-          <path d="M 80 85 Q 150 70 240 85" stroke="#e2e8f0" stroke-width="26" stroke-linecap="round" fill="none" opacity="0.3" />
-          
-          <!-- Anatomical Bladder Contour -->
-          <g transform="translate(130, 60)">
-            <ellipse cx="25" cy="20" rx="20" ry="16" fill="#fef08a" opacity="0.35" stroke="#f59e0b" stroke-width="2" />
-            <path d="M 12 24 Q 25 32 38 24" fill="#fbbf24" opacity="0.7" />
-            <text x="25" y="18" fill="#92400e" font-size="8" font-weight="black" text-anchor="middle">المثانة</text>
-          </g>
-
-          <!-- Foley Catheter & Securement on Thigh -->
-          <path d="M 155 83 L 185 92" stroke="#ea580c" stroke-width="6" stroke-linecap="round" fill="none" />
-          <!-- Securing device on thigh -->
-          <rect x="180" y="87" width="14" height="10" rx="2" fill="#38bdf8" stroke="#0284c7" stroke-width="1" />
-
-          <!-- Tubing Path (Dynamic based on kink) -->
-          ${isKinked ? `
-            <!-- Kinked Tubing under thigh -->
-            <path d="M 195 93 Q 230 115 240 100 Q 250 85 270 105 Q 310 130 380 ${bagY + 15}" stroke="#f59e0b" stroke-width="5" fill="none" stroke-linecap="round" class="animate-pulse" />
-            <circle cx="245" cy="95" r="9" fill="#ef4444" opacity="0.8" />
-            <text x="245" y="99" fill="#ffffff" font-size="9" font-weight="black" text-anchor="middle">⚠️</text>
-            <text x="245" y="125" fill="#ef4444" font-size="9" font-weight="bold" text-anchor="middle">أنبوب منثنٍ تحت الفخذ!</text>
-          ` : `
-            <!-- Straight Free-flowing Tubing -->
-            <path d="M 195 93 Q 260 120 380 ${bagY + 15}" stroke="#10b981" stroke-width="5" fill="none" stroke-linecap="round" />
-            <!-- Urine Flow Stream -->
-            <path d="M 195 93 Q 260 120 380 ${bagY + 15}" stroke="#fef08a" stroke-width="2.5" fill="none" stroke-dasharray="6,4" class="animate-pulse" />
-          `}
-
-          <!-- Urinary Drainage Bag (Animated Position) -->
-          <g transform="translate(380, ${bagY})" class="cursor-pointer transition-transform duration-500" onclick="window.HaiBundleEngine.interactSceneElement('lower_bag')" tabindex="0" role="button">
-            <!-- Bag Hanger Hooks -->
-            <path d="M 15 0 L 15 -10 M 35 0 L 35 -10" stroke="#94a3b8" stroke-width="3" stroke-linecap="round" />
-            <!-- Bag Body -->
-            <rect x="0" y="0" width="50" height="55" rx="8" fill="#1e293b" stroke="${bagStatusColor}" stroke-width="2.5" />
-            <!-- Urine Fluid Level -->
-            <rect x="3" y="20" width="44" height="32" rx="4" fill="#fbbf24" opacity="0.65" />
-            <!-- Calibration Marks -->
-            <line x1="8" y1="28" x2="16" y2="28" stroke="#ffffff" stroke-width="1.5" />
-            <line x1="8" y1="36" x2="20" y2="36" stroke="#ffffff" stroke-width="1.5" />
-            <line x1="8" y1="44" x2="16" y2="44" stroke="#ffffff" stroke-width="1.5" />
-            <!-- Drain Spout at bottom -->
-            <rect x="20" y="55" width="10" height="12" rx="2" fill="#0284c7" stroke="#38bdf8" stroke-width="1" />
-            <circle cx="25" cy="67" r="2.5" fill="#ef4444" />
-            <!-- Bag Status Text -->
-            <text x="25" y="-14" fill="${bagStatusColor}" font-size="8" font-weight="black" text-anchor="middle">${bagStatusLabel}</text>
-          </g>
-
-          <!-- Dedicated Collection Container on Shelf -->
-          <rect x="420" y="145" width="26" height="28" rx="4" fill="#334155" stroke="#64748b" stroke-width="1.5" />
-          <text x="433" y="162" fill="#94a3b8" font-size="7" text-anchor="middle">وعاء تفريغ</text>
-        </svg>
-
-        <!-- Scene Footer Feedback -->
-        <div class="flex items-center justify-between text-[11px] text-amber-200 bg-amber-950/70 px-2.5 py-1 rounded-xl border border-amber-500/30">
-          <span>${isKinked && isBagHigh ? '⚠️ كيس فوق المثانة وأنبوب مثني؛ يُقبل تصحيح أي منهما أولاً.' : (isBagHigh ? '⚠️ الكيس مرتفع: اضغط على زر «اخفض الكيس» لخفضه تحت المثانة.' : (isKinked ? '⚠️ الأنبوب ملتف: اضغط على زر «حرّر انثناء الأنبوب» لاستعادة التدفق.' : '✓ موضع الكيس ومسار الأنبوب مستوفيان لمعايير الحزمة بالكامل.'))}</span>
-          <span class="text-amber-400 font-bold">${caseObj.id}</span>
-        </div>
-      </div>
-    `;
-  }
-
-  /**
-   * VAP Scene: ICU Room with Mechanical Ventilator, Profile ICU Bed, and Digital Angle Gauge.
-   * Player can adjust bed elevation from 0° up to 30-45°!
-   * Shows clipboard for Sedation Target & Spontaneous Breathing Trial (SBT).
-   */
-  function renderVapSceneSvg(caseObj) {
-    const p = session.multiStepProgress[caseObj.id] || {};
-    // Angle setting: if flat case and not adjusted yet, angle is 10°
-    const isFlat = (caseObj.sceneObject === 'bed_angle' || caseObj.id === 'VAP-01' || caseObj.id === 'VAP-04') && !p.bedAngleAdjusted;
-    const currentAngle = isFlat ? 10 : 35; // 35 is compliant (within 30-45°)
-    const angleColor = isFlat ? '#ef4444' : '#10b981';
-
-    return `
-      <div class="relative w-full h-[250px] sm:h-[280px] bg-gradient-to-b from-slate-950 via-[#012224] to-[#011417] rounded-2xl border border-teal-500/50 p-2 sm:p-3 overflow-hidden shadow-md flex flex-col justify-between">
-        <!-- Scene Header -->
-        <div class="flex items-center justify-between text-xs px-1">
-          <div class="flex items-center gap-1.5 text-teal-300 font-bold">
-            <span class="text-base">🫁</span>
-            <span>وحدة العناية المركزة — حزمة التهوية الميكانيكية | ICU Ventilator Bundle</span>
-          </div>
-          <!-- Angle Control Button -->
-          <div class="flex items-center gap-1.5">
-            ${isFlat ? `
-              <button onclick="window.HaiBundleEngine.interactSceneElement('adjust_bed_angle')" class="px-2.5 py-1 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-black text-[11px] shadow animate-bounce flex items-center gap-1">
-                <span>📐</span> <span>ارفع الرأس إلى 30°–45°</span>
+            ` : isTouchingFloor ? `
+              <button onclick="window.HaiBundleEngine.interactSceneElement('lower_bag')" class="px-2.5 py-1 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black text-xs shadow animate-bounce flex items-center gap-1 cursor-pointer">
+                <span>⬆️</span> <span>${t('Hang Bag Off Floor', 'ارفع الكيس عن الأرض')}</span>
               </button>
             ` : `
-              <span class="px-2.5 py-0.5 rounded-lg bg-emerald-950/80 border border-emerald-400 text-emerald-300 font-black text-xs flex items-center gap-1">
-                <span>✓</span> <span>الزاوية ${currentAngle}° مطابقة</span>
+              <span class="px-2.5 py-0.5 rounded-xl bg-emerald-950/90 border border-emerald-400 text-emerald-300 font-bold text-xs flex items-center gap-1">
+                <span>✓</span> <span>${t('Bag Below Bladder & Off Floor', 'الكيس سليم ومرفوع')}</span>
               </span>
             `}
           </div>
         </div>
 
-        <!-- SVG Visual Bed with Angle Pivoting -->
-        <svg viewBox="0 0 500 200" class="w-full h-[180px] sm:h-[200px] drop-shadow-md select-none mx-auto">
-          <!-- Floor Base -->
-          <line x1="30" y1="185" x2="470" y2="185" stroke="#334155" stroke-width="2" />
+        <!-- Center Interactive Tubing & Kink Hotspot -->
+        <div class="relative z-10 flex items-center justify-center gap-2 p-2">
+          ${isKinked ? `
+            <button onclick="window.HaiBundleEngine.interactSceneElement('untwist_kink')" class="px-3 py-1.5 rounded-xl bg-amber-500/95 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-lg border border-amber-200 flex items-center gap-1.5 animate-pulse cursor-pointer">
+              <span>〰️</span> <span>${t('Observed: Tubing Kinked (Click to Untwist)', 'الملاحظة: التواء الأنبوب (انقر لتحريره)')}</span>
+            </button>
+          ` : `
+            <div class="px-3 py-1 rounded-xl bg-slate-900/80 backdrop-blur-md border border-amber-400/40 text-amber-200 text-xs font-bold flex items-center gap-1">
+              <span>✓</span> <span>${t('Continuous Downhill Flow • Thigh Stabilized', 'تصريف مستمر سالك • القسطرة مثبتة بالفخذ')}</span>
+            </div>
+          `}
+        </div>
 
-          <!-- ICU Bed Chassis -->
-          <rect x="80" y="140" width="220" height="25" rx="4" fill="#1e293b" stroke="#475569" stroke-width="2" />
-          <line x1="120" y1="165" x2="110" y2="185" stroke="#64748b" stroke-width="5" />
-          <line x1="260" y1="165" x2="270" y2="185" stroke="#64748b" stroke-width="5" />
-
-          <!-- Bed Lower Body Section (Flat) -->
-          <rect x="180" y="125" width="120" height="15" rx="3" fill="#0f766e" opacity="0.4" stroke="#14b8a6" stroke-width="1.5" />
-          
-          <!-- Bed Headrest Pivot Section (Pivots with angle!) -->
-          <g transform="translate(180, 140) rotate(${-currentAngle}) translate(-100, -15)">
-            <rect x="0" y="0" width="100" height="15" rx="3" fill="#0f766e" opacity="0.7" stroke="#14b8a6" stroke-width="2" />
-            <!-- Pillow & Patient Head -->
-            <rect x="5" y="-12" width="28" height="12" rx="4" fill="#f8fafc" stroke="#cbd5e1" />
-            <circle cx="20" cy="-18" r="12" fill="#fde047" opacity="0.75" />
-            <path d="M 28 -12 L 80 0" stroke="#f8fafc" stroke-width="12" stroke-linecap="round" fill="none" opacity="0.7" />
-            <!-- Endotracheal Tube -->
-            <path d="M 26 -16 L 36 -12" stroke="#38bdf8" stroke-width="3" />
-          </g>
-
-          <!-- Digital Angle Meter Device on Bed Rail -->
-          <g transform="translate(195, 95)" class="cursor-pointer" onclick="window.HaiBundleEngine.interactSceneElement('adjust_bed_angle')">
-            <rect x="0" y="0" width="55" height="38" rx="6" fill="#020617" stroke="${angleColor}" stroke-width="2" />
-            <text x="27" y="15" fill="#94a3b8" font-size="8" font-weight="bold" text-anchor="middle">مؤشر الزاوية</text>
-            <text x="27" y="30" fill="${angleColor}" font-size="14" font-weight="black" text-anchor="middle">${currentAngle}°</text>
-          </g>
-
-          <!-- Mechanical Ventilator Machine (Left side) -->
-          <g transform="translate(25, 40)">
-            <rect x="0" y="0" width="55" height="100" rx="8" fill="#1e293b" stroke="#38bdf8" stroke-width="2" />
-            <!-- Screen with lung waves -->
-            <rect x="6" y="8" width="43" height="32" rx="4" fill="#021329" stroke="#0ea5e9" stroke-width="1" />
-            <path d="M 10 24 Q 18 12 24 24 T 38 24 T 46 24" stroke="#22d3ee" stroke-width="1.5" fill="none" />
-            <!-- Control Knobs -->
-            <circle cx="16" cy="52" r="4" fill="#64748b" />
-            <circle cx="28" cy="52" r="4" fill="#64748b" />
-            <circle cx="40" cy="52" r="4" fill="#64748b" />
-            <!-- Ventilator Stand -->
-            <line x1="27" y1="100" x2="27" y2="145" stroke="#475569" stroke-width="6" />
-            <line x1="12" y1="145" x2="42" y2="145" stroke="#475569" stroke-width="4" />
-          </g>
-
-          <!-- Ventilator Breathing Circuit -->
-          <path d="M 65 65 Q 90 40 105 ${125 - currentAngle * 1.5}" stroke="#38bdf8" stroke-width="4" fill="none" stroke-linecap="round" />
-          <path d="M 65 75 Q 95 50 110 ${135 - currentAngle * 1.5}" stroke="#22d3ee" stroke-width="4" fill="none" stroke-linecap="round" />
-
-          <!-- Clinical Clipboard (Sedation & Breathing Readiness) -->
-          <g transform="translate(360, 45)">
-            <rect x="0" y="0" width="105" height="110" rx="6" fill="#f8fafc" stroke="#cbd5e1" stroke-width="2" />
-            <rect x="25" y="-5" width="55" height="10" rx="3" fill="#475569" />
-            <text x="52" y="20" fill="#0f172a" font-size="9" font-weight="black" text-anchor="middle">سجل تقييم VAP</text>
-            <line x1="10" y1="26" x2="95" y2="26" stroke="#94a3b8" stroke-width="1" />
-            <text x="12" y="42" fill="#334155" font-size="8">✓ رفع الرأس: ${currentAngle}°</text>
-            <text x="12" y="58" fill="#334155" font-size="8">✓ تنظيف الأسنان بالفرشاة</text>
-            <text x="12" y="74" fill="#334155" font-size="8">✓ خطة التهدئة (RASS)</text>
-            <text x="12" y="90" fill="#334155" font-size="8">✓ تجربة التنفس (SBT)</text>
-          </g>
-        </svg>
-
-        <!-- Scene Footer -->
-        <div class="flex items-center justify-between text-[11px] text-teal-200 bg-teal-950/70 px-2.5 py-1 rounded-xl border border-teal-500/30">
-          <span>${isFlat ? '⚠️ زاوية الرأس مسطحة (10°): يجب رفع رأس السرير إلى 30°–45° للوقاية من VAP.' : '✓ وضعية رأس السرير مطابقة (35°): تقلل خطر الاستنشاق الرئوي والارتجاع.'}</span>
-          <span class="text-teal-400 font-bold">${caseObj.id}</span>
+        <!-- Bottom Scene Footer Banner -->
+        <div class="relative z-10 flex items-center justify-between text-[11px] text-amber-100 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 border-t border-amber-500/30">
+          <div class="flex items-center gap-1.5">
+            <span>💡</span>
+            <span class="truncate">${t('Keep drainage bag below bladder level, clear of floor, with unobstructed flow.', 'حافظ على الكيس تحت المثانة وبعيداً عن الأرض مع تصريف مستمر دون التواء.')}</span>
+          </div>
+          <span class="text-amber-300 font-mono font-bold shrink-0">${caseObj.id}</span>
         </div>
       </div>
     `;
   }
 
   /**
-   * SSI Scene: Operating Room Sterile Prep Table & Surgical Timing Timeline.
-   * Displays clippers vs razor, alcoholic CHG prep bottles, and interactive timing cards.
-   * Player can inspect timing intervals: Rx Order 07:00, Actual Infusion, Incision 08:00.
+   * VAP Scene: Realistic ICU Room with Ventilated Patient,
+   * HOB angle elevation control, endotracheal tube holder, inline suction, and oral care set.
+   */
+  function renderVapSceneSvg(caseObj) {
+    const p = session.multiStepProgress[caseObj.id] || {};
+    const isFlat = (caseObj.sceneObject === 'bed_angle' || caseObj.id === 'VAP-01' || caseObj.id === 'VAP-04') && !p.bedAngleAdjusted;
+    const currentAngle = isFlat ? 10 : 35;
+
+    return `
+      <div class="relative w-full h-[230px] sm:h-[270px] bg-slate-950 rounded-2xl border border-teal-500/50 overflow-hidden shadow-xl flex flex-col justify-between group">
+        <!-- Photorealistic Background Image -->
+        <img src="vap_realistic_scene.jpg" alt="VAP ICU Scene" class="absolute inset-0 w-full h-full object-cover object-center brightness-95 contrast-105 group-hover:scale-101 transition-transform duration-500 pointer-events-none" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-slate-950/70 pointer-events-none"></div>
+
+        <!-- Top Overlay Header -->
+        <div class="relative z-10 flex items-center justify-between text-xs p-2 sm:p-2.5">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/85 backdrop-blur-md border border-teal-400/50 text-teal-200 font-black">
+            <span class="text-sm">🫁</span>
+            <span>${t('ICU — Mechanical Ventilation & VAP Prevention', 'العناية المركزة — حزمة الوقاية من ذات الرئة VAP')}</span>
+          </div>
+          <!-- HOB Angle Control -->
+          <div>
+            ${isFlat ? `
+              <button onclick="window.HaiBundleEngine.interactSceneElement('adjust_bed_angle')" class="px-2.5 py-1 rounded-xl bg-teal-600 hover:bg-teal-500 text-white font-black text-xs shadow animate-bounce flex items-center gap-1 cursor-pointer">
+                <span>📐</span> <span>${t('Elevate HOB to 30°–45°', 'ارفع الرأس إلى 30°–45°')}</span>
+              </button>
+            ` : `
+              <span class="px-2.5 py-0.5 rounded-xl bg-emerald-950/90 border border-emerald-400 text-emerald-300 font-bold text-xs flex items-center gap-1">
+                <span>✓</span> <span>${t(`HOB Angle: ${currentAngle}° Compliant`, `الزاوية ${currentAngle}° مطابقة`)}</span>
+              </span>
+            `}
+          </div>
+        </div>
+
+        <!-- Center Hotspots: Endotracheal Tube & Oral Care -->
+        <div class="relative z-10 flex items-center justify-center gap-2 p-2">
+          <div class="px-3 py-1 rounded-xl bg-slate-900/85 backdrop-blur-md border border-teal-400/40 text-teal-100 text-xs font-bold flex items-center gap-1.5">
+            <span>🪥</span> <span>${t('Daily Toothbrushing & Secretion Management', 'تنظيف الأسنان اليومي وإدارة الإفرازات')}</span>
+          </div>
+        </div>
+
+        <!-- Bottom Scene Footer Banner -->
+        <div class="relative z-10 flex items-center justify-between text-[11px] text-teal-100 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 border-t border-teal-500/30">
+          <div class="flex items-center gap-1.5">
+            <span>💡</span>
+            <span class="truncate">${t('VAP Bundle: Head of bed 30°–45°, sedative interruption & weaning assessment, oral hygiene.', 'حزمة VAP: رفع الرأس 30°–45°، تخفيف المهدئات، وتقييم الفطام، والعناية بالفم.')}</span>
+          </div>
+          <span class="text-teal-300 font-mono font-bold shrink-0">${caseObj.id}</span>
+        </div>
+      </div>
+    `;
+  }
+
+  /**
+   * SSI Scene: Realistic Surgical Suite with Sterile OR Field,
+   * chlorhexidine skin prep, surgical team attire, and prophylaxis timeline.
    */
   function renderSsiSceneSvg(caseObj) {
     const isHairCase = caseObj.id === 'SSI-02' || caseObj.id === 'SSI-03' || caseObj.id === 'SSI-04';
@@ -748,83 +675,46 @@
     const isPrepCase = caseObj.id === 'SSI-13' || caseObj.id === 'SSI-14' || caseObj.id === 'SSI-15';
 
     return `
-      <div class="relative w-full h-[250px] sm:h-[280px] bg-gradient-to-b from-slate-950 via-[#01261d] to-[#01140f] rounded-2xl border border-emerald-500/50 p-2 sm:p-3 overflow-hidden shadow-md flex flex-col justify-between">
-        <!-- Scene Header -->
-        <div class="flex items-center justify-between text-xs px-1">
-          <div class="flex items-center gap-1.5 text-emerald-300 font-bold">
-            <span class="text-base">🩹</span>
-            <span>غرفة العمليات — طاولة التحضير والتوقيت الجراحي | Surgical Site Prep Station</span>
+      <div class="relative w-full h-[230px] sm:h-[270px] bg-slate-950 rounded-2xl border border-emerald-500/50 overflow-hidden shadow-xl flex flex-col justify-between group">
+        <!-- Photorealistic Background Image -->
+        <img src="ssi_realistic_scene.jpg" alt="SSI Surgical Operating Suite" class="absolute inset-0 w-full h-full object-cover object-center brightness-95 contrast-105 group-hover:scale-101 transition-transform duration-500 pointer-events-none" />
+        <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/25 to-slate-950/70 pointer-events-none"></div>
+
+        <!-- Top Overlay Header -->
+        <div class="relative z-10 flex items-center justify-between text-xs p-2 sm:p-2.5">
+          <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-900/85 backdrop-blur-md border border-emerald-400/50 text-emerald-200 font-black">
+            <span class="text-sm">🏥</span>
+            <span>${t('Surgical Suite — Perioperative SSI Prevention', 'جناح العمليات الجراحية — حزمة الوقاية من عدوى موضع الجراحة')}</span>
           </div>
-          <span class="px-2 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-400 text-emerald-300 font-bold text-[11px]">
-            WHO & CDC SSI Guidelines
-          </span>
+          <div class="px-2.5 py-0.5 rounded-xl bg-slate-900/80 border border-emerald-400/50 text-emerald-300 font-bold text-xs flex items-center gap-1">
+            <span>🛡️</span> <span>${t('Sterile Surgical Field', 'الحقل الجراحي المعقم')}</span>
+          </div>
         </div>
 
-        <!-- OR Visual SVG -->
-        <svg viewBox="0 0 500 200" class="w-full h-[180px] sm:h-[200px] drop-shadow-md select-none mx-auto">
-          <!-- Surgical Overhead Lamp -->
-          <path d="M 220 10 L 280 10 L 290 25 L 210 25 Z" fill="#475569" stroke="#64748b" />
-          <circle cx="235" cy="22" r="5" fill="#fef08a" />
-          <circle cx="265" cy="22" r="5" fill="#fef08a" />
-          <polygon points="210,25 290,25 360,185 140,185" fill="#fef08a" opacity="0.08" />
+        <!-- Center Hotspots: Hair / Prep / Prophylaxis Timing -->
+        <div class="relative z-10 flex items-center justify-center gap-2 p-2">
+          ${isTimingCase ? `
+            <div class="px-3 py-1.5 rounded-xl bg-emerald-950/90 border border-emerald-400 text-emerald-200 text-xs font-black flex items-center gap-1.5 shadow">
+              <span>⏱️</span> <span>${t('Prophylaxis Window: Within 60 min before incision', 'نافذة المضاد الوقائي: خلال 60 دقيقة قبل الشق')}</span>
+            </div>
+          ` : isHairCase ? `
+            <div class="px-3 py-1.5 rounded-xl bg-amber-950/90 border border-amber-400 text-amber-200 text-xs font-black flex items-center gap-1.5 shadow">
+              <span>✂️</span> <span>${t('Hair Removal: Leave in place; use clippers only if necessary', 'إزالة الشعر: اتركه في مكانه؛ وعند الضرورة استخدم ماكينة القص')}</span>
+            </div>
+          ` : `
+            <div class="px-3 py-1.5 rounded-xl bg-slate-900/85 backdrop-blur-md border border-emerald-400/50 text-emerald-100 text-xs font-bold flex items-center gap-1.5">
+              <span>🧴</span> <span>${t('Chlorhexidine-Alcohol Skin Prep • Full Air Dry', 'تطهير الجلد بكلورهيكسيدين كحولي • جفاف هوائي كامل')}</span>
+            </div>
+          `}
+        </div>
 
-          <!-- Sterile OR Prep Table (Mayo Stand) -->
-          <rect x="40" y="80" width="190" height="90" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />
-          <rect x="45" y="85" width="180" height="35" rx="4" fill="#0284c7" opacity="0.3" stroke="#38bdf8" stroke-width="1" />
-
-          <!-- Prep Table Items: Clippers vs Razor -->
-          <g transform="translate(55, 90)">
-            <!-- Electric Clipper -->
-            <rect x="0" y="2" width="35" height="18" rx="4" fill="#0284c7" stroke="#38bdf8" stroke-width="1.5" />
-            <line x1="30" y1="4" x2="30" y2="18" stroke="#cbd5e1" stroke-width="2" />
-            <text x="17" y="32" fill="#38bdf8" font-size="8" font-weight="bold" text-anchor="middle">ماكينة قص كهربائية ✓</text>
-          </g>
-
-          <g transform="translate(135, 90)">
-            <!-- Manual Razor (Disapproved) -->
-            <rect x="5" y="2" width="22" height="6" rx="1" fill="#ef4444" stroke="#991b1b" stroke-width="1" />
-            <line x1="16" y1="8" x2="16" y2="22" stroke="#64748b" stroke-width="3" stroke-linecap="round" />
-            <text x="16" y="32" fill="#ef4444" font-size="8" font-weight="bold" text-anchor="middle">شفرة حلاقة (ممنوعة ✕)</text>
-          </g>
-
-          <!-- Skin Prep Bottles (Alcoholic CHG vs Povidone) -->
-          <g transform="translate(60, 130)">
-            <rect x="0" y="0" width="22" height="32" rx="3" fill="#f59e0b" stroke="#b45309" stroke-width="1.5" />
-            <rect x="6" y="-6" width="10" height="7" rx="1" fill="#cbd5e1" />
-            <text x="11" y="20" fill="#ffffff" font-size="7" font-weight="black" text-anchor="middle">CHG</text>
-            <text x="45" y="16" fill="#cbd5e1" font-size="8">كلورهيكسيدين كحولي (WHO)</text>
-          </g>
-
-          <!-- Surgical Prophylaxis Timing Timeline Cards (Right side) -->
-          <g transform="translate(255, 45)">
-            <rect x="0" y="0" width="225" height="125" rx="8" fill="#022c22" stroke="#10b981" stroke-width="2" />
-            <text x="112" y="18" fill="#6ee7b7" font-size="10" font-weight="black" text-anchor="middle">بطاقات التوقيت الجراحي (Prophylaxis Timeline)</text>
-            
-            <!-- Timeline Line -->
-            <line x1="20" y1="58" x2="205" y2="58" stroke="#059669" stroke-width="3" stroke-linecap="round" />
-
-            <!-- Point 1: Rx Order Time 07:00 -->
-            <circle cx="35" cy="58" r="8" fill="#3b82f6" stroke="#93c5fd" stroke-width="2" />
-            <text x="35" y="44" fill="#93c5fd" font-size="8" font-weight="bold" text-anchor="middle">07:00</text>
-            <text x="35" y="78" fill="#e2e8f0" font-size="8" text-anchor="middle">أمر الوصفة</text>
-
-            <!-- Point 2: Actual Admin Window (07:15 - 07:30) -->
-            <circle cx="112" cy="58" r="8" fill="${isTimingCase ? '#f59e0b' : '#10b981'}" stroke="#fef08a" stroke-width="2" />
-            <text x="112" y="44" fill="#fef08a" font-size="8" font-weight="bold" text-anchor="middle">07:15</text>
-            <text x="112" y="78" fill="#e2e8f0" font-size="8" text-anchor="middle">الإعطاء الفعلي</text>
-            <text x="112" y="90" fill="#a7f3d0" font-size="7" text-anchor="middle">(خلال 60 دقيقة قبل الشق)</text>
-
-            <!-- Point 3: Surgical Incision 08:00 -->
-            <circle cx="190" cy="58" r="8" fill="#ef4444" stroke="#fca5a5" stroke-width="2" />
-            <text x="190" y="44" fill="#fca5a5" font-size="8" font-weight="bold" text-anchor="middle">08:00</text>
-            <text x="190" y="78" fill="#e2e8f0" font-size="8" text-anchor="middle">الشق الجراحي</text>
-          </g>
-        </svg>
-
-        <!-- Scene Footer -->
-        <div class="flex items-center justify-between text-[11px] text-emerald-200 bg-emerald-950/70 px-2.5 py-1 rounded-xl border border-emerald-500/30">
-          <span>${isHairCase ? '💡 إزالة الشعر: اتركه في مكانه؛ وعند الضرورة استخدم ماكينة القص وتجنب الشفرة تماماً.' : (isTimingCase ? '💡 توقيت المضاد الوقائي: تأكد من الإعطاء الفعلي خلال 60 دقيقة قبل الشق الجراحي.' : '💡 تحضير الجلد: استخدم مستحضراً كحولياً قائماً على الكلورهيكسيدين مع مراعاة موانع الاستعمال.')}</span>
-          <span class="text-emerald-400 font-bold">${caseObj.id}</span>
+        <!-- Bottom Scene Footer Banner -->
+        <div class="relative z-10 flex items-center justify-between text-[11px] text-emerald-100 bg-slate-950/85 backdrop-blur-md px-3 py-1.5 border-t border-emerald-500/30">
+          <div class="flex items-center gap-1.5">
+            <span>💡</span>
+            <span class="truncate">${t('SSI Bundle: Timely prophylaxis, alcohol chlorhexidine prep, clippers only if needed, normothermia & euglycemia.', 'حزمة SSI: توقيت المضاد، تحضير كحولي، قص الشعر عند اللزوم، استقرار الحرارة والسكر.')}</span>
+          </div>
+          <span class="text-emerald-300 font-mono font-bold shrink-0">${caseObj.id}</span>
         </div>
       </div>
     `;
@@ -842,11 +732,10 @@
       case 'SSI':
         return renderSsiSceneSvg(caseObj);
       default:
-        return '';
+        return renderClabsiSceneSvg(caseObj, isZoomed);
     }
   }
 
-  // =========================================================================
   // 6. UI RENDERERS (START SCREEN, QUESTION SCREEN, RESULTS)
   // =========================================================================
 
@@ -857,7 +746,9 @@
     const container = document.getElementById('view-bundle-challenge');
     if (!container) return;
 
-    if (!session.isRunning && !session.isCompleted) {
+    if (session.mode === 'handover' && handoverState.active) {
+      renderHandoverScreen(container);
+    } else if (!session.isRunning && !session.isCompleted) {
       renderStartScreen(container);
     } else if (session.isRunning && !session.isCompleted) {
       renderQuestionScreen(container);
@@ -871,6 +762,8 @@
    */
   function renderStartScreen(container) {
     const isStudent = window.isStudentMode || (new URLSearchParams(window.location.search)).get('mode') === 'student';
+    const playableHandover = getPlayableHandoverCards();
+    const allHandover = window.HAI_HANDOVER_CASES || [];
 
     container.innerHTML = `
       <!-- TOP NAVIGATION BAR -->
@@ -914,32 +807,26 @@
       <div class="w-full max-w-4xl mx-auto my-3 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#02132b] via-[#052347] to-[#011425] border-2 border-blue-400/80 shadow-2xl text-white flex flex-col items-center text-center relative overflow-hidden">
         
         <!-- Glowing Shield of Bundles -->
-        <div class="relative w-28 h-28 sm:w-32 sm:h-32 my-2 flex items-center justify-center">
+        <div class="relative w-24 h-24 sm:w-28 sm:h-28 my-1 flex items-center justify-center">
           <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_20px_rgba(59,130,246,0.6)]">
-            <!-- Shield Contour divided into 4 stations -->
-            <!-- Top-Left: CLABSI (Cyan) -->
-            <path d="M 50 10 L 20 22 L 20 50 L 50 50 Z" fill="#0891b2" stroke="#22d3ee" stroke-width="2" opacity="0.9" class="transition-all hover:scale-105" />
-            <!-- Top-Right: CAUTI (Amber) -->
-            <path d="M 50 10 L 80 22 L 80 50 L 50 50 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2" opacity="0.9" class="transition-all hover:scale-105" />
-            <!-- Bottom-Left: VAP (Teal) -->
-            <path d="M 20 50 L 20 65 Q 50 95 50 90 L 50 50 Z" fill="#0d9488" stroke="#2dd4bf" stroke-width="2" opacity="0.9" class="transition-all hover:scale-105" />
-            <!-- Bottom-Right: SSI (Emerald) -->
-            <path d="M 80 50 L 80 65 Q 50 95 50 90 L 50 50 Z" fill="#059669" stroke="#34d399" stroke-width="2" opacity="0.9" class="transition-all hover:scale-105" />
-            <!-- Center Shield Core Emblem -->
+            <path d="M 50 10 L 20 22 L 20 50 L 50 50 Z" fill="#0891b2" stroke="#22d3ee" stroke-width="2" opacity="0.9" />
+            <path d="M 50 10 L 80 22 L 80 50 L 50 50 Z" fill="#d97706" stroke="#fbbf24" stroke-width="2" opacity="0.9" />
+            <path d="M 20 50 L 20 65 Q 50 95 50 90 L 50 50 Z" fill="#0d9488" stroke="#2dd4bf" stroke-width="2" opacity="0.9" />
+            <path d="M 80 50 L 80 65 Q 50 95 50 90 L 50 50 Z" fill="#059669" stroke="#34d399" stroke-width="2" opacity="0.9" />
             <circle cx="50" cy="50" r="14" fill="#0f172a" stroke="#60a5fa" stroke-width="2.5" />
             <text x="50" y="55" fill="#ffffff" font-size="12" font-weight="black" text-anchor="middle">🛡️</text>
           </svg>
         </div>
 
-        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide mt-2">
+        <h1 class="text-2xl sm:text-3xl font-black text-white tracking-wide mt-1">
           أكمل الحزمة | HAI Bundle Challenge
         </h1>
-        <p class="text-sm text-blue-200 mt-2 max-w-2xl leading-relaxed">
-          التحدي السريري الشامل لحزم الوقاية من عدوى الرعاية الصحية (CLABSI • CAUTI • VAP • SSI) وفق أحدث دلائل منظمة الصحة العالمية (WHO) ومراكز السيطرة على الأمراض (CDC) وSHEA.
+        <p class="text-xs sm:text-sm text-blue-200 mt-1 max-w-2xl leading-relaxed">
+          التحدي السريري الشامل لحزم الوقاية من عدوى الرعاية الصحية وفق دلائل WHO وCDC وSHEA • بطاقات الحالات السريرية وتدريب تسليم الوردية.
         </p>
 
-        <!-- The 4 Stations Pills -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full max-w-2xl mt-5 text-right">
+        <!-- The 4 Core Clinical Stations -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full max-w-2xl mt-4 text-right">
           <div class="p-2.5 rounded-xl bg-cyan-950/60 border border-cyan-400/50 flex flex-col">
             <span class="text-xs font-black text-cyan-300">🩸 CLABSI</span>
             <span class="text-[10px] text-slate-300 mt-0.5">القساطر المركزية (C1, C2)</span>
@@ -957,19 +844,157 @@
             <span class="text-[10px] text-slate-300 mt-0.5">موضع الجراحة (S1, S2)</span>
           </div>
         </div>
+      </div>
 
-        <!-- Start Quick Round Action Button -->
-        <div class="mt-6 flex flex-col sm:flex-row items-center gap-3 w-full max-w-md">
-          <button onclick="window.HaiBundleEngine.startQuickRound()" class="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white font-black text-base shadow-xl hover:shadow-[0_0_25px_rgba(59,130,246,0.6)] transition-all transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-blue-300">
-            <span>🚀</span> <span>ابدأ الجولة السريعة (8 حالات • 9 دقائق)</span>
-          </button>
+      <!-- DECK SELECTOR & PRACTICE MODES GALLERY -->
+      <div class="w-full max-w-4xl mx-auto flex flex-col gap-4 text-left" dir="ltr">
+        
+        <!-- FEATURED MODE: THE HANDOVER (BEDSIDE CLINICAL PRACTICE) -->
+        <div class="p-5 sm:p-6 rounded-3xl bg-gradient-to-br from-[#02183b] via-[#052d5e] to-[#021329] border-2 border-cyan-400/80 shadow-2xl text-white flex flex-col gap-4">
+          <div class="flex items-start justify-between gap-3 border-b border-cyan-500/30 pb-3">
+            <div class="flex items-center gap-3">
+              <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-2xl shrink-0">
+                🤝
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full bg-cyan-500 text-slate-950 font-black text-[10px] uppercase tracking-wider">
+                    PRACTICE MODE
+                  </span>
+                  <span class="text-xs font-bold text-cyan-300">English Case Text & Voice Scripts</span>
+                </div>
+                <h2 class="text-lg sm:text-xl font-black text-white mt-1">
+                  The Handover — Bedside Clinical Practice
+                </h2>
+                <div class="text-xs text-cyan-200 mt-0.5">
+                  وضع تسليم الوردية: تلقي التقرير • فحص الأدلة بالسرير والسجل • التصحيح • التفسير • التسليم للوردية التالية
+                </div>
+              </div>
+            </div>
+
+            <!-- Mode Switcher Pill (Solo vs Pair) -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button onclick="window.HaiBundleEngine.togglePairMode()" class="px-3 py-1.5 rounded-xl text-xs font-black transition cursor-pointer ${handoverState.pairMode ? 'bg-indigo-600 text-white border border-indigo-400 shadow' : 'bg-slate-800 text-slate-300 hover:text-white border border-slate-700'}">
+                ${handoverState.pairMode ? '👥 Pair Setup' : '🧑‍⚕️ Solo Play'}
+              </button>
+              <button onclick="window.HaiBundleEngine.openPrintableRoleCardsModal()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-cyan-300 border border-cyan-500/40 text-xs font-bold transition flex items-center gap-1 cursor-pointer" title="Printable role cards for classroom pairs">
+                <span>🖨️</span> <span class="hidden sm:inline">Role Cards</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Round Flow Steps Banner -->
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-xs">
+            <div class="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/30 flex flex-col">
+              <span class="font-black text-cyan-300">1. Handover</span>
+              <span class="text-[10px] text-slate-300">Two-sentence report + audio</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/30 flex flex-col">
+              <span class="font-black text-cyan-300">2. Inspect</span>
+              <span class="text-[10px] text-slate-300">Bedside room & chart evidence</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/30 flex flex-col">
+              <span class="font-black text-cyan-300">3. Act</span>
+              <span class="text-[10px] text-slate-300">Adjust equipment & audit</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/30 flex flex-col">
+              <span class="font-black text-cyan-300">4. Explain</span>
+              <span class="text-[10px] text-slate-300">Support decision with standard</span>
+            </div>
+            <div class="p-2 rounded-xl bg-slate-900/60 border border-cyan-500/30 flex flex-col col-span-2 sm:col-span-1">
+              <span class="font-black text-cyan-300">5. Hand Off</span>
+              <span class="text-[10px] text-slate-300">SBAR reflection & model answer</span>
+            </div>
+          </div>
+
+          <!-- Starter Cards Gallery Selector -->
+          <div class="flex flex-col gap-2 mt-1">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-black uppercase tracking-wider text-cyan-300">
+                Playable Starter Cards (${playableHandover.length} Verified Decks):
+              </span>
+              ${!isStudent && allHandover.some(c => c.sourceReview) ? `
+                <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-400 text-slate-950 font-black">
+                  TRAINER PREVIEW: SOURCE REVIEW DRAFTS INCLUDED
+                </span>
+              ` : ''}
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+              ${(isStudent ? playableHandover : allHandover).map(c => `
+                <div onclick="window.HaiBundleEngine.startHandoverPractice('${c.id}')" tabindex="0" role="button" aria-label="Start card ${c.code}: ${c.title}" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault(); window.HaiBundleEngine.startHandoverPractice('${c.id}');}" class="group p-3 rounded-2xl bg-slate-900/80 hover:bg-[#03244d] border border-cyan-500/40 hover:border-cyan-300 transition-all cursor-pointer flex flex-col justify-between shadow hover:shadow-[0_0_15px_rgba(34,211,238,0.3)]">
+                  <div>
+                    <div class="flex items-center justify-between gap-1 mb-1">
+                      <span class="font-mono text-xs font-black text-cyan-400">${c.code}</span>
+                      <span class="text-[10px] px-1.5 py-0.2 rounded ${c.sourceReview ? 'bg-amber-400 text-slate-950 font-black' : 'bg-blue-900 text-blue-200 font-bold'}">
+                        ${c.sourceReview ? 'Source Review' : c.deck + ' Deck'}
+                      </span>
+                    </div>
+                    <div class="text-xs font-black text-white group-hover:text-cyan-200 transition">
+                      ${c.title}
+                    </div>
+                    <p class="text-[11px] text-slate-300 mt-1 line-clamp-2">
+                      "${c.voiceHandover}"
+                    </p>
+                  </div>
+                  <div class="mt-2.5 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] text-slate-400">
+                    <span class="truncate max-w-[170px]">${c.facilityForm || 'Facility Form Verified'}</span>
+                    <span class="text-cyan-400 font-bold">Play ▶</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Launch Handover Button -->
+          <div class="pt-2 flex items-center justify-between gap-3">
+            <button onclick="window.HaiBundleEngine.startHandoverPractice()" class="flex-1 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-cyan-600 via-teal-600 to-cyan-500 hover:from-cyan-500 hover:to-teal-400 text-white font-black text-sm shadow-xl transition transform active:scale-95 flex items-center justify-center gap-2 cursor-pointer border border-cyan-300">
+              <span>🚀</span> <span>Launch The Handover Practice Mode</span>
+            </button>
+          </div>
         </div>
 
-        <div class="text-[11px] text-blue-300/80 mt-3 flex items-center gap-2">
-          <span>📅 تاريخ مراجعة المحتوى: 18 نوفمبر 2026</span>
-          <span>•</span>
-          <span>حالات بالغة في الرعاية الحادة</span>
+        <!-- STANDARD QUICK CHALLENGE & FULL BANK CARDS -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <!-- Quick Round Card -->
+          <div class="p-4 rounded-3xl bg-white border border-slate-300 shadow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xl">⚡</span>
+                <div>
+                  <h3 class="text-sm font-black text-slate-900">Standard Quick Challenge</h3>
+                  <span class="text-[11px] text-slate-500">8 Diverse Cases • 9-Minute Timer</span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Experience a rapid clinical rotation covering 2 balanced cases from each station (CLABSI, CAUTI, VAP, SSI) with real-time scoring.
+              </p>
+            </div>
+            <button onclick="window.HaiBundleEngine.startQuickRound()" class="mt-4 w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs transition shadow flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>🚀 Start Quick Round</span>
+            </button>
+          </div>
+
+          <!-- All Cases Practice Card -->
+          <div class="p-4 rounded-3xl bg-white border border-slate-300 shadow flex flex-col justify-between">
+            <div>
+              <div class="flex items-center gap-2 mb-2">
+                <span class="text-xl">📚</span>
+                <div>
+                  <h3 class="text-sm font-black text-slate-900">All 100 Clinical Cases</h3>
+                  <span class="text-[11px] text-slate-500">Comprehensive Case Bank Practice</span>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600 leading-relaxed">
+                Explore all 100 scenario cards across adult acute care: bundle builders, spot-the-error scenes, and record audits without time pressure.
+              </p>
+            </div>
+            <button onclick="window.HaiBundleEngine.startAllCasesPractice()" class="mt-4 w-full py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-600 text-white font-black text-xs transition shadow flex items-center justify-center gap-1.5 cursor-pointer">
+              <span>📖 Browse All 100 Cases</span>
+            </button>
+          </div>
         </div>
+
       </div>
     `;
   }
@@ -1007,11 +1032,11 @@
 
     // Task type badge translation
     const taskTypeNames = {
-      bundle_builder: { name: 'بناء الحزمة', icon: '📋' },
-      spot_error: { name: 'اكتشاف الخطأ في المشهد', icon: '🔍' },
-      record_audit: { name: 'تدقيق سجل سريري', icon: '📊' }
+      bundle_builder: { name: t('Bundle Builder', 'بناء الحزمة'), icon: '📋' },
+      spot_error: { name: t('Spot the Error in Scene', 'اكتشاف الخطأ في المشهد'), icon: '🔍' },
+      record_audit: { name: t('Clinical Record Audit', 'تدقيق سجل سريري'), icon: '📊' }
     };
-    const tType = taskTypeNames[c.taskType] || { name: 'قرار سريري', icon: '💡' };
+    const tType = taskTypeNames[c.taskType] || { name: t('Clinical Decision', 'قرار سريري'), icon: '💡' };
 
     // Shuffled options cached for stability during the case display
     if (!c._shuffledOptions) {
@@ -1023,18 +1048,24 @@
       <div class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-3 shadow-sm flex flex-wrap items-center justify-between gap-2">
         <div class="flex items-center gap-2">
           <button onclick="window.HaiBundleEngine.confirmQuitRound()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1" title="إنهاء الجولة والعودة">
-            <span>✕</span> <span class="hidden sm:inline">إنهاء</span>
+            <span>✕</span> <span class="hidden sm:inline">${t('Quit', 'إنهاء')}</span>
           </button>
           
           <!-- Station Badge -->
           <div class="px-3 py-1 rounded-xl ${st.themeClasses} border font-black text-xs flex items-center gap-1.5">
             <span>${st.icon}</span>
-            <span>${st.shortName}</span>
+            <span>${t(st.code + ' Station', st.shortName)}</span>
           </div>
+
+          <!-- Language Switcher Pill -->
+          <button onclick="window.HaiBundleEngine.toggleLanguage()" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-black transition flex items-center gap-1 cursor-pointer shadow-sm" title="${t('Switch to Arabic', 'التبديل إلى الإنجليزية')}">
+            <span>🌐</span>
+            <span>${currentLang === 'en' ? 'EN | عربي' : 'عربي | EN'}</span>
+          </button>
 
           <!-- Progress Counter -->
           <span class="text-xs font-bold text-slate-600">
-            الحالة <strong>${session.currentIndex + 1}</strong> من <strong>${session.cases.length}</strong>
+            ${t(`Case <strong>${session.currentIndex + 1}</strong> of <strong>${session.cases.length}</strong>`, `الحالة <strong>${session.currentIndex + 1}</strong> من <strong>${session.cases.length}</strong>`)}
           </span>
         </div>
 
@@ -1053,7 +1084,7 @@
           <!-- Timer Badge -->
           <div class="px-3 py-1 rounded-xl ${session.timeRemaining < 60 ? 'bg-red-600 text-white animate-pulse' : 'bg-slate-900 text-cyan-300'} font-black text-xs sm:text-sm font-mono flex items-center gap-1.5 shadow">
             <span>⏱️</span>
-            <span>${session.timeRemaining === null ? 'حر' : timeStr}</span>
+            <span>${session.timeRemaining === null ? t('Untimed', 'حر') : timeStr}</span>
           </div>
 
           <!-- Score Badge -->
@@ -1097,14 +1128,14 @@
               </span>
             </div>
 
-            <!-- Case Vignette Text -->
-            <div class="text-sm sm:text-base font-black text-slate-900 leading-relaxed pt-1">
-              ${c.vignette}
+            <!-- Case Vignette Text (Bilingual) -->
+            <div class="text-sm sm:text-base font-black text-slate-900 leading-relaxed pt-1" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
+              ${currentLang === 'en' ? (c.vignetteEn || c.vignette) : c.vignette}
             </div>
 
-            <!-- Prompt Question -->
-            <div class="text-xs sm:text-sm font-bold text-blue-900 bg-blue-50/70 p-2.5 rounded-xl border border-blue-200">
-              ❓ ${c.prompt}
+            <!-- Prompt Question (Bilingual) -->
+            <div class="text-xs sm:text-sm font-bold text-blue-900 bg-blue-50/70 p-2.5 rounded-xl border border-blue-200" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
+              ❓ ${currentLang === 'en' ? (c.promptEn || c.prompt) : c.prompt}
             </div>
 
             <!-- AUDIT DECISION BUTTONS (IF AUDIT CASE) OR MULTIPLE CHOICE OPTIONS -->
@@ -1117,10 +1148,10 @@
             ${isAnswered ? `
               <div class="pt-2 flex items-center justify-between gap-2">
                 <span class="text-xs text-slate-500 font-medium">
-                  ${answerData.firstAttemptCorrect ? '✓ إجابة معتمدة للمحاولة الأولى' : 'ℹ️ سُجلت نتيجة المحاولة الأولى، وتم فتح التفسير السريري.'}
+                  ${answerData.firstAttemptCorrect ? t('✓ Verified first-attempt correct answer', '✓ إجابة معتمدة للمحاولة الأولى') : t('ℹ️ First attempt recorded; clinical rationale unlocked.', 'ℹ️ سُجلت نتيجة المحاولة الأولى، وتم فتح التفسير السريري.')}
                 </span>
                 <button onclick="window.HaiBundleEngine.nextCase()" class="px-4 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-black text-xs sm:text-sm shadow-md transition active:scale-95 flex items-center gap-1.5 cursor-pointer">
-                  <span>${session.currentIndex + 1 < session.cases.length ? 'الحالة التالية' : 'عرض النتيجة النهائية'}</span>
+                  <span>${session.currentIndex + 1 < session.cases.length ? t('Next Case', 'الحالة التالية') : t('View Results', 'عرض النتيجة النهائية')}</span>
                   <span>➡️</span>
                 </button>
               </div>
@@ -1147,28 +1178,33 @@
           if (isAnswered) {
             if (opt.isCorrect) {
               btnStyle = "bg-emerald-50 border-emerald-500 text-emerald-950 ring-2 ring-emerald-400";
-              badge = '<span class="text-emerald-600 font-black">✓ الإجراء الصحيح المعتمد</span>';
+              badge = `<span class="text-emerald-600 font-black">✓ ${t('Verified Bundle Action', 'الإجراء الصحيح المعتمد')}</span>`;
             } else if (answerData.chosenOptionId === opt.id) {
               btnStyle = "bg-red-50 border-red-400 text-red-950";
-              badge = '<span class="text-red-600 font-bold">✕ إجابة غير دقيقة</span>';
+              badge = `<span class="text-red-600 font-bold">✕ ${t('Non-Compliant Choice', 'إجابة غير دقيقة')}</span>`;
             } else {
               btnStyle = "bg-slate-50 border-slate-200 text-slate-400 opacity-70";
             }
           }
 
+          const optText = currentLang === 'en' ? (opt.textEn || opt.text) : opt.text;
+          const rejReason = currentLang === 'en' ? (opt.rejectionReasonEn || opt.rejectionReason) : opt.rejectionReason;
+          const alignClass = currentLang === 'en' ? 'text-left' : 'text-right';
+
           return `
             <button 
               ${isAnswered ? 'disabled' : ''} 
               onclick="window.HaiBundleEngine.submitAnswer('${opt.id}')"
-              class="w-full text-right p-3 rounded-xl border-2 transition-all duration-200 flex flex-col gap-1 text-xs sm:text-sm font-bold shadow-xs active:scale-98 ${btnStyle} cursor-pointer"
+              dir="${currentLang === 'en' ? 'ltr' : 'rtl'}"
+              class="w-full ${alignClass} p-3 rounded-xl border-2 transition-all duration-200 flex flex-col gap-1 text-xs sm:text-sm font-bold shadow-xs active:scale-98 ${btnStyle} cursor-pointer"
             >
               <div class="flex items-start justify-between gap-2">
-                <span class="flex-1 leading-normal">${opt.text}</span>
+                <span class="flex-1 leading-normal">${optText}</span>
                 ${badge}
               </div>
-              ${isAnswered && !opt.isCorrect && opt.rejectionReason ? `
-                <div class="text-[11px] text-red-700 font-medium pt-1 border-t border-red-200/60 mt-1">
-                  ${opt.rejectionReason}
+              ${isAnswered && !opt.isCorrect && rejReason ? `
+                <div class="text-[11px] text-red-700 font-medium pt-1 border-t border-red-200/60 mt-1" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
+                  ${rejReason}
                 </div>
               ` : ''}
             </button>
@@ -1184,16 +1220,16 @@
   function renderAuditActionButtons(c, answerData) {
     const isAnswered = !!answerData;
     const auditOptions = [
-      { id: 'تم', label: 'تم (Done)', icon: '✓', color: 'emerald' },
-      { id: 'لم يتم', label: 'لم يتم (Not Done)', icon: '✕', color: 'red' },
-      { id: 'غير موثّق', label: 'غير موثّق (Undocumented)', icon: '📝', color: 'amber' },
-      { id: 'غير منطبق مع سبب', label: 'غير منطبق مع سبب (N/A)', icon: '⊘', color: 'slate' }
+      { id: 'تم', label: t('Done (Compliant)', 'تم (Done)'), icon: '✓', color: 'emerald' },
+      { id: 'لم يتم', label: t('Not Done (Breach)', 'لم يتم (Not Done)'), icon: '✕', color: 'red' },
+      { id: 'غير موثّق', label: t('Not Documented', 'غير موثّق (Undocumented)'), icon: '📝', color: 'amber' },
+      { id: 'غير منطبق مع سبب', label: t('Not Applicable w/ Reason', 'غير منطبق مع سبب (N/A)'), icon: '⊘', color: 'slate' }
     ];
 
     return `
-      <div class="flex flex-col gap-1.5 mt-1">
+      <div class="flex flex-col gap-1.5 mt-1" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
         <div class="text-[11px] text-slate-500 font-bold mb-1">
-          حدد حالة التدقيق السريري المطابقة للسجل:
+          ${t('Select the clinical audit status matching the record:', 'حدد حالة التدقيق السريري المطابقة للسجل:')}
         </div>
         <div class="grid grid-cols-2 gap-2">
           ${auditOptions.map(btn => {
@@ -1228,36 +1264,37 @@
    */
   function renderWhyFeedbackCard(c, answerData) {
     const sources = (c.sourceKeys || []).map(sk => window.HAI_BUNDLE_SOURCES[sk]).filter(Boolean);
+    const expText = currentLang === 'en' ? (c.explanationEn || c.explanation) : c.explanation;
 
     return `
-      <div class="mt-2.5 p-3.5 rounded-xl bg-gradient-to-br from-slate-900 to-[#031d3b] text-white border border-blue-400/50 shadow-md text-xs flex flex-col gap-2">
+      <div class="mt-2.5 p-3.5 rounded-xl bg-gradient-to-br from-slate-900 to-[#031d3b] text-white border border-blue-400/50 shadow-md text-xs flex flex-col gap-2" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
         <div class="flex items-center justify-between text-blue-300 font-black text-xs border-b border-blue-500/30 pb-1.5">
           <span class="flex items-center gap-1.5">
-            <span>💡</span> <span>لماذا؟ • التفسير السريري المعتمد</span>
+            <span>💡</span> <span>${t('Why? • Verified Clinical Rationale', 'لماذا؟ • التفسير السريري المعتمد')}</span>
           </span>
-          <span class="text-[10px] text-blue-200 bg-blue-900/60 px-2 py-0.5 rounded-full">
-            المفتاح السريري
+          <span class="text-[10px] text-blue-200 bg-blue-900/60 px-2 py-0.5 rounded-full font-bold">
+            ${t('Clinical Key', 'المفتاح السريري')}
           </span>
         </div>
 
         <!-- Explanation text linked to case clues -->
-        <p class="text-slate-200 text-xs leading-relaxed">
-          ${c.explanation}
+        <p class="text-slate-200 text-xs leading-relaxed font-medium">
+          ${expText}
         </p>
 
         <!-- Calculation Formula details if applicable -->
         ${c.calculation ? `
           <div class="p-2 rounded-lg bg-blue-950/80 border border-blue-500/40 text-[11px] text-blue-200 flex flex-col gap-1">
-            <span class="font-bold text-white">معادلة حساب الالتزام الكامل المثبت:</span>
-            <span>(الفرص التي ثبت فيها استيفاء جميع العناصر ÷ الفرص المؤهلة) × 100</span>
+            <span class="font-bold text-white">${t('All-or-None Bundle Compliance Formula:', 'معادلة حساب الالتزام الكامل المثبت:')}</span>
+            <span>${t('(Fully Verified Opportunities ÷ Eligible Opportunities) × 100', '(الفرص التي ثبت فيها استيفاء جميع العناصر ÷ الفرص المؤهلة) × 100')}</span>
             <span class="font-mono text-cyan-300 font-bold">(${c.calculation.numerator} ÷ ${c.calculation.denominator}) × 100 = ${c.calculation.percentage}%</span>
-            <span class="text-[10px] text-slate-300">ملاحظة هامة: لا تحول درجة الالتزام بالعمليات إلى معدل عدوى سريري أو نسبة إصابة.</span>
+            <span class="text-[10px] text-slate-300">${t('Crucial Note: Process measure compliance does not translate into clinical infection rate.', 'ملاحظة هامة: لا تحول درجة الالتزام بالعمليات إلى معدل عدوى سريري أو نسبة إصابة.')}</span>
           </div>
         ` : ''}
 
         <!-- Guideline Source Links with year -->
         <div class="pt-1.5 border-t border-blue-500/30 flex flex-wrap items-center gap-2">
-          <span class="text-[10px] text-slate-400 font-bold">المراجع المعتمدة:</span>
+          <span class="text-[10px] text-slate-400 font-bold">${t('Official Guidelines:', 'المراجع المعتمدة:')}</span>
           ${sources.map(s => `
             <a href="${s.url}" target="_blank" rel="noopener noreferrer" class="px-2 py-0.5 rounded-lg bg-blue-900/60 hover:bg-blue-800 text-blue-200 hover:text-white border border-blue-400/40 text-[10px] font-bold transition flex items-center gap-1" title="${s.title}">
               <span>🔗</span> <span>${s.author} (${s.year})</span>
@@ -1305,43 +1342,48 @@
 
     container.innerHTML = `
       <!-- RESULTS TOP BAR -->
-      <div class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-3 shadow-sm flex items-center justify-between gap-2">
+      <div class="w-full bg-white border border-slate-300 rounded-2xl p-2 sm:p-3 shadow-sm flex items-center justify-between gap-2" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
         <div class="flex items-center gap-2">
-          <button onclick="switchMainView('portal')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-200 text-xs font-black transition flex items-center gap-1.5 shadow">
-            <span>🏛️</span> <span>الرئيسية | All Puzzles</span>
+          <button onclick="switchMainView('portal')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-cyan-200 text-xs font-black transition flex items-center gap-1.5 shadow cursor-pointer">
+            <span>🏛️</span> <span>${t('All Puzzles Hub', 'الرئيسية | All Puzzles')}</span>
           </button>
-          <span class="text-xs font-black text-slate-800">تقرير إنجاز الحزمة السريرية</span>
+          <span class="text-xs font-black text-slate-800">${t('Clinical Bundle Performance Report', 'تقرير إنجاز الحزمة السريرية')}</span>
         </div>
-        <button onclick="window.HaiBundleEngine.startQuickRound()" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black transition shadow flex items-center gap-1">
-          <span>🔄</span> <span>جولة سريعة جديدة</span>
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="window.HaiBundleEngine.toggleLanguage()" class="px-2.5 py-1 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300 text-xs font-black transition flex items-center gap-1 cursor-pointer">
+            <span>🌐</span> <span>${currentLang === 'en' ? 'EN | عربي' : 'عربي | EN'}</span>
+          </button>
+          <button onclick="window.HaiBundleEngine.startQuickRound()" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs font-black transition shadow flex items-center gap-1 cursor-pointer">
+            <span>🔄</span> <span>${t('New Quick Round', 'جولة سريعة جديدة')}</span>
+          </button>
+        </div>
       </div>
 
       <!-- MAIN RESULTS CARD -->
-      <div class="w-full max-w-4xl mx-auto my-3 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#02132b] via-[#052347] to-[#011425] border-2 border-blue-400 shadow-2xl text-white flex flex-col gap-5">
+      <div class="w-full max-w-4xl mx-auto my-3 p-5 sm:p-7 rounded-3xl bg-gradient-to-br from-[#02132b] via-[#052347] to-[#011425] border-2 border-blue-400 shadow-2xl text-white flex flex-col gap-5" dir="${currentLang === 'en' ? 'ltr' : 'rtl'}">
         
         <!-- Score & Shield Header -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pb-5 border-b border-blue-500/30">
-          <div class="flex items-center gap-4 text-right">
-            <div class="w-20 h-20 rounded-2xl bg-blue-900/60 border-2 border-blue-400 flex flex-col items-center justify-center font-black">
+          <div class="flex items-center gap-4 ${currentLang === 'en' ? 'text-left' : 'text-right'}">
+            <div class="w-20 h-20 rounded-2xl bg-blue-900/60 border-2 border-blue-400 flex flex-col items-center justify-center font-black shrink-0">
               <span class="text-2xl text-cyan-300">${percent}%</span>
-              <span class="text-[10px] text-blue-200 font-bold">${correctCount}/${totalCases} حالات</span>
+              <span class="text-[10px] text-blue-200 font-bold">${correctCount}/${totalCases} ${t('cases', 'حالات')}</span>
             </div>
             <div>
               <h2 class="text-xl sm:text-2xl font-black text-white">
-                ${percent >= 80 ? '🌟 إتقان سريري متميز لحزم الوقاية!' : (percent >= 60 ? '👍 أداء سريري جيد مع نقاط للتطوير' : '⚠️ بحاجة لمراجعة حزم الوقاية وتصحيح الممارسات')}
+                ${percent >= 80 ? t('🌟 Outstanding Clinical Bundle Mastery!', '🌟 إتقان سريري متميز لحزم الوقاية!') : (percent >= 60 ? t('👍 Competent Clinical Performance with Areas for Improvement', '👍 أداء سريري جيد مع نقاط للتطوير') : t('⚠️ Bundle Review & Practice Remediation Recommended', '⚠️ بحاجة لمراجعة حزم الوقاية وتصحيح الممارسات'))}
               </h2>
               <p class="text-xs text-blue-200 mt-1">
-                سُجلت درجات المحاولة الأولى لكل حالة وفق المعايير السريرية لـ WHO و CDC و SHEA.
+                ${t('First-attempt clinical decisions scored against WHO, CDC, and SHEA infection prevention standards.', 'سُجلت درجات المحاولة الأولى لكل حالة وفق المعايير السريرية لـ WHO و CDC و SHEA.')}
               </p>
             </div>
           </div>
 
           <!-- Mastered Skill Highlight -->
-          <div class="p-3 rounded-2xl bg-blue-950/80 border border-blue-400/50 text-right">
-            <span class="text-[10px] font-bold text-cyan-300 block">المهارة المتقنة البارزة:</span>
+          <div class="p-3 rounded-2xl bg-blue-950/80 border border-blue-400/50 ${currentLang === 'en' ? 'text-left' : 'text-right'} shrink-0">
+            <span class="text-[10px] font-bold text-cyan-300 block">${t('Core Competency Demonstrated:', 'المهارة المتقنة البارزة:')}</span>
             <span class="text-xs font-black text-white">
-              ${percent >= 50 ? 'تطبيق معايير مكافحة العدوى والتدقيق السريري' : 'فهم أساسيات حزمة الوقاية'}
+              ${percent >= 50 ? t('Evidence-Based IPC Bundle Compliance & Audit', 'تطبيق معايير مكافحة العدوى والتدقيق السريري') : t('Fundamental Bundle Knowledge', 'فهم أساسيات حزمة الوقاية')}
             </span>
           </div>
         </div>
@@ -1349,7 +1391,7 @@
         <!-- PERFORMANCE PER BUNDLE (THE 4 STATIONS) -->
         <div>
           <h3 class="text-sm font-black text-blue-200 mb-2.5">
-            📊 أداء كل حزمة وقاية (Station-by-Station Breakdown):
+            ${t('📊 Station-by-Station Performance Breakdown:', '📊 أداء كل حزمة وقاية (Station-by-Station Breakdown):')}
           </h3>
           <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
             ${Object.keys(STATIONS).map(stKey => {
@@ -1357,15 +1399,15 @@
               const stat = stationStats[stKey] || { total: 0, correct: 0 };
               const stPercent = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
               return `
-                <div class="p-3 rounded-2xl bg-slate-900/80 border ${st.themeClasses} flex flex-col gap-1 text-right">
+                <div class="p-3 rounded-2xl bg-slate-900/80 border ${st.themeClasses} flex flex-col gap-1 ${currentLang === 'en' ? 'text-left' : 'text-right'}">
                   <div class="flex items-center justify-between">
-                    <span class="text-xs font-black">${st.icon} ${st.shortName}</span>
+                    <span class="text-xs font-black">${st.icon} ${t(st.code, st.shortName)}</span>
                     <span class="text-xs font-mono font-bold">${stat.correct}/${stat.total}</span>
                   </div>
-                  <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden mt-1">
-                    <div class="bg-gradient-to-r from-blue-500 to-cyan-400 h-full rounded-full" style="width: ${stPercent}%;"></div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden mt-1">
+                    <div class="bg-cyan-400 h-full rounded-full transition-all" style="width: ${stPercent}%"></div>
                   </div>
-                  <span class="text-[10px] text-slate-300 mt-1">${stPercent}% التزام مثبت</span>
+                  <span class="text-[10px] text-slate-300 font-bold">${stPercent}% ${t('verified', 'إتقان')}</span>
                 </div>
               `;
             }).join('')}
@@ -1859,17 +1901,1012 @@
   }
 
   // =========================================================================
+  // =========================================================================
+  // 🎴 ANTIGRAVITY ADDENDUM: THE HANDOVER PRACTICE MODE ENGINE
+  // =========================================================================
+
+  let handoverState = {
+    active: false,
+    pairMode: false, // false = Solo, true = Pair Setup
+    pairRole: 'both', // 'both' | 'room' (Partner A) | 'chart' (Partner B)
+    activeCardId: 'HO-CAUTI-01',
+    activeTab: 'room', // 'room' | 'chart' (for mobile / responsive view)
+    roomToneActive: false,
+    captionsActive: true,
+    cardStates: {}
+  };
+
+  function getHandoverCard(id) {
+    const list = window.HAI_HANDOVER_CASES || [];
+    return list.find(c => c.id === id) || list[0];
+  }
+
+  function getPlayableHandoverCards() {
+    const list = window.HAI_HANDOVER_CASES || [];
+    const isStudent = window.isStudentMode || (new URLSearchParams(window.location.search)).get('mode') === 'student';
+    if (isStudent) {
+      return list.filter(c => !c.sourceReview);
+    }
+    return list;
+  }
+
+  function getCardState(cardId) {
+    if (!handoverState.cardStates[cardId]) {
+      const card = getHandoverCard(cardId);
+      handoverState.cardStates[cardId] = {
+        step: 1, // 1: Evidence & Act, 2: Explain, 3: Hand off, 4: Complete
+        activeTab: 'room',
+        bagLowered: false,
+        kinkCleared: false,
+        actionOrder: [],
+        auditFinding: null,
+        fullDrapeAdded: false,
+        timingActionTaken: false,
+        currentVisit: 1,
+        visit1Recorded: false,
+        bedAngle: 0,
+        completedActions: false,
+        actionFeedback: '',
+        firstAttemptCorrect: null,
+        explainChosen: null,
+        explainSubmitted: false,
+        explainFeedback: '',
+        handoffNotes: { see: '', do: '', tell: '' },
+        handoffSubmitted: false
+      };
+    }
+    return handoverState.cardStates[cardId];
+  }
+
+  function saveHandoverSession() {
+    try {
+      const data = {
+        active: handoverState.active,
+        pairMode: handoverState.pairMode,
+        pairRole: handoverState.pairRole,
+        activeCardId: handoverState.activeCardId,
+        activeTab: handoverState.activeTab,
+        roomToneActive: handoverState.roomToneActive,
+        captionsActive: handoverState.captionsActive,
+        cardStates: handoverState.cardStates
+      };
+      localStorage.setItem(STORAGE_KEYS.HANDOVER_SESSION, JSON.stringify(data));
+    } catch (e) {}
+  }
+
+  function tryRestoreHandoverSession() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.HANDOVER_SESSION);
+      if (!raw) return false;
+      const data = JSON.parse(raw);
+      if (data && data.active) {
+        handoverState.active = true;
+        handoverState.pairMode = !!data.pairMode;
+        handoverState.pairRole = data.pairRole || 'both';
+        handoverState.activeCardId = data.activeCardId || 'HO-CAUTI-01';
+        handoverState.activeTab = data.activeTab || 'room';
+        handoverState.roomToneActive = !!data.roomToneActive;
+        handoverState.captionsActive = data.captionsActive !== false;
+        handoverState.cardStates = data.cardStates || {};
+        session.mode = 'handover';
+        session.isRunning = true;
+        return true;
+      }
+    } catch (e) {
+      localStorage.removeItem(STORAGE_KEYS.HANDOVER_SESSION);
+    }
+    return false;
+  }
+
+  function clearHandoverSession() {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.HANDOVER_SESSION);
+    } catch (e) {}
+    soundEngine.stopRoomTone();
+    handoverState.active = false;
+    handoverState.cardStates = {};
+  }
+
+  function startHandoverPractice(cardId) {
+    handoverState.active = true;
+    session.mode = 'handover';
+    session.isRunning = true;
+    session.isCompleted = false;
+    if (cardId) {
+      handoverState.activeCardId = cardId;
+    } else {
+      const playable = getPlayableHandoverCards();
+      handoverState.activeCardId = playable[0] ? playable[0].id : 'HO-CAUTI-01';
+    }
+    saveHandoverSession();
+    render();
+
+    // Auto-trigger speech if sound enabled
+    const card = getHandoverCard(handoverState.activeCardId);
+    if (card && soundEngine.enabled) {
+      setTimeout(() => {
+        soundEngine.speakHandover(card.voiceHandover);
+      }, 500);
+    }
+  }
+
+  function switchHandoverCard(cardId) {
+    soundEngine.playHardwareClick();
+    handoverState.activeCardId = cardId;
+    saveHandoverSession();
+    render();
+
+    const card = getHandoverCard(cardId);
+    if (card && soundEngine.enabled) {
+      soundEngine.speakHandover(card.voiceHandover);
+    }
+  }
+
+  function togglePairMode() {
+    soundEngine.playHardwareClick();
+    handoverState.pairMode = !handoverState.pairMode;
+    if (!handoverState.pairMode) handoverState.pairRole = 'both';
+    saveHandoverSession();
+    render();
+  }
+
+  function setPairRole(role) {
+    soundEngine.playHardwareClick();
+    handoverState.pairRole = role;
+    saveHandoverSession();
+    render();
+  }
+
+  function switchHandoverTab(tab) {
+    soundEngine.playHardwareClick();
+    handoverState.activeTab = tab;
+    const st = getCardState(handoverState.activeCardId);
+    st.activeTab = tab;
+    saveHandoverSession();
+    render();
+  }
+
+  function toggleHandoverRoomTone() {
+    handoverState.roomToneActive = !handoverState.roomToneActive;
+    if (handoverState.roomToneActive) {
+      soundEngine.startRoomTone();
+    } else {
+      soundEngine.stopRoomTone();
+    }
+    saveHandoverSession();
+    render();
+  }
+
+  function toggleHandoverCaptions() {
+    soundEngine.playHardwareClick();
+    handoverState.captionsActive = !handoverState.captionsActive;
+    saveHandoverSession();
+    render();
+  }
+
+  function replayHandoverVoice() {
+    soundEngine.init();
+    const card = getHandoverCard(handoverState.activeCardId);
+    if (card) {
+      soundEngine.speakHandover(card.voiceHandover);
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // CLINICAL ACTIONS HANDLERS (STEP 3: ACT)
+  // -------------------------------------------------------------------------
+
+  function performHandoverAction(actionId, param) {
+    const cardId = handoverState.activeCardId;
+    const card = getHandoverCard(cardId);
+    const st = getCardState(cardId);
+
+    soundEngine.playHardwareClick();
+
+    if (cardId === 'HO-CAUTI-01') {
+      if (actionId === 'lower_bag') {
+        st.bagLowered = true;
+        if (!st.actionOrder.includes('bag')) st.actionOrder.push('bag');
+      } else if (actionId === 'clear_kink') {
+        st.kinkCleared = true;
+        if (!st.actionOrder.includes('kink')) st.actionOrder.push('kink');
+      }
+
+      // Check feedback based on exact combination
+      if (st.bagLowered && st.kinkCleared) {
+        st.completedActions = true;
+        st.actionFeedback = card.feedbackMessages.bothDone;
+        soundEngine.playCorrectChime();
+        if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = true;
+      } else if (st.bagLowered && !st.kinkCleared) {
+        st.actionFeedback = card.feedbackMessages.bagOnly;
+      } else if (!st.bagLowered && st.kinkCleared) {
+        st.actionFeedback = card.feedbackMessages.kinkOnly;
+      }
+    }
+
+    else if (cardId === 'HO-CVC-01') {
+      if (actionId === 'add_full_drape') {
+        st.fullDrapeAdded = true;
+        st.completedActions = true;
+        st.actionFeedback = card.feedbackMessages.correctAction;
+        soundEngine.playCorrectChime();
+        if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = true;
+      }
+    }
+
+    else if (cardId === 'HO-SSI-01' || cardId === 'HO-SSI-02') {
+      if (actionId === 'seek_admin_record' || actionId === 'flag_late_admin') {
+        st.timingActionTaken = true;
+        st.completedActions = true;
+        st.actionFeedback = card.feedbackMessages.correctAction;
+        soundEngine.playCorrectChime();
+        if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = true;
+      }
+    }
+
+    else if (cardId === 'HO-VAP-01') {
+      if (actionId === 'record_restriction') {
+        st.visit1Recorded = true;
+        st.actionFeedback = card.visit1.feedback;
+        soundEngine.playCorrectChime();
+      } else if (actionId === 'advance_visit_2') {
+        st.currentVisit = 2;
+        st.activeTab = 'room';
+        st.actionFeedback = "Advance to 14:00 complete: Spine cleared, hemodynamics stable. Temporary restriction EXPIRED. Adjust bed elevation.";
+      } else if (actionId === 'set_angle') {
+        const angle = parseInt(param, 10);
+        st.bedAngle = angle;
+        if (angle >= 30 && angle <= 45) {
+          st.completedActions = true;
+          st.actionFeedback = card.visit2.feedback;
+          soundEngine.playCorrectChime();
+          if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = true;
+        } else {
+          st.actionFeedback = "Head of bed at " + angle + "°. Local ICU bundle specifies 30°–45° for VAP prevention.";
+          soundEngine.playRetryTone();
+          if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = false;
+        }
+      }
+    }
+
+    saveHandoverSession();
+    render();
+  }
+
+  function submitHandoverAudit(optionId) {
+    const cardId = handoverState.activeCardId;
+    const card = getHandoverCard(cardId);
+    const st = getCardState(cardId);
+
+    soundEngine.playHardwareClick();
+    st.auditFinding = optionId;
+
+    const opt = (card.auditOptions || []).find(o => o.id === optionId);
+    if (opt && opt.isCorrect) {
+      soundEngine.playToolSnap();
+      if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = true;
+    } else {
+      soundEngine.playRetryTone();
+      if (st.firstAttemptCorrect === null) st.firstAttemptCorrect = false;
+    }
+
+    saveHandoverSession();
+    render();
+  }
+
+  function submitHandoverExplain(optionId) {
+    const cardId = handoverState.activeCardId;
+    const card = getHandoverCard(cardId);
+    const st = getCardState(cardId);
+
+    soundEngine.playHardwareClick();
+    st.explainChosen = optionId;
+    st.explainSubmitted = true;
+
+    const chosen = (card.explainOptions || []).find(o => o.id === optionId);
+    if (chosen && chosen.isCorrect) {
+      soundEngine.playCorrectChime();
+      st.explainFeedback = chosen.feedback;
+    } else if (chosen) {
+      soundEngine.playRetryTone();
+      st.explainFeedback = chosen.feedback;
+    }
+
+    saveHandoverSession();
+    render();
+  }
+
+  function submitHandoverReflection(isSkipped) {
+    const cardId = handoverState.activeCardId;
+    const st = getCardState(cardId);
+
+    soundEngine.playHardwareClick();
+    if (!isSkipped) {
+      const seeEl = document.getElementById('handover-ref-see');
+      const doEl = document.getElementById('handover-ref-do');
+      const tellEl = document.getElementById('handover-ref-tell');
+      st.handoffNotes = {
+        see: seeEl ? seeEl.value.trim() : '',
+        do: doEl ? doEl.value.trim() : '',
+        tell: tellEl ? tellEl.value.trim() : ''
+      };
+    }
+    st.handoffSubmitted = true;
+    soundEngine.playStationFanfare();
+    saveHandoverSession();
+    render();
+  }
+
+  function nextHandoverCard() {
+    soundEngine.playHardwareClick();
+    const playable = getPlayableHandoverCards();
+    const curIdx = playable.findIndex(c => c.id === handoverState.activeCardId);
+    if (curIdx >= 0 && curIdx < playable.length - 1) {
+      switchHandoverCard(playable[curIdx + 1].id);
+    } else {
+      // Completed all
+      showToast("🏆 جولة تسليم الوردية مكتملة", "أتممت جميع بطاقات التدريب السريري بنجاح!", "emerald");
+      exitHandoverPractice();
+    }
+  }
+
+  function exitHandoverPractice() {
+    soundEngine.stopRoomTone();
+    soundEngine.playHardwareClick();
+    handoverState.active = false;
+    session.mode = 'quick';
+    session.isRunning = false;
+    saveHandoverSession();
+    render();
+  }
+
+  // -------------------------------------------------------------------------
+  // PRINTABLE PAIR ROLE CARDS MODAL
+  // -------------------------------------------------------------------------
+  function openPrintableRoleCardsModal() {
+    let modal = document.getElementById('handover-role-cards-modal');
+    if (!modal) {
+      modal = document.createElement('div');
+      modal.id = 'handover-role-cards-modal';
+      modal.className = "fixed inset-0 z-50 bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-5";
+      document.body.appendChild(modal);
+    }
+
+    modal.innerHTML = `
+      <div class="bg-white border border-slate-300 rounded-3xl max-w-4xl w-full p-5 sm:p-8 shadow-2xl relative max-h-[92vh] overflow-y-auto text-left" dir="ltr">
+        
+        <!-- Modal Controls -->
+        <div class="flex items-center justify-between pb-3 border-b border-slate-200 mb-4 print:hidden">
+          <div class="flex items-center gap-2">
+            <span class="text-2xl">🖨️</span>
+            <div>
+              <h2 class="text-lg font-black text-slate-900">Printable Clinical Handover Pair Role Cards</h2>
+              <span class="text-xs text-slate-500">Instructor-Led Simulation Setup • Two-Learner Bedside Collaboration</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs transition shadow flex items-center gap-1.5 cursor-pointer">
+              <span>🖨️</span> <span>Print Cards</span>
+            </button>
+            <button onclick="document.getElementById('handover-role-cards-modal').remove()" class="p-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition">
+              ✕ Close
+            </button>
+          </div>
+        </div>
+
+        <!-- Printable Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 print:grid-cols-2">
+          
+          <!-- PARTNER A ROLE CARD -->
+          <div class="border-2 border-dashed border-cyan-500 rounded-2xl p-5 bg-cyan-50/40 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-cyan-200 pb-2 mb-3">
+                <span class="px-2.5 py-1 rounded-lg bg-cyan-600 text-white font-black text-xs uppercase tracking-wide">
+                  🧑‍⚕️ Partner A: Bedside Observer
+                </span>
+                <span class="text-xs font-bold text-cyan-800">Room Evidence</span>
+              </div>
+              <h3 class="font-black text-slate-900 text-base mb-2">Physical Clinical Examination</h3>
+              <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                You own the physical room environment. Examine bedside equipment, patient positioning, catheters, dressings, and tubing.
+              </p>
+              <div class="bg-white rounded-xl p-3 border border-cyan-200 mb-3 text-xs space-y-1.5">
+                <div class="font-bold text-slate-800">Your Action Steps:</div>
+                <ul class="list-disc list-inside text-slate-600 space-y-1">
+                  <li>Inspect bedside apparatus without relying on chart assumptions.</li>
+                  <li>Verbally describe observations to Partner B (e.g. drape size, bag height, tubing path, bed elevation).</li>
+                  <li>Perform physical bedside corrections (lower bag, clear kink, apply full-body drape, elevate bed).</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-cyan-200 text-[10px] text-slate-500 italic">
+              Rule: Partner A does not open the medical chart until physical findings are reported.
+            </div>
+          </div>
+
+          <!-- PARTNER B ROLE CARD -->
+          <div class="border-2 border-dashed border-amber-500 rounded-2xl p-5 bg-amber-50/40 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between border-b border-amber-200 pb-2 mb-3">
+                <span class="px-2.5 py-1 rounded-lg bg-amber-600 text-white font-black text-xs uppercase tracking-wide">
+                  📋 Partner B: Chart Auditor
+                </span>
+                <span class="text-xs font-bold text-amber-800">Chart Evidence</span>
+              </div>
+              <h3 class="font-black text-slate-900 text-base mb-2">Electronic Medical Record Audit</h3>
+              <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                You own the documentation record. Audit physician orders, nurse transfer flowsheet notes, safety checklists, and timestamps.
+              </p>
+              <div class="bg-white rounded-xl p-3 border border-amber-200 mb-3 text-xs space-y-1.5">
+                <div class="font-bold text-slate-800">Your Action Steps:</div>
+                <ul class="list-disc list-inside text-slate-600 space-y-1">
+                  <li>Review facility orders, checklist items, and recorded timestamps.</li>
+                  <li>Reconcile Partner A's physical observations against signed records.</li>
+                  <li>Record audit rating: Done, Not done, Not documented, or N/A.</li>
+                </ul>
+              </div>
+            </div>
+            <div class="pt-3 border-t border-amber-200 text-[10px] text-slate-500 italic">
+              Rule: Partner B audits document timestamps against direct observations.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- JOINT SBAR DEBRIEF GUIDE -->
+        <div class="mt-6 p-4 rounded-2xl bg-slate-900 text-white">
+          <div class="text-xs font-black uppercase tracking-wider text-cyan-300 mb-2">
+            🤝 Joint Shift Handover Formula (SBAR Simulation)
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+            <div class="p-2.5 rounded-xl bg-slate-800 border border-slate-700">
+              <span class="font-bold text-cyan-300 block mb-1">1. What did you see?</span>
+              <span class="text-slate-300">Reconciled findings between bedside setup and documentation.</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-800 border border-slate-700">
+              <span class="font-bold text-cyan-300 block mb-1">2. What did you do?</span>
+              <span class="text-slate-300">Action taken to rectify equipment or document variance.</span>
+            </div>
+            <div class="p-2.5 rounded-xl bg-slate-800 border border-slate-700">
+              <span class="font-bold text-cyan-300 block mb-1">3. Next Shift Message</span>
+              <span class="text-slate-300">Clear instructions for upcoming nursing and clinical shift.</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    `;
+  }
+
+  // -------------------------------------------------------------------------
+  // RENDER THE HANDOVER PRACTICE SCREEN
+  // -------------------------------------------------------------------------
+  // -------------------------------------------------------------------------
+  // CLEAN, UNCLUTTERED, PROGRESSIVE STEP-BY-STEP HANDOVER SCREEN
+  // -------------------------------------------------------------------------
+  function renderHandoverScreen(container) {
+    const cardId = handoverState.activeCardId;
+    const card = getHandoverCard(cardId);
+    const st = getCardState(cardId);
+    const playable = getPlayableHandoverCards();
+    const curIdx = playable.findIndex(function(c) { return c.id === cardId; });
+
+    // Active wizard step: 1 (Handover), 2 (Bedside/Act), 3 (Explain), 4 (Handoff)
+    const curStep = st.step || 1;
+    const activeTab = st.activeTab || 'room';
+
+    let html = '<div class="w-full max-w-2xl mx-auto flex flex-col gap-2.5 text-left select-none pb-4" dir="ltr">';
+
+    // 1. SIMPLE SLEEK TOP BAR (Fits on any screen)
+    html += '<div class="w-full bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs flex items-center justify-between gap-2">' +
+      '<div class="flex items-center gap-2 min-w-0">' +
+        '<button onclick="window.HaiBundleEngine.exitHandoverPractice()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black transition flex items-center gap-1 cursor-pointer shrink-0">' +
+          '<span>←</span> <span>All Cases</span>' +
+        '</button>' +
+        '<span class="text-xs font-black text-slate-900 px-2 py-0.5 rounded-lg bg-cyan-50 border border-cyan-200 text-cyan-800 truncate">' +
+          card.code + ' • ' + card.title +
+        '</span>' +
+      '</div>' +
+
+      '<div class="flex items-center gap-2 shrink-0">' +
+        '<button onclick="window.HaiBundleEngine.toggleSound()" class="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition cursor-pointer">' +
+          (soundEngine.enabled ? '🔊 Sound ON' : '🔇 Muted') +
+        '</button>' +
+      '</div>' +
+    '</div>';
+
+    // 2. SLEEK STEPPER PROGRESS TABS (Compact, calm, 1-click navigation)
+    html += '<div class="w-full grid grid-cols-4 gap-1 bg-slate-100 p-1 rounded-xl text-center text-xs font-bold">' +
+      '<button onclick="window.HaiBundleEngine.setHandoverStep(1)" class="py-1.5 px-1 rounded-lg transition cursor-pointer ' + (curStep === 1 ? 'bg-white text-blue-700 shadow-xs font-black' : 'text-slate-500 hover:text-slate-900') + '">' +
+        '1. Handover' +
+      '</button>' +
+      '<button onclick="window.HaiBundleEngine.setHandoverStep(2)" class="py-1.5 px-1 rounded-lg transition cursor-pointer ' + (curStep === 2 ? 'bg-white text-blue-700 shadow-xs font-black' : 'text-slate-500 hover:text-slate-900') + '">' +
+        '2. Bedside Check' +
+      '</button>' +
+      '<button onclick="' + (st.completedActions ? 'window.HaiBundleEngine.setHandoverStep(3)' : '') + '" class="py-1.5 px-1 rounded-lg transition ' + (curStep === 3 ? 'bg-white text-blue-700 shadow-xs font-black' : (st.completedActions ? 'text-slate-700 cursor-pointer' : 'text-slate-400 opacity-60')) + '">' +
+        '3. Rationale' +
+      '</button>' +
+      '<button onclick="' + (st.explainSubmitted ? 'window.HaiBundleEngine.setHandoverStep(4)' : '') + '" class="py-1.5 px-1 rounded-lg transition ' + (curStep === 4 ? 'bg-white text-blue-700 shadow-xs font-black' : (st.explainSubmitted ? 'text-slate-700 cursor-pointer' : 'text-slate-400 opacity-60')) + '">' +
+        '4. Hand Off' +
+      '</button>' +
+    '</div>';
+
+    // 3. STEP 1: RECEIVE HANDOVER (Clean, focused, easy)
+    if (curStep === 1) {
+      html += '<div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col gap-3.5">' +
+        '<div class="flex items-center gap-3">' +
+          '<div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-800 flex items-center justify-center text-xl shrink-0">🗣️</div>' +
+          '<div>' +
+            '<span class="text-[10px] font-black uppercase tracking-wider text-blue-600">Shift Handover Received</span>' +
+            '<h2 class="text-sm sm:text-base font-black text-slate-900">' + (card.voiceSpeaker || 'Handover Nurse') + ' reports:</h2>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="p-4 rounded-xl bg-blue-50/70 border border-blue-200 text-slate-800 text-sm sm:text-base font-semibold leading-relaxed">' +
+          '"' + card.voiceHandover + '"' +
+        '</div>' +
+
+        '<div class="flex flex-col sm:flex-row items-center gap-2.5 pt-1">' +
+          '<button onclick="window.HaiBundleEngine.replayHandoverVoice()" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-black transition flex items-center justify-center gap-1.5 cursor-pointer">' +
+            '<span>🔊</span> <span>Listen Audio</span>' +
+          '</button>' +
+          '<button onclick="window.HaiBundleEngine.setHandoverStep(2)" class="w-full sm:flex-1 py-2.5 px-5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm shadow transition flex items-center justify-center gap-2 cursor-pointer">' +
+            '<span>Inspect Bedside Setup</span> <span>➔</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    // 4. STEP 2: BEDSIDE SCENE & QUICK ACTIONS (100% VISIBLE ON SCREEN)
+    else if (curStep === 2) {
+      html += '<div class="p-3 sm:p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col gap-2.5">' +
+        // Card Header: Question & Evidence Tabs
+        '<div class="flex items-center justify-between gap-2 border-b border-slate-200 pb-2">' +
+          '<div class="min-w-0">' +
+            '<div class="text-[10px] font-black uppercase tracking-wider text-cyan-700">Bedside Inspection</div>' +
+            '<h2 class="text-xs sm:text-sm font-black text-slate-900 leading-tight truncate">' + card.question + '</h2>' +
+          '</div>' +
+          '<div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs font-bold shrink-0">' +
+            '<button onclick="window.HaiBundleEngine.switchHandoverTab(\'room\')" class="px-2.5 py-1 rounded-md transition cursor-pointer ' + (activeTab === 'room' ? 'bg-white text-blue-700 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900') + '">' +
+              '🛏️ Room' +
+            '</button>' +
+            '<button onclick="window.HaiBundleEngine.switchHandoverTab(\'chart\')" class="px-2.5 py-1 rounded-md transition cursor-pointer ' + (activeTab === 'chart' ? 'bg-white text-blue-700 shadow-xs font-black' : 'text-slate-600 hover:text-slate-900') + '">' +
+              '📋 Chart' +
+            '</button>' +
+          '</div>' +
+        '</div>' +
+
+        // Compact Evidence Container (Fixed ~175px height so actions are always visible)
+        '<div class="w-full max-w-[480px] mx-auto h-[165px] sm:h-[180px] flex flex-col">' +
+          (activeTab === 'room' ? (
+            '<div class="w-full h-full rounded-xl overflow-hidden bg-[#021329] border border-slate-800 shadow-inner flex items-center justify-center relative">' +
+              renderHandoverSceneSvg(card, st) +
+            '</div>'
+          ) : (
+            '<div class="w-full h-full overflow-y-auto p-2.5 rounded-xl bg-amber-50/90 border border-amber-300 text-xs text-slate-800 space-y-2">' +
+              '<div class="font-black text-amber-900 flex items-center justify-between sticky top-0 bg-amber-50/95 pb-1 border-b border-amber-200">' +
+                '<span>📋 Patient Medical Records:</span>' +
+                '<span class="text-[10px] font-bold text-amber-700">' + card.facilityForm + '</span>' +
+              '</div>' +
+              (card.chartEvidence && card.chartEvidence.records ? card.chartEvidence.records.map(function(r) {
+                return '<div class="p-2 bg-white rounded-lg border border-amber-200 shadow-2xs">' +
+                  '<div class="font-black text-slate-900 mb-0.5 text-xs">' + (r.title || r.name) + '</div>' +
+                  '<div class="font-sans text-[11px] text-slate-700 whitespace-pre-wrap leading-relaxed">' + (r.content || r.body) + '</div>' +
+                '</div>';
+              }).join('') : '<div class="p-2 text-slate-500">No chart records available.</div>') +
+            '</div>'
+          )) +
+        '</div>' +
+
+        // Action Buttons Area (Immediately visible below scene)
+        '<div class="flex flex-col gap-1.5">' +
+          '<div class="text-[11px] font-black text-slate-700 flex items-center justify-between">' +
+            '<span>Tap action to correct setup:</span>' +
+            '<span class="text-[10px] text-slate-400 font-normal">Also clickable directly in room scene</span>' +
+          '</div>' +
+          renderCardActionButtons(card, st) +
+        '</div>' +
+
+        // Action Feedback Banner
+        (st.actionFeedback ? ('<div class="p-2 px-3 rounded-xl ' + (st.completedActions ? 'bg-emerald-50 border border-emerald-400 text-emerald-900' : 'bg-blue-50 border border-blue-300 text-blue-900') + ' text-xs font-bold flex items-center gap-2 transition">' +
+          '<span class="text-base shrink-0">' + (st.completedActions ? '✅' : 'ℹ️') + '</span>' +
+          '<div class="leading-relaxed">' + st.actionFeedback + '</div>' +
+        '</div>') : '') +
+
+        // Next Step Button (When actions done)
+        (st.completedActions ? ('<div class="pt-1">' +
+          '<button onclick="window.HaiBundleEngine.setHandoverStep(3)" class="w-full py-2.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs sm:text-sm shadow transition flex items-center justify-center gap-1.5 cursor-pointer">' +
+            '<span>Continue to Clinical Rationale</span> <span>➔</span>' +
+          '</button>' +
+        '</div>') : '') +
+      '</div>';
+    }
+
+    // 5. STEP 3: CLINICAL RATIONALE (EASY CHOICES)
+    else if (curStep === 3) {
+      html += '<div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col gap-3">' +
+        '<div class="border-b border-slate-200 pb-2">' +
+          '<span class="text-[10px] font-black uppercase tracking-wider text-blue-600">Step 3: Clinical Understanding</span>' +
+          '<h2 class="text-xs sm:text-sm font-black text-slate-900 mt-0.5">' + card.explainQuestion + '</h2>' +
+        '</div>' +
+
+        '<div class="flex flex-col gap-2">' +
+          (card.explainOptions || []).map(function(opt) {
+            let cls = 'bg-slate-50 hover:bg-blue-50/60 border-slate-200 text-slate-800';
+            let icon = '⚪';
+            if (st.explainChosen === opt.id) {
+              if (opt.isCorrect) {
+                cls = 'bg-emerald-50 border-emerald-500 text-emerald-950 font-bold ring-2 ring-emerald-300';
+                icon = '✅';
+              } else {
+                cls = 'bg-red-50 border-red-500 text-red-950 font-bold ring-2 ring-red-300';
+                icon = '❌';
+              }
+            }
+            return '<button onclick="window.HaiBundleEngine.submitHandoverExplain(\'' + opt.id + '\')" class="p-2.5 sm:p-3 rounded-xl border text-left text-xs transition cursor-pointer flex items-start gap-2.5 ' + cls + '">' +
+              '<span class="text-sm mt-0.5 shrink-0">' + icon + '</span>' +
+              '<span class="leading-relaxed flex-1">' + opt.text + '</span>' +
+            '</button>';
+          }).join('') +
+        '</div>' +
+
+        (st.explainSubmitted ? ('<div class="p-3 rounded-xl bg-blue-50 border border-blue-200 text-xs text-slate-800 space-y-1">' +
+          '<div class="font-black text-blue-900 flex items-center gap-1"><span>📘</span> <span>Key Takeaway:</span></div>' +
+          '<p class="leading-relaxed">' + card.keyedExplanation + '</p>' +
+        '</div>' +
+        '<div class="pt-1">' +
+          '<button onclick="window.HaiBundleEngine.setHandoverStep(4)" class="w-full py-2.5 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm shadow transition flex items-center justify-center gap-2 cursor-pointer">' +
+            '<span>Continue to Shift Hand-off</span> <span>➔</span>' +
+          '</button>' +
+        '</div>') : '') +
+      '</div>';
+    }
+
+    // 6. STEP 4: SHIFT HAND-OFF & MODEL RESPONSE
+    else if (curStep === 4) {
+      html += '<div class="p-4 sm:p-5 rounded-2xl bg-white border border-slate-200 shadow-sm flex flex-col gap-3">' +
+        '<div class="border-b border-slate-200 pb-2">' +
+          '<span class="text-[10px] font-black uppercase tracking-wider text-emerald-600">Step 4: Shift Hand-off</span>' +
+          '<h2 class="text-xs sm:text-sm font-black text-slate-900 mt-0.5">What would you report to the next shift?</h2>' +
+        '</div>' +
+
+        '<div class="p-3.5 sm:p-4 rounded-xl bg-amber-50 border border-amber-300 text-slate-900 space-y-2">' +
+          '<div class="font-black text-amber-900 flex items-center justify-between text-xs">' +
+            '<span class="flex items-center gap-1"><span>⭐</span> <span>Authoritative Model Hand-off:</span></span>' +
+            '<span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold">First-attempt: ' + (st.firstAttemptCorrect ? '100%' : 'Attempted') + '</span>' +
+          '</div>' +
+          '<p class="text-xs sm:text-sm font-bold text-slate-900 italic bg-white p-3 rounded-lg border border-amber-200 leading-relaxed">' +
+            '"' + card.modelHandoff + '"' +
+          '</p>' +
+        '</div>' +
+
+        '<div class="flex items-center justify-between gap-2 pt-2 border-t border-slate-200">' +
+          '<button onclick="window.HaiBundleEngine.setHandoverStep(1)" class="px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold transition cursor-pointer">' +
+            '🔄 Review Again' +
+          '</button>' +
+
+          (card.hasReplayVariant ? ('<button onclick="window.HaiBundleEngine.switchHandoverCard(\'' + card.replayVariantId + '\')" class="px-3 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs transition shadow flex items-center gap-1 cursor-pointer"><span>🔄</span> <span>Try Replay (' + card.replayVariantId + ')</span></button>') : '') +
+
+          '<button onclick="window.HaiBundleEngine.nextHandoverCard()" class="px-4 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-black text-xs sm:text-sm shadow transition flex items-center gap-1.5 cursor-pointer">' +
+            '<span>Next Patient Case</span> <span>➔</span>' +
+          '</button>' +
+        '</div>' +
+      '</div>';
+    }
+
+    html += '</div>';
+    container.innerHTML = html;
+  }
+
+  function setHandoverStep(step) {
+    soundEngine.playHardwareClick();
+    const st = getCardState(handoverState.activeCardId);
+    st.step = step;
+    saveHandoverSession();
+    render();
+  }
+
+  function toggleChart() {
+    soundEngine.playHardwareClick();
+    const st = getCardState(handoverState.activeCardId);
+    st.activeTab = (st.activeTab === 'chart') ? 'room' : 'chart';
+    saveHandoverSession();
+    render();
+  }
+
+  function renderHandoverSceneSvg(card, st) {
+    if (card.id === 'HO-CAUTI-01') {
+      const bagY = st.bagLowered ? 210 : 80;
+      const bagLabel = st.bagLowered ? "✅ Below Bladder" : "⚠️ Above Bladder";
+      const kinkD = st.kinkCleared ? ("M 230 140 Q 280 180 340 " + (bagY + 30)) : ("M 230 140 Q 255 125 265 145 Q 260 160 275 145 Q 300 135 340 " + (bagY + 30));
+
+      return '<div class="w-full h-full select-none flex items-center justify-center p-1">' +
+        '<svg viewBox="0 0 500 280" class="w-full h-full max-h-[175px] object-contain">' +
+          '<rect x="0" y="0" width="500" height="280" fill="#03162e" />' +
+          '<line x1="0" y1="230" x2="500" y2="230" stroke="#1e293b" stroke-width="2" />' +
+
+          '<rect x="70" y="130" width="260" height="65" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />' +
+          '<rect x="85" y="195" width="12" height="35" fill="#334155" />' +
+          '<circle cx="91" cy="235" r="7" fill="#64748b" />' +
+          '<rect x="300" y="195" width="12" height="35" fill="#334155" />' +
+          '<circle cx="306" cy="235" r="7" fill="#64748b" />' +
+
+          '<rect x="75" y="115" width="250" height="25" rx="6" fill="#f8fafc" />' +
+          '<ellipse cx="110" cy="115" rx="22" ry="12" fill="#e2e8f0" />' +
+
+          '<circle cx="115" cy="105" r="14" fill="#fbcfe8" />' +
+          '<path d="M 125 115 Q 170 120 220 125 L 290 128 L 290 138 L 125 138 Z" fill="#60a5fa" opacity="0.85" />' +
+
+          '<rect x="140" y="90" width="120" height="20" rx="4" fill="none" stroke="#64748b" stroke-width="3" />' +
+          '<rect x="260" y="180" width="80" height="15" rx="3" fill="none" stroke="#64748b" stroke-width="2.5" />' +
+
+          '<path d="' + kinkD + '" fill="none" stroke="' + (st.kinkCleared ? '#22c55e' : '#f59e0b') + '" stroke-width="5" stroke-linecap="round" />' +
+
+          '<g tabindex="0" role="button" aria-label="Clear drainage tubing kink" onclick="window.HaiBundleEngine.performHandoverAction(\'clear_kink\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault(); window.HaiBundleEngine.performHandoverAction(\'clear_kink\');}" class="cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-400">' +
+            '<circle cx="265" cy="142" r="14" fill="' + (st.kinkCleared ? '#15803d' : '#b45309') + '" stroke="#ffffff" stroke-width="2" class="hover:scale-110 transition" />' +
+            '<text x="265" y="146" font-size="10" font-weight="black" fill="#ffffff" text-anchor="middle">' + (st.kinkCleared ? '✓' : '⚡') + '</text>' +
+          '</g>' +
+
+          '<g transform="translate(325, ' + bagY + ')" tabindex="0" role="button" aria-label="Lower urinary collection bag" onclick="window.HaiBundleEngine.performHandoverAction(\'lower_bag\')" onkeydown="if(event.key===\'Enter\'||event.key===\' \'){event.preventDefault(); window.HaiBundleEngine.performHandoverAction(\'lower_bag\');}" class="cursor-pointer focus:outline-none focus:ring-4 focus:ring-cyan-400">' +
+            '<path d="M 25 0 L 25 12" stroke="#94a3b8" stroke-width="3" />' +
+            '<rect x="5" y="12" width="40" height="50" rx="6" fill="#f8fafc" stroke="' + (st.bagLowered ? '#22c55e' : '#f59e0b') + '" stroke-width="2.5" />' +
+            '<rect x="8" y="32" width="34" height="26" rx="3" fill="#fbbf24" opacity="0.8" />' +
+            '<text x="25" y="48" font-size="8" font-weight="bold" fill="#78350f" text-anchor="middle">URINE</text>' +
+          '</g>' +
+
+          '<rect x="375" y="' + (bagY + 20) + '" width="115" height="22" rx="6" fill="' + (st.bagLowered ? '#065f46' : '#78350f') + '" />' +
+          '<text x="432" y="' + (bagY + 34) + '" font-size="9" font-weight="black" fill="#ffffff" text-anchor="middle">' + bagLabel + '</text>' +
+
+          '<rect x="210" y="60" width="110" height="22" rx="6" fill="' + (st.kinkCleared ? '#065f46' : '#78350f') + '" />' +
+          '<text x="265" y="74" font-size="9" font-weight="black" fill="#ffffff" text-anchor="middle">' + (st.kinkCleared ? '✅ Tubing Clear' : '⚠️ Tubing Kinked') + '</text>' +
+        '</svg>' +
+      '</div>';
+    }
+
+    else if (card.id === 'HO-CVC-01') {
+      let drapeSvg = '';
+      if (st.fullDrapeAdded) {
+        drapeSvg = '<path d="M 130 95 L 340 100 L 340 135 L 130 135 Z" fill="#0284c7" stroke="#38bdf8" stroke-width="2.5" />' +
+          '<text x="235" y="118" font-size="10" font-weight="black" fill="#ffffff" text-anchor="middle">FULL-BODY STERILE DRAPE IN PLACE</text>';
+      } else {
+        drapeSvg = '<rect x="135" y="90" width="35" height="35" fill="#0284c7" stroke="#38bdf8" stroke-width="2" />' +
+          '<rect x="175" y="105" width="165" height="20" fill="#fbcfe8" opacity="0.9" />' +
+          '<text x="255" y="118" font-size="9" font-weight="black" fill="#be123c" text-anchor="middle">BODY UNCOVERED (BARRIER BREACH)</text>';
+      }
+
+      return '<div class="w-full h-full select-none flex items-center justify-center p-1">' +
+        '<svg viewBox="0 0 500 280" class="w-full h-full max-h-[175px] object-contain">' +
+          '<rect x="0" y="0" width="500" height="280" fill="#03162e" />' +
+          '<rect x="80" y="120" width="280" height="70" rx="8" fill="#1e293b" stroke="#334155" stroke-width="2" />' +
+          '<rect x="90" y="105" width="260" height="20" rx="5" fill="#f1f5f9" />' +
+
+          '<circle cx="120" cy="95" r="15" fill="#fbcfe8" />' +
+          drapeSvg +
+
+          '<rect x="15" y="60" width="55" height="90" rx="6" fill="#334155" stroke="#64748b" stroke-width="2" />' +
+          '<rect x="22" y="70" width="41" height="30" fill="#0f172a" />' +
+          '<path d="M 45 100 Q 75 110 115 102" fill="none" stroke="#22d3ee" stroke-width="3" stroke-dasharray="3,3" />' +
+
+          '<g transform="translate(100, 30)">' +
+            '<circle cx="0" cy="0" r="11" fill="#38bdf8" />' +
+            '<rect x="-8" y="2" width="16" height="8" rx="2" fill="#ffffff" />' +
+          '</g>' +
+
+          '<rect x="100" y="240" width="300" height="26" rx="8" fill="' + (st.fullDrapeAdded ? '#065f46' : '#881337') + '" />' +
+          '<text x="250" y="256" font-size="10" font-weight="black" fill="#ffffff" text-anchor="middle">' +
+            (st.fullDrapeAdded ? '✅ Maximal Sterile Barriers Verified' : '⚠️ Small Drape Only — Guidewire Path Unprotected') +
+          '</text>' +
+        '</svg>' +
+      '</div>';
+    }
+
+    else if (card.id === 'HO-SSI-01' || card.id === 'HO-SSI-02') {
+      const isHO2 = card.id === 'HO-SSI-02';
+      return '<div class="w-full h-full select-none p-2 sm:p-2.5 flex flex-col justify-between">' +
+        '<div class="flex items-center justify-between border-b border-slate-700 pb-1">' +
+          '<span class="text-[10px] font-black uppercase tracking-wider text-cyan-300">Surgical Timing Reconciliation</span>' +
+          '<span class="text-[9px] px-2 py-0.5 rounded-full font-bold ' + (isHO2 ? 'bg-amber-400 text-slate-950' : 'bg-blue-600 text-white') + '">' +
+            (isHO2 ? 'VARIANT HO-SSI-02 (08:10 ADMIN)' : 'BASE HO-SSI-01 (MISSING ADMIN TIME)') +
+          '</span>' +
+        '</div>' +
+
+        '<div class="grid grid-cols-3 gap-2 my-auto">' +
+          '<div class="bg-slate-900 border border-slate-700 p-2 rounded-xl flex flex-col items-center text-center">' +
+            '<span class="text-[11px] font-bold text-slate-400">07:00</span>' +
+            '<span class="text-sm my-0.5">💊</span>' +
+            '<span class="text-[11px] font-black text-white">Order Placed</span>' +
+            '<span class="text-[9px] text-slate-400">Cefazolin 2g IV</span>' +
+          '</div>' +
+
+          '<div class="bg-slate-900 border border-slate-700 p-2 rounded-xl flex flex-col items-center text-center">' +
+            '<span class="text-[11px] font-bold text-slate-400">08:00</span>' +
+            '<span class="text-sm my-0.5">⏱️</span>' +
+            '<span class="text-[11px] font-black text-cyan-300">Surgical Incision</span>' +
+            '<span class="text-[9px] text-slate-400">Knife-to-skin</span>' +
+          '</div>' +
+
+          '<div class="bg-slate-900 border ' + (isHO2 ? 'border-amber-400' : 'border-red-400') + ' p-2 rounded-xl flex flex-col items-center text-center">' +
+            '<span class="text-[11px] font-bold text-slate-400">' + (isHO2 ? '08:10' : 'MISSING') + '</span>' +
+            '<span class="text-sm my-0.5">' + (isHO2 ? '⚠️' : '❓') + '</span>' +
+            '<span class="text-[11px] font-black ' + (isHO2 ? 'text-amber-300' : 'text-red-400') + '">' + (isHO2 ? 'Administered' : 'No Timestamp') + '</span>' +
+            '<span class="text-[9px] text-slate-400">' + (isHO2 ? '10 min Post-Incision' : 'eMAR Time Blank') + '</span>' +
+          '</div>' +
+        '</div>' +
+
+        '<div class="p-1.5 rounded-lg ' + (isHO2 ? 'bg-amber-950/80 border border-amber-500 text-amber-200' : 'bg-blue-950/80 border border-blue-500 text-blue-200') + ' text-[10px] font-bold text-center">' +
+          (isHO2 ? 'Timing Deviation: Antibiotic administered 10 minutes AFTER incision.' : 'Timing Unverified: Order placed at 07:00 does not prove administration before 08:00.') +
+        '</div>' +
+      '</div>';
+    }
+
+    else if (card.id === 'HO-VAP-01') {
+      const isVisit2 = st.currentVisit === 2;
+      const angle = st.bedAngle || 0;
+      const compliant = angle >= 30 && angle <= 45;
+
+      return '<div class="w-full h-full select-none flex items-center justify-center p-1">' +
+        '<svg viewBox="0 0 500 280" class="w-full h-full max-h-[175px] object-contain">' +
+          '<rect x="0" y="0" width="500" height="280" fill="#03162e" />' +
+          '<rect x="120" y="160" width="220" height="30" rx="4" fill="#1e293b" />' +
+          '<circle cx="210" cy="160" r="8" fill="#64748b" />' +
+
+          '<g transform="translate(210, 160) rotate(' + (-angle) + ') translate(-210, -160)">' +
+            '<rect x="100" y="145" width="115" height="18" rx="4" fill="#38bdf8" />' +
+            '<circle cx="120" cy="135" r="14" fill="#fbcfe8" />' +
+            '<rect x="95" y="140" width="25" height="8" rx="2" fill="#f1f5f9" />' +
+            '<path d="M 128 135 Q 160 110 190 85" fill="none" stroke="#22d3ee" stroke-width="3" stroke-linecap="round" />' +
+          '</g>' +
+
+          '<rect x="210" y="145" width="130" height="18" rx="4" fill="#0284c7" />' +
+
+          '<rect x="20" y="50" width="60" height="140" rx="6" fill="#334155" stroke="#475569" stroke-width="2" />' +
+          '<rect x="28" y="60" width="44" height="35" rx="3" fill="#0f172a" />' +
+          '<text x="50" y="80" font-size="9" font-weight="bold" fill="#22c55e" text-anchor="middle">VENT ON</text>' +
+
+          '<g transform="translate(420, 90)">' +
+            '<circle cx="0" cy="0" r="38" fill="#0f172a" stroke="#475569" stroke-width="3" />' +
+            '<path d="M -35 0 A 35 35 0 0 1 35 0" fill="none" stroke="#64748b" stroke-width="2" />' +
+            '<path d="M 0 -35 A 35 35 0 0 1 25 -25" fill="none" stroke="#22c55e" stroke-width="5" />' +
+            '<line x1="0" y1="0" x2="' + (Math.sin(angle * Math.PI / 180) * 30) + '" y2="' + (-Math.cos(angle * Math.PI / 180) * 30) + '" stroke="' + (compliant ? '#22c55e' : '#f59e0b') + '" stroke-width="3" stroke-linecap="round" />' +
+            '<circle cx="0" cy="0" r="4" fill="#ffffff" />' +
+            '<text x="0" y="20" font-size="11" font-weight="black" fill="#ffffff" text-anchor="middle">' + angle + '°</text>' +
+          '</g>' +
+
+          '<rect x="100" y="240" width="300" height="26" rx="8" fill="' + (isVisit2 ? (compliant ? '#065f46' : '#78350f') : '#1e3a8a') + '" />' +
+          '<text x="250" y="256" font-size="10" font-weight="black" fill="#ffffff" text-anchor="middle">' +
+            (isVisit2 ? ('Visit 2 (14:00): ' + angle + '° Elevation ' + (compliant ? '✅ COMPLIANT' : '⚠️ OUT OF RANGE')) : 'Visit 1 (08:00): Temporary Restriction Active (Bed Flat)') +
+          '</text>' +
+        '</svg>' +
+      '</div>';
+    }
+
+    return '<div class="p-4 text-center text-slate-400">Bedside Scene</div>';
+  }
+
+  function renderCardActionButtons(card, st) {
+    if (card.id === 'HO-CAUTI-01') {
+      return '<div class="grid grid-cols-1 sm:grid-cols-2 gap-2">' +
+        '<button onclick="window.HaiBundleEngine.performHandoverAction(\'lower_bag\')" class="p-2 sm:p-2.5 rounded-xl border text-xs font-black transition cursor-pointer flex items-center justify-between shadow-2xs ' + (st.bagLowered ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-slate-50 hover:bg-blue-50 text-slate-900 border-slate-300') + '">' +
+          '<span class="flex items-center gap-1.5"><span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-mono">1</span> <span>Lower Bag Below Bladder</span></span>' +
+          '<span>' + (st.bagLowered ? '✅ Done' : '⚡ Lower') + '</span>' +
+        '</button>' +
+        '<button onclick="window.HaiBundleEngine.performHandoverAction(\'clear_kink\')" class="p-2 sm:p-2.5 rounded-xl border text-xs font-black transition cursor-pointer flex items-center justify-between shadow-2xs ' + (st.kinkCleared ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-slate-50 hover:bg-blue-50 text-slate-900 border-slate-300') + '">' +
+          '<span class="flex items-center gap-1.5"><span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-800 text-[10px] font-mono">2</span> <span>Clear Tubing Kink</span></span>' +
+          '<span>' + (st.kinkCleared ? '✅ Done' : '⚡ Unkink') + '</span>' +
+        '</button>' +
+      '</div>';
+    }
+
+    else if (card.id === 'HO-CVC-01') {
+      return '<button onclick="window.HaiBundleEngine.performHandoverAction(\'add_full_drape\')" class="w-full p-2.5 rounded-xl border text-xs font-black transition cursor-pointer flex items-center justify-between shadow-2xs ' + (st.fullDrapeAdded ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500 shadow') + '">' +
+        '<span>Record Discrepancy & Add Full-Body Sterile Drape</span>' +
+        '<span>' + (st.fullDrapeAdded ? '✅ Applied' : '⚡ Add Drape') + '</span>' +
+      '</button>';
+    }
+
+    else if (card.id === 'HO-SSI-01') {
+      return '<button onclick="window.HaiBundleEngine.performHandoverAction(\'seek_admin_record\')" class="w-full p-2.5 rounded-xl border text-xs font-black transition cursor-pointer flex items-center justify-between shadow-2xs ' + (st.timingActionTaken ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-blue-600 hover:bg-blue-500 text-white border-blue-500 shadow') + '">' +
+        '<span>Record \'Not documented\' & Seek Administration Log</span>' +
+        '<span>' + (st.timingActionTaken ? '✅ Recorded' : '⚡ Audit Action') + '</span>' +
+      '</button>';
+    }
+
+    else if (card.id === 'HO-SSI-02') {
+      return '<button onclick="window.HaiBundleEngine.performHandoverAction(\'flag_late_admin\')" class="w-full p-2.5 rounded-xl border text-xs font-black transition cursor-pointer flex items-center justify-between shadow-2xs ' + (st.timingActionTaken ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-amber-600 hover:bg-amber-500 text-white border-amber-500 shadow') + '">' +
+        '<span>Record \'Not done\' & Flag Post-Incision Timing Variance</span>' +
+        '<span>' + (st.timingActionTaken ? '✅ Recorded' : '⚡ Flag Variance') + '</span>' +
+      '</button>';
+    }
+
+    else if (card.id === 'HO-VAP-01') {
+      if (st.currentVisit === 1) {
+        return '<div class="flex flex-col gap-2">' +
+          '<button onclick="window.HaiBundleEngine.performHandoverAction(\'record_restriction\')" class="p-2 sm:p-2.5 rounded-xl border text-xs font-black transition cursor-pointer flex items-center justify-between shadow-2xs ' + (st.visit1Recorded ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-slate-50 hover:bg-slate-100 text-slate-900 border-slate-300') + '">' +
+            '<span>Record Restriction Active (Flat; Reassess at 14:00)</span>' +
+            '<span>' + (st.visit1Recorded ? '✅ Recorded' : '⚡ Record') + '</span>' +
+          '</button>' +
+          (st.visit1Recorded ? '<button onclick="window.HaiBundleEngine.performHandoverAction(\'advance_visit_2\')" class="p-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black text-xs transition shadow flex items-center justify-center gap-2 cursor-pointer"><span>⏩ Return Later (Advance to 14:00 Reassessment)</span></button>' : '') +
+        '</div>';
+      } else {
+        return '<div class="flex flex-col gap-1.5">' +
+          '<span class="text-[11px] font-bold text-slate-600">Select Target Head-of-Bed Elevation:</span>' +
+          '<div class="grid grid-cols-4 gap-1.5">' +
+            '<button onclick="window.HaiBundleEngine.performHandoverAction(\'set_angle\', 0)" class="p-2 rounded-xl text-xs font-black transition cursor-pointer ' + (st.bedAngle === 0 ? 'bg-blue-600 text-white shadow' : 'bg-slate-50 border text-slate-800') + '">0° Flat</button>' +
+            '<button onclick="window.HaiBundleEngine.performHandoverAction(\'set_angle\', 15)" class="p-2 rounded-xl text-xs font-black transition cursor-pointer ' + (st.bedAngle === 15 ? 'bg-blue-600 text-white shadow' : 'bg-slate-50 border text-slate-800') + '">15°</button>' +
+            '<button onclick="window.HaiBundleEngine.performHandoverAction(\'set_angle\', 35)" class="p-2 rounded-xl text-xs font-black transition cursor-pointer ' + (st.bedAngle === 35 ? 'bg-emerald-600 text-white shadow ring-2 ring-emerald-300' : 'bg-emerald-50 border border-emerald-300 text-emerald-900') + '">35° (Bundle)</button>' +
+            '<button onclick="window.HaiBundleEngine.performHandoverAction(\'set_angle\', 45)" class="p-2 rounded-xl text-xs font-black transition cursor-pointer ' + (st.bedAngle === 45 ? 'bg-emerald-600 text-white shadow ring-2 ring-emerald-300' : 'bg-emerald-50 border border-emerald-300 text-emerald-900') + '">45° (Bundle)</button>' +
+          '</div>' +
+        '</div>';
+      }
+    }
+
+    return '';
+  }
+
+  // Global keyboard shortcuts for quick accessible actions in Step 2
+  if (typeof window !== 'undefined' && typeof window.addEventListener === 'function' && !window.__haiHandoverKeybound) {
+    window.__haiHandoverKeybound = true;
+    window.addEventListener('keydown', function (e) {
+      if (!handoverState || !handoverState.activeCardId) return;
+      const card = getHandoverCard(handoverState.activeCardId);
+      if (!card) return;
+      const st = getCardState(card.id);
+      if (st.step !== 2) return;
+      if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+      if (e.key === '1') {
+        if (card.id === 'HO-CAUTI-01') performHandoverAction('lower_bag');
+        else if (card.id === 'HO-CVC-01') performHandoverAction('add_full_drape');
+        else if (card.id === 'HO-SSI-01') performHandoverAction('seek_admin_record');
+        else if (card.id === 'HO-SSI-02') performHandoverAction('flag_late_admin');
+        else if (card.id === 'HO-VAP-01' && st.currentVisit === 1) performHandoverAction('record_restriction');
+      } else if (e.key === '2') {
+        if (card.id === 'HO-CAUTI-01') performHandoverAction('clear_kink');
+        else if (card.id === 'HO-VAP-01' && st.currentVisit === 1 && st.visit1Recorded) performHandoverAction('advance_visit_2');
+      }
+    });
+  }
+
   // 9. PUBLIC API & INITIALIZATION
   // =========================================================================
   window.HaiBundleEngine = {
     init: function () {
+      const restoredHandover = tryRestoreHandoverSession();
+      if (restoredHandover) {
+        render();
+        return;
+      }
       const restored = tryRestoreSession();
       render();
       if (restored) {
         showToast("🔄 استئناف الجلسة", "تم استئناف جولتك السريرية السابقة من حيث توقفت.", "blue");
         if (session.timeRemaining) startTimer();
       }
+      const urlParams = new URLSearchParams(window.location.search);
+      const practice = urlParams.get('practice');
+      const card = urlParams.get('card');
+      if (practice === 'handover' || card) {
+        startHandoverPractice(card);
+      }
     },
+    startHandoverPractice,
+    setHandoverStep,
+    toggleChart,
+    switchHandoverCard,
+    togglePairMode,
+    setPairRole,
+    switchHandoverTab,
+    toggleHandoverRoomTone,
+    toggleHandoverCaptions,
+    replayHandoverVoice,
+    performHandoverAction,
+    submitHandoverAudit,
+    submitHandoverExplain,
+    submitHandoverReflection,
+    nextHandoverCard,
+    exitHandoverPractice,
+    openPrintableRoleCardsModal,
+    getHandoverState: () => handoverState,
     render,
     startQuickRound,
     startCustomRound,
@@ -1886,6 +2923,9 @@
     launchCustomFromModal,
     startAllCasesPractice,
     filterCaseBank,
+    setLanguage,
+    toggleLanguage,
+    getLanguage: () => currentLang,
     getSession: () => session,
     getSoundEngine: () => soundEngine
   };
