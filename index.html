@@ -125,7 +125,8 @@
     body.game-fullscreen-mode #view-puzzle:not(.hidden),
     body.game-fullscreen-mode #view-icebreaker:not(.hidden),
     body.game-fullscreen-mode #view-guardians:not(.hidden),
-    body.game-fullscreen-mode #view-safe-injection:not(.hidden) {
+    body.game-fullscreen-mode #view-safe-injection:not(.hidden),
+    body.game-fullscreen-mode #view-bundle-challenge:not(.hidden) {
       flex: 1 1 0% !important;
       min-height: 0 !important;
       width: 100% !important;
@@ -153,6 +154,8 @@
     body.game-fullscreen-mode #view-icebreaker.hidden,
     body.game-fullscreen-mode #view-guardians.hidden,
     body.game-fullscreen-mode #view-safe-injection.hidden,
+    body.game-fullscreen-mode #view-bundle-challenge.hidden,
+    #view-bundle-challenge.hidden,
     #view-safe-injection.hidden,
     body.game-fullscreen-mode #view-portal.hidden,
     #view-puzzle.hidden,
@@ -4328,7 +4331,7 @@
         <!-- =========================================================================
              MODULE 5: أكمل الحزمة | HAI BUNDLE CHALLENGE
              ========================================================================= -->
-        <div id="view-bundle-challenge" class="hidden flex flex-col gap-2.5 w-full select-none" dir="rtl" lang="ar">
+        <div id="view-bundle-challenge" class="hidden flex flex-col gap-2.5 w-full select-none overflow-y-auto" dir="rtl" lang="ar">
         </div>
 
       </main>
